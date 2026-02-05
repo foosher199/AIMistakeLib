@@ -30,7 +30,7 @@ export interface Category {
   subjectId: string;
 }
 
-export type ViewMode = 'home' | 'upload' | 'list' | 'history' | 'edit' | 'detail';
+export type ViewMode = 'home' | 'upload' | 'list' | 'history' | 'detail' | 'profile';
 
 export const SUBJECTS: Subject[] = [
   { id: 'math', name: '数学', icon: '📐', color: '#3b82f6' },

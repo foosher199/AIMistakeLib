@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Lock, Mail, Eye, EyeOff, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 
 interface AuthSectionProps {
   onLogin: (email: string, password: string) => Promise<void>;
-  onRegister: (email: string, password: string, username?: string) => Promise<void>;
+  onSendVerificationCode: (email: string) => Promise<any>;
+  onRegister: (email: string, verificationCode: string, verificationInfo: any, username?: string, password?: string) => Promise<void>;
   onAnonymousLogin: () => Promise<void>;
   isLoading: boolean;
   error?: string | null;
@@ -15,6 +16,7 @@ interface AuthSectionProps {
 
 export function AuthSection({
   onLogin,
+  onSendVerificationCode,
   onRegister,
   onAnonymousLogin,
   isLoading,
@@ -22,10 +24,55 @@ export function AuthSection({
 }: AuthSectionProps) {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // 表单状态
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [registerForm, setRegisterForm] = useState({ username: '', email: '', password: '', confirmPassword: '' });
+  const [registerForm, setRegisterForm] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    verificationCode: ''
+  });
+
+  // 验证码相关状态
+  const [verificationInfo, setVerificationInfo] = useState<any>(null);
+  const [countdown, setCountdown] = useState(0);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+
+  // 验证码倒计时
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  // 发送验证码
+  const handleSendVerificationCode = async () => {
+    if (!registerForm.email) {
+      toast.error('请先填写邮箱');
+      return;
+    }
+
+    // 简单的邮箱格式验证
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerForm.email)) {
+      toast.error('请输入有效的邮箱地址');
+      return;
+    }
+
+    try {
+      setIsSendingCode(true);
+      const result = await onSendVerificationCode(registerForm.email);
+      setVerificationInfo(result);
+      setCountdown(60);
+      toast.success('验证码已发送到邮箱');
+    } catch (error: any) {
+      toast.error(error.message || '发送验证码失败');
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
 
   // 登录提交
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -45,20 +92,42 @@ export function AuthSection({
   // 注册提交
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!registerForm.email || !registerForm.password) {
-      toast.error('请填写完整信息');
+
+    if (!registerForm.email) {
+      toast.error('请填写邮箱');
       return;
     }
-    if (registerForm.password !== registerForm.confirmPassword) {
-      toast.error('两次密码不一致');
+
+    if (!registerForm.verificationCode) {
+      toast.error('请填写验证码');
       return;
     }
-    if (registerForm.password.length < 6) {
-      toast.error('密码至少6位');
+
+    if (!verificationInfo) {
+      toast.error('请先发送验证码');
       return;
     }
+
+    // 密码是可选的，但如果填写了就要验证
+    if (registerForm.password) {
+      if (registerForm.password !== registerForm.confirmPassword) {
+        toast.error('两次密码不一致');
+        return;
+      }
+      if (registerForm.password.length < 6) {
+        toast.error('密码至少6位');
+        return;
+      }
+    }
+
     try {
-      await onRegister(registerForm.email, registerForm.password, registerForm.username);
+      await onRegister(
+        registerForm.email,
+        registerForm.verificationCode,
+        verificationInfo,
+        undefined,
+        registerForm.password || undefined
+      );
       toast.success('注册成功');
     } catch (error: any) {
       toast.error(error.message || '注册失败');
@@ -167,15 +236,6 @@ export function AuthSection({
             <TabsContent value="register">
               <form onSubmit={handleRegisterSubmit} className="space-y-4">
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#626a72]" />
-                  <Input
-                    placeholder="用户名（可选）"
-                    value={registerForm.username}
-                    onChange={e => setRegisterForm({ ...registerForm, username: e.target.value })}
-                    className="pl-10 h-12 border-[#c2cdd8] rounded-xl"
-                  />
-                </div>
-                <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#626a72]" />
                   <Input
                     type="email"
@@ -183,13 +243,39 @@ export function AuthSection({
                     value={registerForm.email}
                     onChange={e => setRegisterForm({ ...registerForm, email: e.target.value })}
                     className="pl-10 h-12 border-[#c2cdd8] rounded-xl"
+                    required
                   />
                 </div>
+
+                {/* 验证码输入框 */}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#626a72]" />
+                    <Input
+                      type="text"
+                      placeholder="邮箱验证码"
+                      value={registerForm.verificationCode}
+                      onChange={e => setRegisterForm({ ...registerForm, verificationCode: e.target.value })}
+                      className="pl-10 h-12 border-[#c2cdd8] rounded-xl"
+                      maxLength={6}
+                      required
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleSendVerificationCode}
+                    disabled={countdown > 0 || isSendingCode}
+                    className="h-12 px-6 bg-[#0070a0] hover:bg-[#004968] rounded-xl whitespace-nowrap"
+                  >
+                    {isSendingCode ? '发送中...' : countdown > 0 ? `${countdown}秒` : '发送验证码'}
+                  </Button>
+                </div>
+
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#626a72]" />
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="密码（至少6位）"
+                    placeholder="密码（可选，至少6位）"
                     value={registerForm.password}
                     onChange={e => setRegisterForm({ ...registerForm, password: e.target.value })}
                     className="pl-10 pr-10 h-12 border-[#c2cdd8] rounded-xl"
@@ -210,7 +296,7 @@ export function AuthSection({
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#626a72]" />
                   <Input
                     type="password"
-                    placeholder="确认密码"
+                    placeholder="确认密码（可选）"
                     value={registerForm.confirmPassword}
                     onChange={e => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
                     className="pl-10 h-12 border-[#c2cdd8] rounded-xl"
@@ -229,22 +315,13 @@ export function AuthSection({
           </Tabs>
         </div>
 
-        {/* Tips */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-[#626a72]">
-            登录即表示同意
-            <a href="#" className="text-[#0070a0] hover:underline">服务条款</a>
-            和
-            <a href="#" className="text-[#0070a0] hover:underline">隐私政策</a>
-          </p>
-        </div>
 
         {/* Features */}
         <div className="mt-8 grid grid-cols-3 gap-4">
           {[
             { title: '云端同步', desc: '数据安全存储' },
             { title: '多设备', desc: '随时随地访问' },
-            { title: '免费使用', desc: ' generous 额度' },
+            { title: '免费使用', desc: '慷慨的免费额度' },
           ].map((item, index) => (
             <div key={index} className="text-center">
               <p className="text-sm font-medium text-[#1f1f1f]">{item.title}</p>

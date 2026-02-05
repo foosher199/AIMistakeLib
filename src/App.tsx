@@ -6,6 +6,7 @@ import { QuestionList } from './sections/QuestionList';
 import { HistorySection } from './sections/HistorySection';
 import { QuestionDetail } from './sections/QuestionDetail';
 import { AuthSection } from './sections/AuthSection';
+import { UserCenter } from './sections/UserCenter';
 import { Footer } from './sections/Footer';
 import { useTCBAuth } from './hooks/useTCBAuth';
 import { useTCBQuestions } from './hooks/useTCBQuestions';
@@ -26,7 +27,9 @@ function App() {
     isLoggedIn,
     error: authError,
     loginAnonymous,
-    register,
+    sendVerificationCode,
+    registerWithVerificationCode,
+    bindEmail,
     login,
     logout,
   } = useTCBAuth();
@@ -156,8 +159,9 @@ function App() {
             // 登录成功后加载数据
             await fetchQuestions();
           }}
-          onRegister={async (email, password, username) => {
-            await register(email, password, username);
+          onSendVerificationCode={sendVerificationCode}
+          onRegister={async (email, verificationCode, verificationInfo, username, password) => {
+            await registerWithVerificationCode(email, verificationCode, verificationInfo, username, password);
             // 注册成功后加载数据
             await fetchQuestions();
           }}
@@ -263,7 +267,18 @@ function App() {
             onViewChange={handleViewChange}
           />
         );
-      
+
+      case 'profile':
+        return (
+          <UserCenter
+            user={user!}
+            onBindEmail={bindEmail}
+            onSendVerificationCode={sendVerificationCode}
+            onLogout={handleLogout}
+            onViewChange={handleViewChange}
+          />
+        );
+
       default:
         return <Hero onViewChange={handleViewChange} />;
     }

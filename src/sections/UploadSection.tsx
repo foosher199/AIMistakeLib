@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { Camera, Upload, Check, Loader2, Sparkles, BookOpen, Save, Trash2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -23,28 +24,42 @@ export function UploadSection({ onSave, onViewChange }: UploadSectionProps) {
   const [recognizedQuestions, setRecognizedQuestions] = useState<QuestionCard[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlRef = useRef<string | null>(null);
   const { isProcessing, progress, recognize } = useOCR();
+
+  // 卸载时释放 object URL
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    };
+  }, []);
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create preview URL
+    // Create preview URL（先释放旧的）
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
     setImageUrl(url);
     setRecognizedQuestions([]);
 
     // OCR recognition
-    const results = await recognize(file);
-    
-    // Add temp ID to each question
-    const questionsWithId = results.map((result, index) => ({
-      ...result,
-      tempId: `temp-${Date.now()}-${index}`,
-      isSaved: false,
-    }));
-    
-    setRecognizedQuestions(questionsWithId);
+    try {
+      const results = await recognize(file);
+
+      // Add temp ID to each question
+      const questionsWithId = results.map((result, index) => ({
+        ...result,
+        tempId: `temp-${Date.now()}-${index}`,
+        isSaved: false,
+      }));
+
+      setRecognizedQuestions(questionsWithId);
+    } catch (error: any) {
+      toast.error('识别失败', { description: error.message || '请检查网络连接或稍后重试' });
+    }
   }, [recognize]);
 
   const handleCameraClick = useCallback(() => {
@@ -52,6 +67,10 @@ export function UploadSection({ onSave, onViewChange }: UploadSectionProps) {
   }, []);
 
   const handleReset = useCallback(() => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
     setImageUrl(null);
     setRecognizedQuestions([]);
     if (fileInputRef.current) {

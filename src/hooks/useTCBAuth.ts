@@ -20,19 +20,14 @@ export function useTCBAuth() {
   useEffect(() => {
     const init = async () => {
       try {
-        console.log('Initializing TCB...');
         const app = initTCB();
-        console.log('TCB initialized, app:', app);
         setIsInitialized(true);
-        
+
         // 检查当前登录状态
-        console.log('Checking login state...');
         const loginState = await app.auth().getLoginState();
-        console.log('Login state:', loginState);
-        
+
         if (loginState) {
           const currentUser = app.auth().currentUser;
-          console.log('Current user:', currentUser);
           if (currentUser) {
             setUser({
               uid: currentUser.uid,
@@ -57,18 +52,11 @@ export function useTCBAuth() {
   // 匿名登录（快速体验）
   const loginAnonymous = useCallback(async (): Promise<void> => {
     try {
-      console.log('Starting anonymous login...');
       setError(null);
       const app = getTCBApp();
-      console.log('Got TCB app:', app);
-      
-      // 执行匿名登录
-      console.log('Calling signInAnonymously...');
       await app.auth().signInAnonymously();
-      console.log('Anonymous login successful');
-      
+
       const currentUser = app.auth().currentUser;
-      console.log('Current user after login:', currentUser);
       
       if (currentUser) {
         setUser({
@@ -86,23 +74,44 @@ export function useTCBAuth() {
     }
   }, []);
 
-  // 邮箱密码注册
-  const register = useCallback(async (email: string, password: string, username?: string): Promise<void> => {
+  // 发送邮箱验证码
+  const sendVerificationCode = useCallback(async (email: string): Promise<any> => {
     try {
-      console.log('Starting registration...', { email, username });
       setError(null);
       const app = getTCBApp();
-      console.log('Got TCB app');
-      
-      // 使用邮箱注册
-      console.log('Calling createUserWithEmailAndPassword...');
-      await app.auth().createUserWithEmailAndPassword(email, password);
-      console.log('Registration successful');
-      
+      const result = await app.auth().getVerification({ email });
+      return result;
+    } catch (err: any) {
+      console.error('Send verification code failed:', err);
+      setError(err.message || '发送验证码失败');
+      throw err;
+    }
+  }, []);
+
+  // 使用验证码注册
+  const registerWithVerificationCode = useCallback(async (
+    email: string,
+    verificationCode: string,
+    verificationInfo: any,
+    username?: string,
+    password?: string
+  ): Promise<void> => {
+    try {
+      setError(null);
+      const app = getTCBApp();
+
+      // 使用验证码注册
+      await app.auth().signUp({
+        email,
+        verification_code: verificationCode,
+        verification_token: verificationInfo.verification_token,
+        username,
+        password,
+      });
+
       // 注册后自动登录，获取当前用户
       const currentUser = app.auth().currentUser;
-      console.log('Current user after registration:', currentUser);
-      
+
       if (currentUser) {
         setUser({
           uid: currentUser.uid,
@@ -120,21 +129,49 @@ export function useTCBAuth() {
     }
   }, []);
 
+  // 绑定邮箱（匿名用户转正）
+  const bindEmail = useCallback(async (
+    email: string,
+    verificationCode: string,
+    verificationInfo: any
+  ): Promise<void> => {
+    try {
+      setError(null);
+      const app = getTCBApp();
+
+      // 绑定邮箱
+      await app.auth().bindEmail({
+        email,
+        verification_code: verificationCode,
+        verification_token: verificationInfo.verification_token,
+      });
+
+      // 更新用户信息
+      const currentUser = app.auth().currentUser;
+
+      if (currentUser) {
+        setUser({
+          uid: currentUser.uid,
+          username: email.split('@')[0],
+          email,
+          isAnonymous: false,
+        });
+      }
+    } catch (err: any) {
+      console.error('Bind email failed:', err);
+      setError(err.message || '绑定邮箱失败');
+      throw err;
+    }
+  }, []);
+
   // 邮箱密码登录
   const login = useCallback(async (email: string, password: string): Promise<void> => {
     try {
-      console.log('Starting login...', { email });
       setError(null);
       const app = getTCBApp();
-      console.log('Got TCB app');
-      
-      // 使用邮箱密码登录
-      console.log('Calling signInWithEmailAndPassword...');
       await app.auth().signInWithEmailAndPassword(email, password);
-      console.log('Login successful');
-      
+
       const currentUser = app.auth().currentUser;
-      console.log('Current user after login:', currentUser);
       
       if (currentUser) {
         setUser({
@@ -156,10 +193,8 @@ export function useTCBAuth() {
   // 退出登录
   const logout = useCallback(async (): Promise<void> => {
     try {
-      console.log('Starting logout...');
       const app = getTCBApp();
       await app.auth().signOut();
-      console.log('Logout successful');
       setUser(null);
     } catch (err: any) {
       console.error('Logout failed:', err);
@@ -175,7 +210,9 @@ export function useTCBAuth() {
     isLoggedIn: !!user,
     error,
     loginAnonymous,
-    register,
+    sendVerificationCode,
+    registerWithVerificationCode,
+    bindEmail,
     login,
     logout,
   };

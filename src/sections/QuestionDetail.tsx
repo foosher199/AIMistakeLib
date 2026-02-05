@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   Edit2,
@@ -53,6 +53,12 @@ export function QuestionDetail({
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editedQuestion, setEditedQuestion] = useState<Question>(question);
+
+  // question prop 变化时同步编辑状态
+  useEffect(() => {
+    setEditedQuestion(question);
+    setIsEditing(false);
+  }, [question.id]);
 
   const subject = SUBJECTS.find((s) => s.id === question.subject);
 

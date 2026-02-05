@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, BookOpen, History, Menu, X, User, LogOut } from 'lucide-react';
 import type { ViewMode } from '@/types';
 import type { User as UserType } from '@/hooks/useTCBAuth';
@@ -14,6 +14,19 @@ export function Navbar({ currentView, onViewChange, user, onLogout }: NavbarProp
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // 点击外关闭用户下拉菜单
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserMenu]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,7 +95,7 @@ export function Navbar({ currentView, onViewChange, user, onLogout }: NavbarProp
           </div>
 
           {/* User Menu */}
-          <div className="hidden md:block relative">
+          <div ref={userMenuRef} className="hidden md:block relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 p-2 rounded-full hover:bg-[#f7f9fa] transition-colors"
@@ -109,6 +122,16 @@ export function Navbar({ currentView, onViewChange, user, onLogout }: NavbarProp
                     <p className="text-xs text-[#f59e0b]">游客账号，建议绑定邮箱</p>
                   )}
                 </div>
+                <button
+                  onClick={() => {
+                    onViewChange('profile');
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full px-4 py-2 flex items-center gap-2 text-[#1f1f1f] hover:bg-[#f7f9fa] transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  <span>个人中心</span>
+                </button>
                 <button
                   onClick={() => {
                     onLogout();
@@ -168,6 +191,16 @@ export function Navbar({ currentView, onViewChange, user, onLogout }: NavbarProp
                     <p className="text-xs text-[#f59e0b]">游客账号</p>
                   )}
                 </div>
+                <button
+                  onClick={() => {
+                    onViewChange('profile');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-3 flex items-center gap-3 text-[#1f1f1f] hover:bg-[#f7f9fa] rounded-xl transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span>个人中心</span>
+                </button>
                 <button
                   onClick={() => {
                     onLogout();

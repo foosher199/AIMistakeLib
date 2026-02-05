@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Camera, BookOpen, Sparkles, ArrowRight, Star } from 'lucide-react';
+import { Camera, BookOpen, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ViewMode } from '@/types';
 
@@ -131,31 +131,6 @@ export function Hero({ onViewChange }: HeroProps) {
               })}
             </div>
 
-            {/* Trust Badge */}
-            <div className="flex items-center gap-4 pt-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0070a0] to-[#2c90c9] border-2 border-white flex items-center justify-center"
-                  >
-                    <span className="text-white text-xs font-bold">
-                      {String.fromCharCode(64 + i)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="w-4 h-4 fill-[#f59e0b] text-[#f59e0b]" />
-                  ))}
-                </div>
-                <p className="text-sm text-[#626a72]">
-                  深受 <span className="font-bold text-[#1f1f1f]">10,000+</span> 学生喜爱
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Right Content - 3D Interface Preview */}

@@ -2,6 +2,7 @@
 // 文档：https://ai.baidu.com/ai-doc/OCR/Ek3h7xypm
 
 import type { AIProvider, OCRResult } from '../index';
+import { callAIRecognize, isCloudFunctionsConfigured } from '@/config/cloud-functions';
 import { CATEGORIES } from '@/types';
 
 // 百度 AI 配置
@@ -151,8 +152,29 @@ function splitQuestions(text: string): string[] {
  */
 export const baiduProvider: AIProvider = {
   name: 'baidu',
-  
+
   async recognize(imageBase64: string): Promise<OCRResult[]> {
+    // 优先使用云函数（避免 Secret Key 暴露在前端）
+    if (isCloudFunctionsConfigured()) {
+      try {
+        const results = await callAIRecognize(imageBase64, 'baidu');
+        return results.map((item: any) => ({
+          content: item.content || '未识别到题目内容',
+          subject: item.subject || 'math',
+          category: item.category || '其他',
+          difficulty: item.difficulty || 'medium',
+          answer: item.answer || '',
+          confidence: item.confidence || 0.85,
+          rawResponse: {
+            explanation: item.explanation || '',
+          },
+        }));
+      } catch (error: any) {
+        console.error('Cloud function failed, falling back to direct call:', error);
+      }
+    }
+
+    // Fallback：直接调用（开发环境）
     try {
       // 获取 access token
       const accessToken = await getAccessToken();
