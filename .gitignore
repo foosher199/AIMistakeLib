@@ -13,4 +13,5 @@ cloud-functions/ai-recognize/node_modules
 # local env files
 .env*.local
 .env.local
-
+.env
+.next/
