@@ -19,7 +19,11 @@ const RegisterSchema = z
     path: ['confirmPassword'],
   })
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  onSuccess?: () => void
+}
+
+export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const { signUp } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -79,6 +83,8 @@ export function RegisterForm() {
       setEmail('')
       setPassword('')
       setConfirmPassword('')
+
+      onSuccess?.()
     } catch (err) {
       console.error('Register error:', err)
       toast.error('注册失败，请稍后重试')

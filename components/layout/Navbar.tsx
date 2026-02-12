@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { LoginDialog } from '@/components/auth/LoginDialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,22 +13,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { BookOpen, Upload, User, LogOut, Mail, Camera, History } from 'lucide-react'
+import { BookOpen, Upload, User, LogOut, Mail, Camera, History, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { user, isAnonymous, signOut } = useAuth()
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false)
 
   const navItems = [
-    { href: '/dashboard', label: '主页', icon: BookOpen },
+    { href: '/dashboard', label: '首页', icon: BookOpen },
     { href: '/dashboard/upload', label: '拍照识题', icon: Camera },
     { href: '/dashboard/questions', label: '我的错题', icon: BookOpen },
     { href: '/dashboard/history', label: '历史题库', icon: History },
   ]
 
   const handleSignOut = async () => {
-    await signOut()
+    const { error } = await signOut()
+
+    if (error) {
+      toast.error('退出登录失败：' + error.message)
+      return
+    }
+
+    // 退出成功后跳转到落地页（登录页）
+    toast.success('已退出登录')
+    router.push('/')
   }
 
   return (
@@ -64,62 +78,72 @@ export function Navbar() {
             })}
           </div>
 
-          {/* 用户菜单 */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2">
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {isAnonymous ? '游客' : user?.email || '用户'}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {/* 用户信息 */}
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium text-[#1f1f1f]">
-                  {isAnonymous ? '游客模式' : user?.email}
-                </p>
-                <p className="text-xs text-[#626a72] mt-0.5">
-                  {isAnonymous ? '绑定邮箱以永久保存数据' : '正式用户'}
-                </p>
-              </div>
+          {/* 用户菜单或登录按钮 */}
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2">
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {isAnonymous ? '游客' : user?.email || '用户'}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {/* 用户信息 */}
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium text-[#1f1f1f]">
+                    {isAnonymous ? '游客模式' : user?.email}
+                  </p>
+                  <p className="text-xs text-[#626a72] mt-0.5">
+                    {isAnonymous ? '绑定邮箱以永久保存数据' : '正式用户'}
+                  </p>
+                </div>
 
-              <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-              {/* 游客绑定邮箱 */}
-              {isAnonymous && (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/bind-email" className="cursor-pointer">
-                      <Mail className="w-4 h-4 mr-2" />
-                      绑定邮箱
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
+                {/* 游客绑定邮箱 */}
+                {isAnonymous && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/bind-email" className="cursor-pointer">
+                        <Mail className="w-4 h-4 mr-2" />
+                        绑定邮箱
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
 
-              {/* 个人中心 */}
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile" className="cursor-pointer">
-                  <User className="w-4 h-4 mr-2" />
-                  个人中心
-                </Link>
-              </DropdownMenuItem>
+                {/* 个人中心 */}
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile" className="cursor-pointer">
+                    <User className="w-4 h-4 mr-2" />
+                    个人中心
+                  </Link>
+                </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-              {/* 退出登录 */}
-              <DropdownMenuItem
-                onClick={handleSignOut}
-                className="text-red-600 focus:text-red-600 cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                退出登录
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {/* 退出登录 */}
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              onClick={() => setLoginDialogOpen(true)}
+              className="gap-2 bg-[#0070a0] hover:bg-[#005580] text-white"
+            >
+              <LogIn className="w-4 h-4" />
+              <span className="hidden sm:inline">登录</span>
+            </Button>
+          )}
         </div>
 
         {/* 移动端导航 */}
@@ -148,6 +172,12 @@ export function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* 登录弹窗 */}
+      <LoginDialog
+        open={loginDialogOpen}
+        onOpenChange={setLoginDialogOpen}
+      />
     </nav>
   )
 }

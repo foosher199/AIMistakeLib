@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useAuth } from '@/hooks/useAuth'
 import { MultiImageUpload } from '@/components/upload/MultiImageUpload'
 import { ImageQueueList } from '@/components/upload/ImageQueueList'
 import { RecognitionResults } from '@/components/upload/RecognitionResults'
 import { QuestionForm } from '@/components/upload/QuestionForm'
+import { LoginDialog } from '@/components/auth/LoginDialog'
 import { useOCR, type AIProvider, type ImageQueueItem } from '@/hooks/useOCR'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -12,14 +14,30 @@ import { Sparkles, Camera, BookOpen, Check } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function UploadPage() {
+  const { user } = useAuth()
   const { recognizeBatch, retryImage, provider, switchProvider } = useOCR()
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
   const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [editingResult, setEditingResult] = useState<AIRecognitionResult | undefined>()
   const [formOpen, setFormOpen] = useState(false)
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false)
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
 
   const handleUpload = async (files: File[]) => {
+    // 检查登录状态
+    if (!user) {
+      setPendingFiles(files)
+      setLoginDialogOpen(true)
+      toast.info('请先登录后再上传图片')
+      return
+    }
+
+    // 已登录，继续上传
+    processUpload(files)
+  }
+
+  const processUpload = async (files: File[]) => {
     setIsProcessing(true)
     setQueueItems([])
     setAllResults([])
@@ -158,6 +176,15 @@ export default function UploadPage() {
     setFormOpen(open)
     if (!open) {
       setEditingResult(undefined)
+    }
+  }
+
+  const handleLoginSuccess = () => {
+    // 登录成功后，如果有待处理的文件，自动上传
+    if (pendingFiles.length > 0) {
+      toast.success('登录成功，开始识别图片')
+      processUpload(pendingFiles)
+      setPendingFiles([])
     }
   }
 
@@ -311,6 +338,13 @@ export default function UploadPage() {
           }}
         />
       )}
+
+      {/* 登录弹窗 */}
+      <LoginDialog
+        open={loginDialogOpen}
+        onOpenChange={setLoginDialogOpen}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
   )
 }

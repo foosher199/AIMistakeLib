@@ -12,7 +12,7 @@ export function Footer() {
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">错没错？</h3>
+                <h3 className="text-xl font-bold">AI错题本</h3>
                 <p className="text-white/60 text-sm">智能错题本</p>
               </div>
             </div>
@@ -59,7 +59,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white/60 text-sm">
-            © {new Date().getFullYear()} 错没错？ All rights reserved.
+            © {new Date().getFullYear()} AI错题本 All rights reserved.
           </p>
           <p className="text-white/60 text-sm flex items-center gap-1">
             Made with <Heart className="w-4 h-4 text-[#f43f5e]" /> for students

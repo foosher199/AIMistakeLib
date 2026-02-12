@@ -8,12 +8,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
 import { recognizeWithBaidu } from '@/lib/ai/baidu'
+import { recognizeWithGemini } from '@/lib/ai/gemini'
 import { z } from 'zod'
 
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
   imageBase64: z.string().min(1, '图片数据不能为空'),
-  provider: z.enum(['alibaba', 'baidu']).default('alibaba'),
+  provider: z.enum(['alibaba', 'baidu', 'gemini']).default('alibaba'),
 })
 
 /**
@@ -22,7 +23,7 @@ const RecognizeRequestSchema = z.object({
  * 请求体：
  * {
  *   imageBase64: string,  // base64 编码的图片数据
- *   provider: 'alibaba' | 'baidu'  // AI 服务提供商（默认 alibaba）
+ *   provider: 'alibaba' | 'baidu' | 'gemini'  // AI 服务提供商（默认 alibaba）
  * }
  *
  * 响应：
@@ -82,6 +83,8 @@ export async function POST(request: NextRequest) {
     try {
       if (provider === 'baidu') {
         results = await recognizeWithBaidu(imageBase64)
+      } else if (provider === 'gemini') {
+        results = await recognizeWithGemini(imageBase64)
       } else {
         // 默认使用阿里云
         results = await recognizeWithAlibaba(imageBase64)
@@ -89,13 +92,27 @@ export async function POST(request: NextRequest) {
     } catch (aiError) {
       console.error(`AI 识别失败 (${provider}):`, aiError)
 
-      // 如果是阿里云失败，尝试自动切换到百度
-      if (provider === 'alibaba') {
+      // 如果是阿里云或 Gemini 失败，尝试自动切换到备用方案
+      if (provider === 'alibaba' || provider === 'gemini') {
         try {
-          console.log('阿里云识别失败，尝试使用百度 OCR...')
-          results = await recognizeWithBaidu(imageBase64)
-        } catch (baiduError) {
-          console.error('百度 OCR 也失败:', baiduError)
+          const fallbackProvider = provider === 'alibaba' ? 'Gemini' : '百度 OCR'
+          console.log(`${provider === 'alibaba' ? '阿里云' : 'Gemini'} 识别失败，尝试使用${fallbackProvider}...`)
+
+          if (provider === 'alibaba') {
+            // 阿里云失败，尝试 Gemini
+            try {
+              results = await recognizeWithGemini(imageBase64)
+            } catch (geminiError) {
+              // Gemini 也失败，尝试百度
+              console.log('Gemini 识别失败，尝试使用百度 OCR...')
+              results = await recognizeWithBaidu(imageBase64)
+            }
+          } else {
+            // Gemini 失败，尝试百度
+            results = await recognizeWithBaidu(imageBase64)
+          }
+        } catch (fallbackError) {
+          console.error('备用方案也失败:', fallbackError)
           throw aiError // 抛出原始错误
         }
       } else {

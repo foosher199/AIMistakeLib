@@ -13,7 +13,11 @@ const LoginSchema = z.object({
   password: z.string().min(6, '密码至少6个字符'),
 })
 
-export function LoginForm() {
+interface LoginFormProps {
+  onSuccess?: () => void
+}
+
+export function LoginForm({ onSuccess }: LoginFormProps) {
   const { signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -58,6 +62,7 @@ export function LoginForm() {
       }
 
       toast.success('登录成功！')
+      onSuccess?.()
     } catch (err) {
       console.error('Login error:', err)
       toast.error('登录失败，请稍后重试')

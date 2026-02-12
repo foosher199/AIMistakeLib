@@ -5,7 +5,7 @@ import { compressImage } from '@/lib/utils'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { toast } from 'sonner'
 
-export type AIProvider = 'alibaba' | 'baidu'
+export type AIProvider = 'alibaba' | 'baidu' | 'gemini'
 
 export type ImageQueueStatus = 'pending' | 'processing' | 'success' | 'failed'
 
@@ -312,7 +312,12 @@ export function useOCR() {
    */
   const switchProvider = (newProvider: AIProvider) => {
     setProvider(newProvider)
-    toast.success(`已切换到 ${newProvider === 'alibaba' ? '阿里云' : '百度'} AI`)
+    const providerNames = {
+      alibaba: '阿里云 DashScope',
+      baidu: '百度 OCR',
+      gemini: 'Google Gemini',
+    }
+    toast.success(`已切换到 ${providerNames[newProvider]} AI`)
   }
 
   return {
