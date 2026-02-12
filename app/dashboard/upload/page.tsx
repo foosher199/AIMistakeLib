@@ -237,6 +237,7 @@ export default function UploadPage() {
             <TabsList>
               <TabsTrigger value="alibaba">阿里云</TabsTrigger>
               <TabsTrigger value="baidu">百度</TabsTrigger>
+              <TabsTrigger value="gemini">Gemini</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
