@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Camera, Heart } from 'lucide-react'
 
 export function Footer() {
@@ -26,13 +27,9 @@ export function Footer() {
             <h4 className="font-bold mb-4">支持</h4>
             <ul className="space-y-2">
               <li>
-                <span className="text-white/70">使用帮助（敬请期待）</span>
-              </li>
-              <li>
-                <span className="text-white/70">常见问题（敬请期待）</span>
-              </li>
-              <li>
-                <span className="text-white/70">联系我们（敬请期待）</span>
+                <Link href="/dashboard/feedback" className="text-white/70 hover:text-white transition-colors">
+                  意见反馈
+                </Link>
               </li>
             </ul>
           </div>

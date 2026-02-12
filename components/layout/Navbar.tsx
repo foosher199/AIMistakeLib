@@ -2,25 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginDialog } from '@/components/auth/LoginDialog'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { BookOpen, Upload, User, LogOut, Mail, Camera, History, LogIn } from 'lucide-react'
+import { BookOpen, User, Camera, History, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
 
 export function Navbar() {
   const pathname = usePathname()
-  const router = useRouter()
-  const { user, isAnonymous, signOut } = useAuth()
+  const { user, isAnonymous } = useAuth()
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
 
   const navItems = [
@@ -29,19 +20,6 @@ export function Navbar() {
     { href: '/dashboard/questions', label: '我的错题', icon: BookOpen },
     { href: '/dashboard/history', label: '历史题库', icon: History },
   ]
-  
-  const handleSignOut = async () => {
-    const { error } = await signOut()
-
-    if (error) {
-      toast.error('退出登录失败：' + error.message)
-      return
-    }
-
-    // 退出成功后跳转到落地页（登录页）
-    toast.success('已退出登录')
-    router.push('/')
-  }
 
   return (
     <nav className="bg-white border-b border-[#dee5eb] sticky top-0 z-40">
@@ -80,63 +58,16 @@ export function Navbar() {
             </div>
           )}
 
-          {/* 用户菜单或登录按钮 */}
+          {/* 用户按钮或登录按钮 */}
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2">
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {isAnonymous ? '游客' : user?.email || '用户'}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {/* 用户信息 */}
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium text-[#1f1f1f]">
-                    {isAnonymous ? '游客模式' : user?.email}
-                  </p>
-                  <p className="text-xs text-[#626a72] mt-0.5">
-                    {isAnonymous ? '绑定邮箱以永久保存数据' : '正式用户'}
-                  </p>
-                </div>
-
-                <DropdownMenuSeparator />
-
-                {/* 游客绑定邮箱 */}
-                {isAnonymous && (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/bind-email" className="cursor-pointer">
-                        <Mail className="w-4 h-4 mr-2" />
-                        绑定邮箱
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-
-                {/* 个人中心 */}
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile" className="cursor-pointer">
-                    <User className="w-4 h-4 mr-2" />
-                    个人中心
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                {/* 退出登录 */}
-                <DropdownMenuItem
-                  onClick={handleSignOut}
-                  className="text-red-600 focus:text-red-600 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  退出登录
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link href="/dashboard/profile">
+              <Button variant="ghost" className="gap-2">
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">
+                  {isAnonymous ? '游客' : user?.email || '用户'}
+                </span>
+              </Button>
+            </Link>
           ) : (
             <Button
               onClick={() => setLoginDialogOpen(true)}

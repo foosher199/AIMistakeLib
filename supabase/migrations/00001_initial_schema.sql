@@ -122,6 +122,49 @@ CREATE POLICY "Users can delete own questions"
   USING (auth.uid() = user_id);
 
 -- ==========================================
+-- 用户反馈表
+-- 说明: 存储用户的反馈建议
+--       支持匿名用户和正式用户反馈
+-- ==========================================
+CREATE TABLE "mistake_feedbacks" (
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "user_id" UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  "email" TEXT,
+  "category" TEXT NOT NULL CHECK (category IN ('bug', 'feature', 'improvement', 'other')),
+  "subject" TEXT NOT NULL,
+  "content" TEXT NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'resolved', 'closed')),
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE "mistake_feedbacks" IS '用户反馈表';
+COMMENT ON COLUMN "mistake_feedbacks"."id" IS '反馈唯一标识';
+COMMENT ON COLUMN "mistake_feedbacks"."user_id" IS '用户ID，可为空（支持匿名反馈）';
+COMMENT ON COLUMN "mistake_feedbacks"."email" IS '联系邮箱（可选）';
+COMMENT ON COLUMN "mistake_feedbacks"."category" IS '反馈类型（bug/feature/improvement/other）';
+COMMENT ON COLUMN "mistake_feedbacks"."subject" IS '反馈主题';
+COMMENT ON COLUMN "mistake_feedbacks"."content" IS '反馈内容';
+COMMENT ON COLUMN "mistake_feedbacks"."status" IS '处理状态（pending/processing/resolved/closed）';
+COMMENT ON COLUMN "mistake_feedbacks"."created_at" IS '创建时间';
+COMMENT ON COLUMN "mistake_feedbacks"."updated_at" IS '最后更新时间';
+
+-- 启用 Row Level Security (RLS)
+ALTER TABLE "mistake_feedbacks" ENABLE ROW LEVEL SECURITY;
+
+-- RLS 策略：允许所有人插入反馈（支持匿名反馈）
+CREATE POLICY "Anyone can insert feedback"
+  ON "mistake_feedbacks"
+  FOR INSERT
+  WITH CHECK (true);
+
+-- RLS 策略：用户可以查看自己的反馈
+CREATE POLICY "Users can view own feedback"
+  ON "mistake_feedbacks"
+  FOR SELECT
+  USING (auth.uid() = user_id OR user_id IS NULL);
+
+-- ==========================================
 -- 索引（性能优化）
 -- 说明: 为常用查询创建索引，提升查询性能
 -- ==========================================
@@ -163,6 +206,19 @@ CREATE INDEX "mistake_questions_content_trgm_idx"
 CREATE INDEX "mistake_questions_category_trgm_idx"
   ON "mistake_questions" USING gin (category gin_trgm_ops);
 
+-- mistake_feedbacks 表索引
+-- 基础索引：按创建时间倒序查询
+CREATE INDEX "mistake_feedbacks_created_at_idx"
+  ON "mistake_feedbacks"("created_at" DESC);
+
+-- 复合索引：按用户查询反馈
+CREATE INDEX "mistake_feedbacks_user_id_idx"
+  ON "mistake_feedbacks"("user_id");
+
+-- 复合索引：按状态筛选
+CREATE INDEX "mistake_feedbacks_status_idx"
+  ON "mistake_feedbacks"("status");
+
 -- ==========================================
 -- 触发器（自动更新时间戳）
 -- 说明: 每次UPDATE时自动更新 updated_at 字段
@@ -188,6 +244,12 @@ CREATE TRIGGER mistake_update_profiles_updated_at
 -- 为 mistake_questions 表添加触发器
 CREATE TRIGGER mistake_update_questions_updated_at
   BEFORE UPDATE ON mistake_questions
+  FOR EACH ROW
+  EXECUTE FUNCTION mistake_update_updated_at_column();
+
+-- 为 mistake_feedbacks 表添加触发器
+CREATE TRIGGER mistake_update_feedbacks_updated_at
+  BEFORE UPDATE ON mistake_feedbacks
   FOR EACH ROW
   EXECUTE FUNCTION mistake_update_updated_at_column();
 
@@ -230,8 +292,9 @@ AI错题本数据库部署完成！
 已创建的表：
 - mistake_profiles: 用户扩展信息表
 - mistake_questions: 错题记录表
+- mistake_feedbacks: 用户反馈表
 
-已创建的索引：共10个索引，优化查询性能
+已创建的索引：共13个索引，优化查询性能
 已配置RLS策略：确保用户数据隔离
 已创建触发器：自动更新updated_at字段
 

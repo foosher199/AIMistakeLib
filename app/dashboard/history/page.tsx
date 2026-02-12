@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { useQuestions, useQuestionStats } from '@/hooks/useQuestions'
+import { useQuestions } from '@/hooks/useQuestions'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -57,9 +57,6 @@ export default function HistoryPage() {
     limit: 1000,
   })
   const questions = questionsData?.questions || []
-
-  // 获取统计信息
-  const { data: statsData } = useQuestionStats()
 
   // 计算详细统计
   const stats = useMemo(() => {

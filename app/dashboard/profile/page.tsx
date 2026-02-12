@@ -17,31 +17,28 @@ import {
   BookOpen,
   TrendingUp,
   Loader2,
+  LogOut,
+  MessageSquare,
 } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, loading, isAnonymous } = useAuth()
+  const { user, loading, isAnonymous, signOut } = useAuth()
   const { data, isLoading } = useQuestions({ limit: 1000 })
 
-  // 检查登录状态
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/')
-    }
-  }, [user, loading, router])
+  const handleSignOut = async () => {
+    const { error } = await signOut()
 
-  // 加载中或未登录时显示加载状态
-  if (loading || !user) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">加载中...</p>
-        </div>
-      </div>
-    )
+    if (error) {
+      toast.error('退出登录失败：' + error.message)
+      return
+    }
+
+    // 退出成功后跳转到首页
+    toast.success('已退出登录')
+    router.push('/')
   }
 
   // 从查询结果中提取 questions 数组
@@ -75,6 +72,25 @@ export default function ProfilePage() {
       bySubject,
     }
   }, [questions])
+
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
+
+  // 加载中或未登录时显示加载状态
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    )
+  }
 
   // 学科中文名称映射
   const subjectNames: Record<string, string> = {
@@ -121,15 +137,26 @@ export default function ProfilePage() {
                   {isAnonymous ? '您正在使用游客模式' : '您的账户信息'}
                 </p>
               </div>
-              {isAnonymous ? (
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                  游客账户
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  正式账户
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                {isAnonymous ? (
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                    游客账户
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    正式账户
+                  </Badge>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">退出登录</span>
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -298,6 +325,14 @@ export default function ProfilePage() {
                   </Button>
                 </Link>
               )}
+
+              {/* 意见反馈 */}
+              <Link href="/dashboard/feedback">
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  意见反馈
+                </Button>
+              </Link>
 
               {/* 修改密码（仅正式用户） */}
               {!isAnonymous && (

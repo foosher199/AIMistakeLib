@@ -11,10 +11,11 @@ import { useCreateQuestion } from '@/hooks/useQuestions'
 interface RecognitionResultsProps {
   results: AIRecognitionResult[]
   onEdit?: (result: AIRecognitionResult, index: number) => void
+  onDelete?: (index: number) => void
   onClear?: () => void
 }
 
-export function RecognitionResults({ results, onEdit, onClear }: RecognitionResultsProps) {
+export function RecognitionResults({ results, onEdit, onDelete, onClear }: RecognitionResultsProps) {
   const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set())
   const createQuestion = useCreateQuestion()
 
@@ -129,20 +130,28 @@ export function RecognitionResults({ results, onEdit, onClear }: RecognitionResu
                   )}
                 </div>
 
-                {!isSaved && (
-                  <div className="flex gap-1">
-                    {onEdit && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onEdit(result, index)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                )}
+                <div className="flex gap-1">
+                  {onDelete && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDelete(index)}
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                  {!isSaved && onEdit && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit(result, index)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {/* 题目内容 */}
@@ -175,20 +184,6 @@ export function RecognitionResults({ results, onEdit, onClear }: RecognitionResu
                     <p className="font-medium">识别置信度较低</p>
                     <p className="text-xs mt-1">建议检查识别内容是否准确，必要时手动编辑</p>
                   </div>
-                </div>
-              )}
-
-              {/* 操作按钮 */}
-              {!isSaved && (
-                <div className="pt-2">
-                  <Button
-                    onClick={() => handleSave(result, index)}
-                    className="w-full bg-[#0070a0] hover:bg-[#005580]"
-                    disabled={createQuestion.isPending}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {createQuestion.isPending ? '保存中...' : '保存到错题本'}
-                  </Button>
                 </div>
               )}
             </div>

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Upload, X, Image as ImageIcon, Plus } from 'lucide-react'
+import { Upload, X, Plus } from 'lucide-react'
 import { isValidImageFile, formatFileSize } from '@/lib/utils'
 import { toast } from 'sonner'
 

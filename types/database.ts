@@ -118,6 +118,52 @@ export interface Database {
           }
         ]
       }
+      /**
+       * 用户反馈表
+       */
+      mistake_feedbacks: {
+        Row: {
+          id: string
+          user_id: string | null
+          email: string | null
+          category: 'bug' | 'feature' | 'improvement' | 'other'
+          subject: string
+          content: string
+          status: 'pending' | 'processing' | 'resolved' | 'closed'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          email?: string | null
+          category: 'bug' | 'feature' | 'improvement' | 'other'
+          subject: string
+          content: string
+          status?: 'pending' | 'processing' | 'resolved' | 'closed'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          email?: string | null
+          category?: 'bug' | 'feature' | 'improvement' | 'other'
+          subject?: string
+          content?: string
+          status?: 'pending' | 'processing' | 'resolved' | 'closed'
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'mistake_feedbacks_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -148,8 +194,19 @@ export type Question = Database['public']['Tables']['mistake_questions']['Row']
 export type QuestionInsert = Database['public']['Tables']['mistake_questions']['Insert']
 export type QuestionUpdate = Database['public']['Tables']['mistake_questions']['Update']
 
+// 用户反馈类型
+export type Feedback = Database['public']['Tables']['mistake_feedbacks']['Row']
+export type FeedbackInsert = Database['public']['Tables']['mistake_feedbacks']['Insert']
+export type FeedbackUpdate = Database['public']['Tables']['mistake_feedbacks']['Update']
+
 // 难度枚举
 export type Difficulty = 'easy' | 'medium' | 'hard'
+
+// 反馈类别枚举
+export type FeedbackCategory = 'bug' | 'feature' | 'improvement' | 'other'
+
+// 反馈状态枚举
+export type FeedbackStatus = 'pending' | 'processing' | 'resolved' | 'closed'
 
 // 学科枚举（9个学科）
 export type Subject =

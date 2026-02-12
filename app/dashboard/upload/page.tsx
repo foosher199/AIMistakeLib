@@ -193,6 +193,11 @@ export default function UploadPage() {
     setQueueItems([])
   }
 
+  const handleDeleteResult = (index: number) => {
+    setAllResults((prev) => prev.filter((_, i) => i !== index))
+    toast.success('已删除该题目')
+  }
+
   const handleFormClose = (open: boolean) => {
     setFormOpen(open)
     if (!open) {
@@ -299,6 +304,7 @@ export default function UploadPage() {
           <RecognitionResults
             results={allResults}
             onEdit={handleEdit}
+            onDelete={handleDeleteResult}
             onClear={handleClearResults}
           />
         </div>
