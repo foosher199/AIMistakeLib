@@ -30,7 +30,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <nav className="bg-white border-b border-[#dee5eb] sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -38,7 +38,7 @@ export function Navbar() {
             <div className="w-8 h-8 bg-[#0070a0] rounded-lg flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">AI 错题本</span>
+            <span className="text-xl font-bold text-[#1f1f1f]">AI 错题本</span>
           </Link>
 
           {/* 导航链接 */}
@@ -52,8 +52,8 @@ export function Navbar() {
                   <Button
                     variant="ghost"
                     className={cn(
-                      'gap-2',
-                      isActive && 'bg-blue-50 text-[#0070a0]'
+                      'gap-2 text-[#626a72] hover:text-[#0070a0] hover:bg-[#f7f9fa]',
+                      isActive && 'bg-[#cce5f3] text-[#0070a0]'
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -77,10 +77,10 @@ export function Navbar() {
             <DropdownMenuContent align="end" className="w-56">
               {/* 用户信息 */}
               <div className="px-2 py-1.5">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-[#1f1f1f]">
                   {isAnonymous ? '游客模式' : user?.email}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-[#626a72] mt-0.5">
                   {isAnonymous ? '绑定邮箱以永久保存数据' : '正式用户'}
                 </p>
               </div>
@@ -135,8 +135,8 @@ export function Navbar() {
                     variant="ghost"
                     size="sm"
                     className={cn(
-                      'flex-col h-auto py-2 gap-1',
-                      isActive && 'bg-blue-50 text-[#0070a0]'
+                      'flex-col h-auto py-2 gap-1 text-[#626a72] hover:text-[#0070a0] hover:bg-[#f7f9fa]',
+                      isActive && 'bg-[#cce5f3] text-[#0070a0]'
                     )}
                   >
                     <Icon className="w-5 h-5" />

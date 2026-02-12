@@ -25,10 +25,10 @@ export default function DashboardLayout({
   // 加载中状态
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f7f9fa] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600">加载中...</p>
+          <Loader2 className="w-12 h-12 text-[#0070a0] animate-spin mx-auto" />
+          <p className="mt-4 text-[#626a72]">加载中...</p>
         </div>
       </div>
     )
@@ -40,7 +40,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#f7f9fa] flex flex-col">
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {children}

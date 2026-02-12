@@ -43,14 +43,14 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
       {/* 加载状态 */}
       {isLoading && page === 0 && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-          <span className="ml-2 text-gray-600">加载中...</span>
+          <Loader2 className="w-8 h-8 text-[#0070a0] animate-spin" />
+          <span className="ml-2 text-[#626a72]">加载中...</span>
         </div>
       )}
 
       {/* 错误状态 */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        <div className="bg-[#ffe4e6] border border-[#f43f5e]/20 rounded-lg p-4 text-[#f43f5e]">
           <p className="font-medium">加载失败</p>
           <p className="text-sm mt-1">{error.message}</p>
         </div>
@@ -60,9 +60,9 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
       {data && (
         <>
           {data.questions.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-              <p className="text-gray-600 mb-2">暂无题目</p>
-              <p className="text-sm text-gray-500">
+            <div className="bg-[#f7f9fa] border border-[#dee5eb] rounded-lg p-12 text-center">
+              <p className="text-[#626a72] mb-2">暂无题目</p>
+              <p className="text-sm text-[#626a72]">
                 {Object.keys(filters).length > 0
                   ? '没有符合筛选条件的题目，试试调整筛选条件'
                   : '开始上传错题吧！'}
@@ -71,8 +71,8 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
           ) : (
             <>
               {/* 结果计数 */}
-              <div className="text-sm text-gray-600">
-                共找到 <span className="font-medium text-gray-900">{data.total}</span> 道题目
+              <div className="text-sm text-[#626a72]">
+                共找到 <span className="font-medium text-[#1f1f1f]">{data.total}</span> 道题目
                 {page > 0 && (
                   <span className="ml-2">
                     （显示 {Math.min((page + 1) * pageSize, data.total)} / {data.total}）

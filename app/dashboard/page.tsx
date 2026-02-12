@@ -232,52 +232,52 @@ export default function DashboardPage() {
       </section>
 
       {/* 使用说明 */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">使用说明</h2>
+      <div className="bg-gradient-to-br from-[#cce5f3]/30 to-[#cce5f3]/50 rounded-lg border border-[#0070a0]/20 p-6">
+        <h2 className="text-xl font-semibold text-[#1f1f1f] mb-4">使用说明</h2>
         <div className="space-y-3">
           <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               1
             </div>
             <div>
-              <p className="text-gray-900 font-medium">上传错题图片</p>
-              <p className="text-sm text-gray-600 mt-0.5">
+              <p className="text-[#1f1f1f] font-medium">上传错题图片</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
                 拍照或选择错题图片，支持多种格式
               </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               2
             </div>
             <div>
-              <p className="text-gray-900 font-medium">AI 自动识别</p>
-              <p className="text-sm text-gray-600 mt-0.5">
+              <p className="text-[#1f1f1f] font-medium">AI 自动识别</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
                 系统自动识别题目内容、学科、难度和答案
               </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               3
             </div>
             <div>
-              <p className="text-gray-900 font-medium">保存到错题本</p>
-              <p className="text-sm text-gray-600 mt-0.5">
+              <p className="text-[#1f1f1f] font-medium">保存到错题本</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
                 确认识别结果，保存到个人错题库
               </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               4
             </div>
             <div>
-              <p className="text-gray-900 font-medium">定期复习</p>
-              <p className="text-sm text-gray-600 mt-0.5">
+              <p className="text-[#1f1f1f] font-medium">定期复习</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
                 记录复习次数，标记掌握状态，科学管理学习进度
               </p>
             </div>

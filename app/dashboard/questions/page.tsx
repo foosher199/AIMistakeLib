@@ -35,8 +35,8 @@ export default function QuestionsPage() {
       {/* 头部 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">错题列表</h1>
-          <p className="text-gray-600">管理和复习你的错题</p>
+          <h1 className="text-3xl font-bold text-[#1f1f1f] mb-2">错题列表</h1>
+          <p className="text-[#626a72]">管理和复习你的错题</p>
         </div>
 
         <Button
