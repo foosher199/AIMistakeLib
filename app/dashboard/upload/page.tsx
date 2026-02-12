@@ -1,27 +1,146 @@
 'use client'
 
 import { useState } from 'react'
-import { ImageUpload } from '@/components/upload/ImageUpload'
+import { MultiImageUpload } from '@/components/upload/MultiImageUpload'
+import { ImageQueueList } from '@/components/upload/ImageQueueList'
 import { RecognitionResults } from '@/components/upload/RecognitionResults'
 import { QuestionForm } from '@/components/upload/QuestionForm'
-import { useOCR, type AIProvider } from '@/hooks/useOCR'
+import { useOCR, type AIProvider, type ImageQueueItem } from '@/hooks/useOCR'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sparkles, Camera, BookOpen, Check } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function UploadPage() {
-  const { recognize, loading, progress, provider, switchProvider } = useOCR()
-  const [results, setResults] = useState<AIRecognitionResult[]>([])
+  const { recognizeBatch, retryImage, provider, switchProvider } = useOCR()
+  const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
+  const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
+  const [isProcessing, setIsProcessing] = useState(false)
   const [editingResult, setEditingResult] = useState<AIRecognitionResult | undefined>()
   const [formOpen, setFormOpen] = useState(false)
 
-  const handleUpload = async (file: File) => {
+  const handleUpload = async (files: File[]) => {
+    setIsProcessing(true)
+    setQueueItems([])
+    setAllResults([])
+
     try {
-      const recognizedResults = await recognize(file)
-      setResults(recognizedResults)
+      const items = await recognizeBatch(
+        files,
+        {
+          onItemStart: (item) => {
+            setQueueItems((prev) => {
+              const index = prev.findIndex((i) => i.id === item.id)
+              if (index >= 0) {
+                const newItems = [...prev]
+                newItems[index] = { ...item }
+                return newItems
+              }
+              return [...prev, { ...item }]
+            })
+          },
+          onItemProgress: (item, progress) => {
+            setQueueItems((prev) => {
+              const index = prev.findIndex((i) => i.id === item.id)
+              if (index >= 0) {
+                const newItems = [...prev]
+                newItems[index] = { ...item, progress }
+                return newItems
+              }
+              return prev
+            })
+          },
+          onItemSuccess: (item, results) => {
+            setQueueItems((prev) => {
+              const index = prev.findIndex((i) => i.id === item.id)
+              if (index >= 0) {
+                const newItems = [...prev]
+                newItems[index] = { ...item, result: results }
+                return newItems
+              }
+              return prev
+            })
+            // 汇总所有结果
+            setAllResults((prev) => [...prev, ...results])
+          },
+          onItemError: (item, error) => {
+            setQueueItems((prev) => {
+              const index = prev.findIndex((i) => i.id === item.id)
+              if (index >= 0) {
+                const newItems = [...prev]
+                newItems[index] = { ...item, error }
+                return newItems
+              }
+              return prev
+            })
+          },
+          onComplete: (items) => {
+            setIsProcessing(false)
+            const successCount = items.filter((i) => i.status === 'success').length
+            const failedCount = items.filter((i) => i.status === 'failed').length
+
+            if (successCount > 0) {
+              toast.success(`成功识别 ${successCount} 张图片`)
+            }
+            if (failedCount > 0) {
+              toast.error(`${failedCount} 张图片识别失败`)
+            }
+          },
+        },
+        2, // 并发数：2
+        1  // 最大重试次数：1
+      )
+
+      setQueueItems(items)
     } catch (error) {
-      // 错误已由 useOCR 处理
-      console.error('Upload error:', error)
+      console.error('Batch upload error:', error)
+      setIsProcessing(false)
+      toast.error('批量识别失败，请重试')
+    }
+  }
+
+  const handleRemoveItem = (id: string) => {
+    setQueueItems((prev) => prev.filter((item) => item.id !== id))
+  }
+
+  const handleRetryItem = async (id: string) => {
+    const item = queueItems.find((i) => i.id === id)
+    if (!item) return
+
+    try {
+      await retryImage(item, {
+        onStart: (item) => {
+          setQueueItems((prev) =>
+            prev.map((i) => (i.id === item.id ? { ...item } : i))
+          )
+        },
+        onProgress: (item, progress) => {
+          setQueueItems((prev) =>
+            prev.map((i) =>
+              i.id === item.id ? { ...item, progress } : i
+            )
+          )
+        },
+        onSuccess: (item, results) => {
+          setQueueItems((prev) =>
+            prev.map((i) =>
+              i.id === item.id ? { ...item, result: results } : i
+            )
+          )
+          // 添加到总结果中
+          setAllResults((prev) => [...prev, ...results])
+        },
+        onError: (item, error) => {
+          setQueueItems((prev) =>
+            prev.map((i) =>
+              i.id === item.id ? { ...item, error } : i
+            )
+          )
+        },
+      })
+    } catch (error) {
+      // 错误已在 retryImage 中处理
+      console.error('Retry error:', error)
     }
   }
 
@@ -31,7 +150,8 @@ export default function UploadPage() {
   }
 
   const handleClearResults = () => {
-    setResults([])
+    setAllResults([])
+    setQueueItems([])
   }
 
   const handleFormClose = (open: boolean) => {
@@ -83,10 +203,10 @@ export default function UploadPage() {
           </h2>
         </div>
 
-        <ImageUpload
+        <MultiImageUpload
           onUpload={handleUpload}
-          loading={loading}
-          progress={progress}
+          loading={isProcessing}
+          maxFiles={10}
         />
 
         {/* 特性卡片 */}
@@ -115,11 +235,20 @@ export default function UploadPage() {
         </div>
       </div>
 
+      {/* 图片队列状态 */}
+      {queueItems.length > 0 && (
+        <ImageQueueList
+          items={queueItems}
+          onRemove={handleRemoveItem}
+          onRetry={handleRetryItem}
+        />
+      )}
+
       {/* 识别结果 */}
-      {results.length > 0 && (
+      {allResults.length > 0 && (
         <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
           <RecognitionResults
-            results={results}
+            results={allResults}
             onEdit={handleEdit}
             onClear={handleClearResults}
           />
@@ -127,7 +256,7 @@ export default function UploadPage() {
       )}
 
       {/* 提示信息 */}
-      {results.length === 0 && !loading && (
+      {allResults.length === 0 && queueItems.length === 0 && !isProcessing && (
         <div className="bg-[#cce5f3]/30 border border-[#0070a0]/20 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-[#1f1f1f] mb-3">
             使用提示
@@ -151,7 +280,11 @@ export default function UploadPage() {
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>可识别多道题目，系统会自动分离</span>
+              <span>支持一次上传多张图片（最多 10 张）</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-[#0070a0]">•</span>
+              <span>每张图片可识别多道题目，系统会自动分离</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
