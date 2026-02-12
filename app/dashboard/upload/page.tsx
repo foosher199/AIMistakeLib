@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { MultiImageUpload } from '@/components/upload/MultiImageUpload'
 import { ImageQueueList } from '@/components/upload/ImageQueueList'
@@ -10,11 +11,12 @@ import { LoginDialog } from '@/components/auth/LoginDialog'
 import { useOCR, type AIProvider, type ImageQueueItem } from '@/hooks/useOCR'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Sparkles, Camera, BookOpen, Check } from 'lucide-react'
+import { Sparkles, Camera, BookOpen, Check, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function UploadPage() {
-  const { user } = useAuth()
+  const router = useRouter()
+  const { user, loading } = useAuth()
   const { recognizeBatch, retryImage, provider, switchProvider } = useOCR()
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
   const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
@@ -23,6 +25,25 @@ export default function UploadPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
+
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
+
+  // 加载中或未登录时显示加载状态
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleUpload = async (files: File[]) => {
     // 检查登录状态

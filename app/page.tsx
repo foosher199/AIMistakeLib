@@ -1,215 +1,279 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
-import { LoginDialog } from '@/components/auth/LoginDialog'
+import { useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { Camera, BookOpen, Sparkles, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Loader2, Brain, Cloud, TrendingUp, Upload, Search, CheckCircle } from 'lucide-react'
 
 export default function HomePage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLDivElement>(null)
 
-  // 如果已登录，重定向到 dashboard
   useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard')
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!imageRef.current) return
+      const rect = imageRef.current.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const rotateY = ((e.clientX - centerX) / rect.width) * 10
+      const rotateX = ((centerY - e.clientY) / rect.height) * 10
+      imageRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
     }
-  }, [user, loading, router])
 
-  // 加载中状态
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
-    )
-  }
+    const handleMouseLeave = () => {
+      if (imageRef.current) {
+        imageRef.current.style.transform =
+          'perspective(1000px) rotateX(0deg) rotateY(0deg)'
+      }
+    }
 
-  // 已登录状态（正在重定向）
-  if (user) {
-    return null
-  }
+    const hero = heroRef.current
+    if (hero) {
+      hero.addEventListener('mousemove', handleMouseMove)
+      hero.addEventListener('mouseleave', handleMouseLeave)
+    }
 
-  // 未登录状态 - 显示落地页
+    return () => {
+      if (hero) {
+        hero.removeEventListener('mousemove', handleMouseMove)
+        hero.removeEventListener('mouseleave', handleMouseLeave)
+      }
+    }
+  }, [])
+
+  const features = [
+    { icon: Camera, text: '拍照识别题目' },
+    { icon: Sparkles, text: 'AI智能分析' },
+    { icon: BookOpen, text: '高效复习' },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="space-y-8 -mt-8">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 pt-20 pb-16">
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            AI 智能错题本
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-8">
-            拍照识别，智能整理，高效复习
-          </p>
-          <p className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto">
-            使用 AI 技术自动识别试卷错题，云端保存，随时随地复习。让学习更高效，让进步看得见。
-          </p>
+      <section
+        ref={heroRef}
+        className="relative min-h-[80vh] flex items-center overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
+      >
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#cce5f3]/30 via-[#f7f9fa] to-[#f7f9fa]" />
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="text-lg px-8 py-6"
-              onClick={() => setShowLoginDialog(true)}
+        {/* Animated Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-[#0070a0]/5 rounded-full blur-3xl animate-pulse" />
+          <div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-[#2c90c9]/5 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: '1s' }}
+          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-[#cce5f3]/20 to-transparent rounded-full" />
+        </div>
+
+        <div className="relative w-full max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Content */}
+            <div className="space-y-8">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#cce5f3] rounded-full">
+                <Sparkles className="w-4 h-4 text-[#0070a0]" />
+                <span className="text-sm font-medium text-[#0070a0]">
+                  AI 驱动的智能错题本
+                </span>
+              </div>
+
+              {/* Title */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1f1f1f] leading-tight">
+                错题本，
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0070a0] to-[#2c90c9]">
+                  但有了超能力
+                </span>
+              </h1>
+
+              {/* Description */}
+              <p className="text-lg text-[#626a72] max-w-lg">
+                拍照、上传、搞定。让复习像刷手机一样简单。
+                <br />
+                智能识别、自动分类、个性化复习计划，帮你高效查漏补缺。
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-4">
+                <Link href="/upload">
+                  <Button
+                    size="lg"
+                    className="bg-[#0070a0] hover:bg-[#004968] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#0070a0]/25 hover:shadow-xl hover:shadow-[#0070a0]/30 transition-all hover:-translate-y-1"
+                  >
+                    <Camera className="w-5 h-5 mr-2" />
+                    拍照识题
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Features */}
+              <div className="flex flex-wrap gap-6 pt-4">
+                {features.map((feature, index) => {
+                  const Icon = feature.icon
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 text-[#626a72]"
+                    >
+                      <div className="w-8 h-8 bg-[#cce5f3] rounded-lg flex items-center justify-center">
+                        <Icon className="w-4 h-4 text-[#0070a0]" />
+                      </div>
+                      <span className="text-sm font-medium">{feature.text}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Right Content - 3D Interface Preview */}
+            <div
+              ref={imageRef}
+              className="relative transition-transform duration-200 ease-out"
+              style={{ transformStyle: 'preserve-3d' }}
             >
-              立即开始使用
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6"
-              onClick={() => {
-                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              了解更多
-            </Button>
+              {/* Main Card */}
+              <div className="relative bg-white rounded-3xl shadow-2xl shadow-[#0070a0]/10 p-6 border border-[#dee5eb]">
+                {/* Card Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#0070a0] to-[#2c90c9] rounded-xl flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[#1f1f1f]">拍照识题</h3>
+                      <p className="text-sm text-[#626a72]">
+                        AI 自动识别题目内容
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 bg-[#d1fae5] text-[#10b981] text-xs font-medium rounded-full">
+                    已识别
+                  </span>
+                </div>
+
+                {/* Question Preview */}
+                <div className="bg-[#f7f9fa] rounded-2xl p-5 mb-4">
+                  <div className="flex items-start gap-3">
+                    <span className="px-2 py-1 bg-[#0070a0] text-white text-xs font-bold rounded">
+                      数学
+                    </span>
+                    <span className="px-2 py-1 bg-[#f59e0b]/10 text-[#f59e0b] text-xs font-medium rounded">
+                      中等
+                    </span>
+                  </div>
+                  <p className="mt-3 text-[#1f1f1f] font-medium">
+                    已知函数 f(x) = x² - 2x + 1，求 f(2) 的值。
+                  </p>
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="text-sm text-[#626a72]">答案：</span>
+                    <span className="px-3 py-1 bg-[#cce5f3] text-[#0070a0] font-bold rounded-lg">
+                      1
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button className="flex-1 py-3 bg-[#0070a0] text-white font-medium rounded-xl hover:bg-[#004968] transition-colors">
+                    保存到错题本
+                  </button>
+                  <button className="px-4 py-3 border border-[#c2cdd8] text-[#626a72] rounded-xl hover:bg-[#f7f9fa] transition-colors">
+                    编辑
+                  </button>
+                </div>
+              </div>
+
+              {/* Floating Elements */}
+              <div
+                className="absolute -top-6 -right-6 bg-white rounded-2xl shadow-lg p-4 border border-[#dee5eb]"
+                style={{ transform: 'translateZ(50px)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-[#d1fae5] rounded-full flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-[#10b981]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#1f1f1f]">AI 分析</p>
+                    <p className="text-xs text-[#626a72]">知识点：二次函数</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-lg p-4 border border-[#dee5eb]"
+                style={{ transform: 'translateZ(30px)' }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold">85%</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#1f1f1f]">掌握度</p>
+                    <p className="text-xs text-[#626a72]">继续加油！</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Features Section */}
-      <div id="features" className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-          核心功能
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {/* Feature 1 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-              <Brain className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              AI 智能识别
-            </h3>
-            <p className="text-gray-600">
-              先进的 AI 视觉技术，自动识别题目内容、学科分类、难度等级和正确答案
-            </p>
-          </div>
-
-          {/* Feature 2 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-              <Cloud className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              云端同步
-            </h3>
-            <p className="text-gray-600">
-              所有错题自动保存到云端，手机、平板、电脑多端同步，随时随地复习
-            </p>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              智能复习
-            </h3>
-            <p className="text-gray-600">
-              记录复习次数和掌握情况，帮助你针对性复习薄弱知识点，学习更高效
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* How It Works Section */}
-      <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-          使用流程
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {/* Step 1 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+      {/* 使用说明 */}
+      <div className="bg-gradient-to-br from-[#cce5f3]/30 to-[#cce5f3]/50 rounded-lg border border-[#0070a0]/20 p-6">
+        <h2 className="text-xl font-semibold text-[#1f1f1f] mb-4">使用说明</h2>
+        <div className="space-y-3">
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               1
             </div>
-            <div className="bg-white rounded-xl p-6 shadow-md">
-              <Upload className="w-8 h-8 text-blue-500 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                拍照上传
-              </h3>
-              <p className="text-gray-600 text-sm">
-                用手机拍摄试卷错题，或上传已有的图片
+            <div>
+              <p className="text-[#1f1f1f] font-medium">上传错题图片</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
+                拍照或选择错题图片，支持多种格式
               </p>
             </div>
           </div>
 
-          {/* Step 2 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               2
             </div>
-            <div className="bg-white rounded-xl p-6 shadow-md">
-              <Brain className="w-8 h-8 text-green-500 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                AI 识别
-              </h3>
-              <p className="text-gray-600 text-sm">
-                AI 自动识别题目内容、学科、难度和答案
+            <div>
+              <p className="text-[#1f1f1f] font-medium">AI 自动识别</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
+                系统自动识别题目内容、学科、难度和答案
               </p>
             </div>
           </div>
 
-          {/* Step 3 */}
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
               3
             </div>
-            <div className="bg-white rounded-xl p-6 shadow-md">
-              <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                保存复习
-              </h3>
-              <p className="text-gray-600 text-sm">
-                确认保存到错题本，随时查看和复习
+            <div>
+              <p className="text-[#1f1f1f] font-medium">保存到错题本</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
+                确认识别结果，保存到个人错题库
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-[#0070a0] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+              4
+            </div>
+            <div>
+              <p className="text-[#1f1f1f] font-medium">定期复习</p>
+              <p className="text-sm text-[#626a72] mt-0.5">
+                记录复习次数，标记掌握状态，科学管理学习进度
               </p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* CTA Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            开始使用 AI 错题本
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            支持游客模式快速体验，无需注册即可使用
-          </p>
-          <Button
-            size="lg"
-            variant="secondary"
-            className="text-lg px-8 py-6"
-            onClick={() => setShowLoginDialog(true)}
-          >
-            立即体验
-          </Button>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="container mx-auto px-4 py-8 text-center text-gray-500">
-        <p>AI 错题本 - 让学习更高效</p>
-      </div>
-
-      {/* Login Dialog */}
-      <LoginDialog
-        open={showLoginDialog}
-        onOpenChange={setShowLoginDialog}
-        onLoginSuccess={() => router.push('/dashboard')}
-      />
     </div>
   )
 }

@@ -21,24 +21,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links */}
-          <div>
-            <h4 className="font-bold mb-4">产品</h4>
-            <ul className="space-y-2">
-              <li>
-                <span className="text-white/70">拍照识题</span>
-              </li>
-              <li>
-                <span className="text-white/70">错题管理</span>
-              </li>
-              <li>
-                <span className="text-white/70">学习统计</span>
-              </li>
-              <li>
-                <span className="text-white/70">历史题库</span>
-              </li>
-            </ul>
-          </div>
 
           <div>
             <h4 className="font-bold mb-4">支持</h4>

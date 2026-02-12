@@ -24,12 +24,12 @@ export function Navbar() {
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
 
   const navItems = [
-    { href: '/dashboard', label: '首页', icon: BookOpen },
+    { href: '/', label: '首页', icon: BookOpen },
     { href: '/dashboard/upload', label: '拍照识题', icon: Camera },
     { href: '/dashboard/questions', label: '我的错题', icon: BookOpen },
     { href: '/dashboard/history', label: '历史题库', icon: History },
   ]
-
+  
   const handleSignOut = async () => {
     const { error } = await signOut()
 
@@ -55,28 +55,30 @@ export function Navbar() {
             <span className="text-xl font-bold text-[#1f1f1f]">AI 错题本</span>
           </Link>
 
-          {/* 导航链接 */}
-          <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
+          {/* 导航链接 - 仅登录用户可见 */}
+          {user && (
+            <div className="hidden md:flex items-center gap-1">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href
+                const Icon = item.icon
 
-              return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      'gap-2 text-[#626a72] hover:text-[#0070a0] hover:bg-[#f7f9fa]',
-                      isActive && 'bg-[#cce5f3] text-[#0070a0]'
-                    )}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {item.label}
-                  </Button>
-                </Link>
-              )
-            })}
-          </div>
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        'gap-2 text-[#626a72] hover:text-[#0070a0] hover:bg-[#f7f9fa]',
+                        isActive && 'bg-[#cce5f3] text-[#0070a0]'
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {item.label}
+                    </Button>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
 
           {/* 用户菜单或登录按钮 */}
           {user ? (
@@ -146,31 +148,33 @@ export function Navbar() {
           )}
         </div>
 
-        {/* 移动端导航 */}
-        <div className="md:hidden border-t border-gray-200">
-          <div className="flex items-center justify-around py-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
+        {/* 移动端导航 - 仅登录用户可见 */}
+        {user && (
+          <div className="md:hidden border-t border-gray-200">
+            <div className="flex items-center justify-around py-2">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href
+                const Icon = item.icon
 
-              return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      'flex-col h-auto py-2 gap-1 text-[#626a72] hover:text-[#0070a0] hover:bg-[#f7f9fa]',
-                      isActive && 'bg-[#cce5f3] text-[#0070a0]'
-                    )}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs">{item.label}</span>
-                  </Button>
-                </Link>
-              )
-            })}
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        'flex-col h-auto py-2 gap-1 text-[#626a72] hover:text-[#0070a0] hover:bg-[#f7f9fa]',
+                        isActive && 'bg-[#cce5f3] text-[#0070a0]'
+                      )}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-xs">{item.label}</span>
+                    </Button>
+                  </Link>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 登录弹窗 */}

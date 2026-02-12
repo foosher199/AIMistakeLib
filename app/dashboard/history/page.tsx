@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import { useQuestions, useQuestionStats } from '@/hooks/useQuestions'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +16,7 @@ import {
   ChevronRight,
   Calendar,
   GraduationCap,
+  Loader2,
 } from 'lucide-react'
 import { SUBJECTS, CATEGORIES, type Subject, type Difficulty } from '@/types/database'
 import Link from 'next/link'
@@ -35,10 +38,19 @@ const SUBJECT_CONFIG: Record<
 }
 
 export default function HistoryPage() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSubject, setSelectedSubject] = useState<string>('')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('')
+
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
 
   // 获取所有题目
   const { data: questionsData, isLoading: questionsLoading } = useQuestions({
@@ -160,11 +172,12 @@ export default function HistoryPage() {
     }
   }
 
-  if (questionsLoading) {
+  // 加载中或未登录时显示加载状态
+  if (loading || !user || questionsLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">加载中...</p>
         </div>
       </div>

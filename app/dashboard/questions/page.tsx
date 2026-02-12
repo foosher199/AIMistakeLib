@@ -1,16 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import { QuestionList } from '@/components/questions/QuestionList'
 import { QuestionStats } from '@/components/questions/QuestionStats'
 import { QuestionForm } from '@/components/upload/QuestionForm'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/database'
-import { Plus } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 
 export default function QuestionsPage() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
   const [formOpen, setFormOpen] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<Question | undefined>()
+
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
+
+  // 加载中或未登录时显示加载状态
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleEdit = (question: Question) => {
     setEditingQuestion(question)

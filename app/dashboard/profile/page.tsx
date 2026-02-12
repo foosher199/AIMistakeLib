@@ -1,5 +1,7 @@
 'use client'
 
+import { useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useQuestions } from '@/hooks/useQuestions'
 import { Button } from '@/components/ui/button'
@@ -17,11 +19,30 @@ import {
   Loader2,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useMemo } from 'react'
 
 export default function ProfilePage() {
-  const { user, isAnonymous } = useAuth()
+  const router = useRouter()
+  const { user, loading, isAnonymous } = useAuth()
   const { data, isLoading } = useQuestions({ limit: 1000 })
+
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
+
+  // 加载中或未登录时显示加载状态
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    )
+  }
 
   // 从查询结果中提取 questions 数组
   const questions = data?.questions || []
