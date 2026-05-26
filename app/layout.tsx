@@ -8,6 +8,7 @@ import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
+/* eslint-disable react-refresh/only-export-components */
 export const metadata: Metadata = {
   title: 'AI 错题本 - 智能识别，科学复习',
   description: '使用 AI 技术自动识别和管理错题，让学习更高效',

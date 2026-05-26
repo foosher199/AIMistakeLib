@@ -32,7 +32,7 @@ export function RecognitionResults({ results, onEdit, onDelete, onClear }: Recog
     }
 
     try {
-      await createQuestion.mutateAsync(questionData as any)
+      await createQuestion.mutateAsync(questionData as unknown as import('@/types/database').QuestionInsert)
       setSavedIndices((prev) => new Set(prev).add(index))
     } catch (error) {
       // 错误已由 useCreateQuestion 的 onError 处理

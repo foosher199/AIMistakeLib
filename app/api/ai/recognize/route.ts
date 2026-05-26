@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
             // 阿里云失败，尝试 Gemini
             try {
               results = await recognizeWithGemini(imageBase64)
-            } catch (geminiError) {
+            } catch {
               // Gemini 也失败，尝试百度
               console.log('Gemini 识别失败，尝试使用百度 OCR...')
               results = await recognizeWithBaidu(imageBase64)

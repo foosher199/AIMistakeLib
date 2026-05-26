@@ -58,7 +58,7 @@ export default function FeedbackPage() {
   const [category, setCategory] = useState<FeedbackCategory>('bug')
   const [subject, setSubject] = useState('')
   const [content, setContent] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(user?.email || '')
 
   // 检查登录状态
   useEffect(() => {
@@ -66,13 +66,6 @@ export default function FeedbackPage() {
       router.push('/')
     }
   }, [user, authLoading, router])
-
-  // 自动填充用户邮箱
-  useEffect(() => {
-    if (user?.email) {
-      setEmail(user.email)
-    }
-  }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

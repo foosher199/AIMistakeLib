@@ -46,6 +46,19 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
   // 错误状态
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const resetForm = () => {
+    setContent('')
+    setSubject('math')
+    setCategory('')
+    setDifficulty('medium')
+    setAnswer('')
+    setUserAnswer('')
+    setExplanation('')
+    setImageUrl('')
+    setErrors({})
+  }
+
+  /* eslint-disable react-hooks/set-state-in-effect */
   // 初始化表单数据
   useEffect(() => {
     if (question) {
@@ -73,18 +86,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
       resetForm()
     }
   }, [question, initialData, open])
-
-  const resetForm = () => {
-    setContent('')
-    setSubject('math')
-    setCategory('')
-    setDifficulty('medium')
-    setAnswer('')
-    setUserAnswer('')
-    setExplanation('')
-    setImageUrl('')
-    setErrors({})
-  }
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -141,7 +143,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
           image_url: imageUrl || undefined,
         }
 
-        await createQuestion.mutateAsync(createData as any)
+        await createQuestion.mutateAsync(createData as unknown as QuestionInsert)
       }
 
       onOpenChange(false)

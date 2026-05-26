@@ -19,7 +19,7 @@ interface DashScopeResponse {
   output: {
     choices: Array<{
       message: {
-        content: string | Array<{ text?: string }> | any
+        content: string | Array<{ text?: string }> | unknown
       }
     }>
   }
@@ -109,7 +109,7 @@ export async function recognizeWithAlibaba(
     const data: DashScopeResponse = await response.json()
 
     // 解析 AI 返回的 JSON
-    const rawContent = data.output.choices[0]?.message?.content
+    const rawContent = data.output.choices[0]?.message?.content as string | Array<{ text?: string }> | Record<string, unknown> | unknown
 
     if (!rawContent) {
       throw new Error('AI 未返回有效内容')
@@ -124,9 +124,13 @@ export async function recognizeWithAlibaba(
       content = rawContent
         .map((item) => (typeof item === 'string' ? item : item.text || ''))
         .join('')
-    } else if (typeof rawContent === 'object' && rawContent.text) {
+    } else if (
+      typeof rawContent === 'object' &&
+      rawContent !== null &&
+      'text' in rawContent
+    ) {
       // 如果是对象且有 text 字段
-      content = rawContent.text
+      content = (rawContent as { text: string }).text
     } else {
       throw new Error('AI 返回的内容格式不支持')
     }

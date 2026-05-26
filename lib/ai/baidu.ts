@@ -58,7 +58,7 @@ async function getBaiduAccessToken(): Promise<string> {
     tokenExpireTime = Date.now() + (data.expires_in - 300) * 1000
 
     return data.access_token
-  } catch (error) {
+  } catch {
     throw new Error('获取百度 Access Token 失败')
   }
 }

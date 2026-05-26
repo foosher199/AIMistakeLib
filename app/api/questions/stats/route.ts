@@ -4,7 +4,7 @@
  * GET /api/questions/stats - 获取统计信息
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
 
 /**
@@ -19,7 +19,7 @@ import { createServerClient } from '@/lib/supabase-server'
  *   }
  * }
  */
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerClient()
 
