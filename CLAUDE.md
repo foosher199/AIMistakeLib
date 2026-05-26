@@ -23,7 +23,8 @@ A Chinese-language web application for capturing wrong/missed exam questions via
 │       ├── upload/             # Upload page for new questions
 │       ├── questions/          # Question detail pages
 │       ├── history/            # Review history page
-│       └── profile/            # User profile page
+│       ├── profile/            # User profile page
+│       └── feedback/           # User feedback page
 ├── components/
 │   ├── auth/                   # Auth components (LoginForm, RegisterForm, LoginDialog)
 │   ├── layout/                 # Layout components (Navbar, Footer)
@@ -82,6 +83,7 @@ There is no test suite configured in this project.
 - `/dashboard/questions/[id]` - Question detail page
 - `/dashboard/history` - Review history
 - `/dashboard/profile` - User profile
+- `/dashboard/feedback` - User feedback
 
 **Authentication:** Supabase Auth with three modes:
 1. **Anonymous login** (`useAuth().loginAnonymous()`) - Quick guest access, data saved to user_id, can upgrade to email/password later
@@ -94,6 +96,7 @@ Auth state is managed client-side via `useAuth` hook (hooks/useAuth.ts), which w
 **Database:** Supabase (PostgreSQL) with Row Level Security (RLS). Two main tables:
 - `mistake_questions` - Question records with subject, difficulty, answer, image_url, review_count, is_mastered, etc. All queries scoped to user via RLS.
 - `mistake_profiles` - User profile extensions (username, avatar_url)
+- `mistake_feedbacks` - User feedback (category, subject, content, status)
 
 See `types/database.ts` for full schema and type definitions.
 
@@ -106,6 +109,8 @@ See `types/database.ts` for full schema and type definitions.
 - `useDeleteQuestion()` - Delete question
 - `useReviewQuestion()` - Increment review_count
 - `useMasterQuestion()` - Mark as mastered
+- `useCreateFeedback()` - Submit user feedback
+- `useFeedbacks()` - Get user's feedback history
 
 All mutations use optimistic updates and automatic cache invalidation for responsive UX.
 
@@ -133,12 +138,13 @@ See `lib/supabase.ts` for detailed usage examples and warnings.
 ## Key Patterns & Conventions
 
 - **Path alias:** All imports use `@/` alias (e.g., `@/hooks/useAuth`, `@/lib/supabase`). Configured in tsconfig.json.
+- **TypeScript strictness:** `noUnusedLocals` and `noUnusedParameters` are enabled. Unused variables will cause build errors.
 - **Client vs Server components:** Components with state, hooks, or browser APIs must have `'use client'` directive. Server components (default) can use async/await for data fetching.
 - **UI components:** All primitives from `components/ui/` (Shadcn wrappers around Radix UI + `class-variance-authority`). Do not add new third-party component libraries.
 - **Toast notifications:** Use `sonner`'s `toast` for all user feedback (success, error, info). `<Toaster />` rendered globally in root layout.
 - **Styling:** Tailwind CSS with custom color tokens. Animations via `tailwindcss-animate`.
 - **Form validation:** Zod schemas in `lib/validations/` for type-safe validation.
-- **Data fetching:** Prefer React Query hooks (`useQuestions`, etc.) over raw fetch in components. API routes handle auth via `createServerClient()` and validate user session before operations.
+- **Data fetching:** Prefer React Query hooks (`useQuestions`, etc.) over raw fetch in components. API routes handle auth via `createServerClient()` (imported from `@/lib/supabase-server`) and validate user session before operations.
 - **Optimistic updates:** All mutation hooks use `onMutate` for immediate UI feedback, `onError` for rollback, `onSuccess` for cache invalidation.
 
 ## Environment Variables
@@ -184,6 +190,17 @@ GEMINI_API_KEY=your-google-gemini-key             # Google Gemini API key (or us
 - `created_at` (timestamp)
 - `updated_at` (timestamp)
 
+**mistake_feedbacks** table:
+- `id` (uuid, PK)
+- `user_id` (uuid, nullable, FK to auth.users)
+- `email` (text, nullable)
+- `category` (text) - One of: bug, feature, improvement, other
+- `subject` (text)
+- `content` (text)
+- `status` (text) - One of: pending, processing, resolved, closed
+- `created_at` (timestamp)
+- `updated_at` (timestamp)
+
 See `types/database.ts` for TypeScript types and helper constants (SUBJECTS, DIFFICULTIES, CATEGORIES).
 
 ## API Routes
@@ -203,7 +220,11 @@ All routes in `app/api/`:
 - `POST /api/questions/[id]/master` - Mark as mastered (is_mastered = true)
 - `GET /api/questions/stats` - Get stats (total, mastered, pending)
 
-All routes require authentication via Supabase session (checked in route handler with `createServerClient()`).
+**Feedback:**
+- `POST /api/feedbacks` - Submit feedback (allows anonymous)
+- `GET /api/feedbacks` - Get current user's feedback list
+
+All routes require authentication via Supabase session (checked in route handler with `createServerClient()` imported from `@/lib/supabase-server`).
 
 ## Adding New Features
 

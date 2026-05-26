@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
+import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
 import { recognizeWithBaidu } from '@/lib/ai/baidu'
 import { recognizeWithGemini } from '@/lib/ai/gemini'
@@ -51,6 +52,25 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // 限流检查：每用户每小时 20 次
+    const rateLimit = aiRateLimiter.check(`ai_recognize:${user.id}`, 20)
+
+    if (!rateLimit.allowed) {
+      const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000)
+      return NextResponse.json(
+        { error: '请求过于频繁，请稍后再试' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(retryAfter),
+            'X-RateLimit-Limit': '20',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(Math.ceil(rateLimit.resetTime / 1000)),
+          },
+        }
+      )
     }
 
     // 解析请求体
