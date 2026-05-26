@@ -64,8 +64,8 @@ export function useOCR() {
 
       setProgress(20)
 
-      // 3. 压缩图片并转换为 base64（最大 1024px）
-      const imageBase64 = await compressImage(file, 1024, 0.9)
+      // 3. 压缩图片并转换为 base64（最大 600px，质量 0.7）
+      const imageBase64 = await compressImage(file)
       setProgress(40)
 
       // 4. 调用 API

@@ -103,14 +103,14 @@ export function formatFileSize(bytes: number): string {
 /**
  * 压缩图片（等比缩放）
  * @param file 原始图片文件
- * @param maxSize 最大宽度或高度（默认1024）
- * @param quality 压缩质量（0-1，默认0.9）
+ * @param maxSize 最大宽度或高度（默认600）
+ * @param quality 压缩质量（0-1，默认0.7）
  * @returns 压缩后的 base64 字符串
  */
 export async function compressImage(
   file: File,
-  maxSize: number = 1024,
-  quality: number = 0.9
+  maxSize: number = 600,
+  quality: number = 0.7
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()

@@ -97,7 +97,7 @@ export default function HomePage() {
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap gap-4">
-                <Link href="/upload">
+                <Link href="/dashboard/upload">
                   <Button
                     size="lg"
                     className="bg-[#0070a0] hover:bg-[#004968] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#0070a0]/25 hover:shadow-xl hover:shadow-[#0070a0]/30 transition-all hover:-translate-y-1"
@@ -186,36 +186,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Floating Elements */}
-              <div
-                className="absolute -top-6 -right-6 bg-white rounded-2xl shadow-lg p-4 border border-[#dee5eb]"
-                style={{ transform: 'translateZ(50px)' }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-[#d1fae5] rounded-full flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-[#10b981]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#1f1f1f]">AI 分析</p>
-                    <p className="text-xs text-[#626a72]">知识点：二次函数</p>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-lg p-4 border border-[#dee5eb]"
-                style={{ transform: 'translateZ(30px)' }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">85%</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#1f1f1f]">掌握度</p>
-                    <p className="text-xs text-[#626a72]">继续加油！</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
