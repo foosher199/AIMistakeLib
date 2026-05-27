@@ -55,13 +55,18 @@ export async function recognizeWithGemini(
       : imageBase64
 
     // 调用 Gemini REST API
+    // 使用 AbortController 设置 8 秒超时（Vercel Hobby 函数限制 10 秒）
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8000)
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
           systemInstruction: {
             parts: [{ text: systemInstruction }],
@@ -87,6 +92,8 @@ export async function recognizeWithGemini(
         }),
       }
     )
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -166,6 +173,10 @@ export async function recognizeWithGemini(
     }
 
     if (error instanceof Error) {
+      // 处理超时
+      if (error.name === 'AbortError' || error.message.includes('timeout') || error.message.includes('UND_ERR_CONNECT_TIMEOUT')) {
+        throw new Error('Gemini API 连接超时，请检查网络或稍后重试')
+      }
       // 处理常见的 Gemini API 错误
       if (error.message.includes('API key')) {
         throw new Error('Gemini API Key 无效或未配置')
@@ -175,6 +186,12 @@ export async function recognizeWithGemini(
       }
       if (error.message.includes('safety')) {
         throw new Error('图片内容被 Gemini 安全过滤器拦截')
+      }
+      if (error.message.includes('not supported') || error.message.includes('FAILED_PRECONDITION')) {
+        throw new Error('Gemini API 当前区域不可用，请更换区域后重试')
+      }
+      if (error.message.includes('not found') || error.message.includes('models/')) {
+        throw new Error('Gemini 模型不可用或已被移除，请联系管理员')
       }
       throw error
     }
