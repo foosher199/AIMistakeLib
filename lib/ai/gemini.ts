@@ -60,11 +60,12 @@ export async function recognizeWithGemini(
     const timeoutId = setTimeout(() => controller.abort(), 8000)
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
         },
         signal: controller.signal,
         body: JSON.stringify({
