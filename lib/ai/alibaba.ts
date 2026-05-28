@@ -73,7 +73,7 @@ export async function recognizeWithAlibaba(
         : `data:image/jpeg;base64,${imageBase64}`
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 120000)
+    const timeoutId = setTimeout(() => controller.abort(), 60000)
 
     console.log('[Alibaba] 开始请求, model: qwen3.6-plus, imageUrl:', imageUrl.slice(0, 60) + '...')
     const startTime = Date.now()

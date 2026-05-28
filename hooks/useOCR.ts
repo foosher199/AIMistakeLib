@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { uploadImageToSupabase } from '@/lib/utils'
+import { uploadImageToSupabase, compressImage } from '@/lib/utils'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { toast } from 'sonner'
 
@@ -42,6 +42,21 @@ export function useOCR() {
   /**
    * 识别图片中的题目
    */
+  /**
+   * 将 Data URL 转换为 File 对象
+   */
+  const dataUrlToFile = (dataUrl: string, fileName: string): File => {
+    const arr = dataUrl.split(',')
+    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new File([u8arr], fileName, { type: mime })
+  }
+
   const recognize = async (
     file: File,
     options?: RecognizeOptions
@@ -62,13 +77,18 @@ export function useOCR() {
         throw new Error('图片文件过大，请上传小于 10MB 的图片')
       }
 
-      setProgress(20)
+      setProgress(10)
 
-      // 3. 上传图片到 Supabase Storage 获取公开 URL
-      const imageUrl = await uploadImageToSupabase(file)
+      // 3. 压缩图片（最大 1200px，质量 0.8），减少阿里云处理时间
+      const compressedBase64 = await compressImage(file, 1200, 0.8)
+      const compressedFile = dataUrlToFile(compressedBase64, file.name)
+      setProgress(25)
+
+      // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
+      const imageUrl = await uploadImageToSupabase(compressedFile)
       setProgress(40)
 
-      // 4. 调用 API（传入图片 URL，不再传 base64）
+      // 5. 调用 API（传入图片 URL）
       const currentProvider = options?.provider || provider
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
@@ -148,15 +168,21 @@ export function useOCR() {
           throw new Error('图片文件过大')
         }
 
-        item.progress = 20
-        callbacks?.onItemProgress?.(item, 20)
+        item.progress = 15
+        callbacks?.onItemProgress?.(item, 15)
 
-        // 3. 上传图片到 Supabase Storage 获取公开 URL
-        const imageUrl = await uploadImageToSupabase(item.file)
-        item.progress = 40
-        callbacks?.onItemProgress?.(item, 40)
+        // 3. 压缩图片（最大 1200px，质量 0.8）
+        const compressedBase64 = await compressImage(item.file, 1200, 0.8)
+        const compressedFile = dataUrlToFile(compressedBase64, item.file.name)
+        item.progress = 30
+        callbacks?.onItemProgress?.(item, 30)
 
-        // 4. 调用 API（传入图片 URL）
+        // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
+        const imageUrl = await uploadImageToSupabase(compressedFile)
+        item.progress = 45
+        callbacks?.onItemProgress?.(item, 45)
+
+        // 5. 调用 API（传入图片 URL）
         const response = await fetch('/api/ai/recognize', {
           method: 'POST',
           headers: {
@@ -254,15 +280,21 @@ export function useOCR() {
         throw new Error('图片文件过大')
       }
 
-      item.progress = 20
-      callbacks?.onProgress?.(item, 20)
+      item.progress = 15
+      callbacks?.onProgress?.(item, 15)
 
-      // 3. 上传图片到 Supabase Storage 获取公开 URL
-      const imageUrl = await uploadImageToSupabase(item.file)
-      item.progress = 40
-      callbacks?.onProgress?.(item, 40)
+      // 3. 压缩图片（最大 1200px，质量 0.8）
+      const compressedBase64 = await compressImage(item.file, 1200, 0.8)
+      const compressedFile = dataUrlToFile(compressedBase64, item.file.name)
+      item.progress = 30
+      callbacks?.onProgress?.(item, 30)
 
-      // 4. 调用 API（传入图片 URL）
+      // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
+      const imageUrl = await uploadImageToSupabase(compressedFile)
+      item.progress = 45
+      callbacks?.onProgress?.(item, 45)
+
+      // 5. 调用 API（传入图片 URL）
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
         headers: {

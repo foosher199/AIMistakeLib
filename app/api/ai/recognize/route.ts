@@ -22,7 +22,7 @@ const RecognizeRequestSchema = z.object({
  * 请求体：
  * {
  *   imageUrl: string,  // 图片公开URL（如 Supabase Storage URL）
- *   provider: 'alibaba' | 'baidu' | 'gemini' | 'kimi' | 'minimax'  // AI 服务提供商（默认 alibaba）
+ *   provider: 'alibaba'  // AI 服务提供商（默认 alibaba）
  * }
  *
  * 响应：
@@ -38,6 +38,7 @@ const RecognizeRequestSchema = z.object({
  *   }>
  * }
  */
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient()
