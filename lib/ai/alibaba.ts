@@ -1,6 +1,7 @@
 /**
  * Alibaba DashScope AI Service
- * 使用 qwen-vl-plus 模型进行图像识别和题目解析
+ * 使用 qwen3.6-plus 模型进行图像识别和题目解析
+ * 基于 OpenAI 兼容模式 (/compatible-mode/v1/chat/completions)
  */
 
 import type { Subject, Difficulty } from '@/types/database'
@@ -16,20 +17,18 @@ export interface AIRecognitionResult {
 }
 
 interface DashScopeResponse {
-  output: {
-    choices: Array<{
-      message: {
-        content: string | Array<{ text?: string }> | unknown
-      }
-    }>
-  }
+  choices: Array<{
+    message: {
+      content: string
+    }
+  }>
   usage?: {
     total_tokens: number
   }
 }
 
 /**
- * 调用阿里云 DashScope API 识别题目
+ * 调用阿里云 DashScope API 识别题目 (OpenAI 兼容模式)
  */
 export async function recognizeWithAlibaba(
   imageBase64: string
@@ -66,40 +65,55 @@ export async function recognizeWithAlibaba(
 请直接返回JSON数组，不要有其他内容。`
 
   try {
+    // 支持三种输入：HTTP URL、data URI、纯 base64 字符串
+    const imageUrl = imageBase64.startsWith('http://') || imageBase64.startsWith('https://')
+      ? imageBase64
+      : imageBase64.startsWith('data:')
+        ? imageBase64
+        : `data:image/jpeg;base64,${imageBase64}`
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 120000)
+
+    console.log('[Alibaba] 开始请求, model: qwen3.6-plus, imageUrl:', imageUrl.slice(0, 60) + '...')
+    const startTime = Date.now()
+
     const response = await fetch(
-      'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
+      'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
+        signal: controller.signal,
         body: JSON.stringify({
-          model: 'qwen-vl-plus',
-          input: {
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  {
-                    image: imageBase64.startsWith('data:')
-                      ? imageBase64
-                      : `data:image/jpeg;base64,${imageBase64}`,
+          model: 'qwen3.6-plus',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: imageUrl,
                   },
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
-          },
-          parameters: {
-            temperature: 0.1, // 降低随机性，提高准确性
-            top_p: 0.9,
-          },
+                },
+                {
+                  type: 'text',
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+          temperature: 0.1,
+          top_p: 0.9,
         }),
       }
     )
+
+    clearTimeout(timeoutId)
+    console.log(`[Alibaba] 收到响应, 状态: ${response.status}, 耗时: ${Date.now() - startTime}ms`)
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -107,33 +121,7 @@ export async function recognizeWithAlibaba(
     }
 
     const data: DashScopeResponse = await response.json()
-
-    // 解析 AI 返回的 JSON
-    const rawContent = data.output.choices[0]?.message?.content as string | Array<{ text?: string }> | Record<string, unknown> | unknown
-
-    if (!rawContent) {
-      throw new Error('AI 未返回有效内容')
-    }
-
-    // 处理不同类型的 content
-    let content: string
-    if (typeof rawContent === 'string') {
-      content = rawContent
-    } else if (Array.isArray(rawContent)) {
-      // 如果是数组，提取所有 text 字段并合并
-      content = rawContent
-        .map((item) => (typeof item === 'string' ? item : item.text || ''))
-        .join('')
-    } else if (
-      typeof rawContent === 'object' &&
-      rawContent !== null &&
-      'text' in rawContent
-    ) {
-      // 如果是对象且有 text 字段
-      content = (rawContent as { text: string }).text
-    } else {
-      throw new Error('AI 返回的内容格式不支持')
-    }
+    const content = data.choices[0]?.message?.content
 
     if (!content || content.trim().length === 0) {
       throw new Error('AI 返回的内容为空')
@@ -200,11 +188,13 @@ export async function recognizeWithAlibaba(
 
     return results
   } catch (error) {
-    if (error instanceof SyntaxError) {
-      throw new Error('AI 返回的 JSON 格式无效，请重试')
-    }
-
     if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('阿里云 API 连接超时，请检查网络或稍后重试')
+      }
+      if (error instanceof SyntaxError) {
+        throw new Error('AI 返回的 JSON 格式无效，请重试')
+      }
       throw error
     }
 

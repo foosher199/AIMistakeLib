@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { createBrowserClient } from './supabase-client'
 
 /**
  * 合并 Tailwind CSS 类名
@@ -178,5 +179,47 @@ export async function compressImage(
 
     reader.readAsDataURL(file)
   })
+}
+
+/**
+ * 上传图片到 Supabase Storage
+ * 返回公开访问的 URL
+ */
+export async function uploadImageToSupabase(file: File): Promise<string> {
+  const supabase = createBrowserClient()
+  const bucketName = 'mistake-images'
+
+  // 生成唯一文件名
+  const fileExt = file.name.split('.').pop() || 'jpg'
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`
+
+  // 上传文件
+  const { error: uploadError } = await supabase.storage
+    .from(bucketName)
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
+    })
+
+  if (uploadError) {
+    // 如果 bucket 不存在，尝试创建
+    if (uploadError.message?.includes('bucket') || uploadError.message?.includes('not found')) {
+      throw new Error(
+        `Storage bucket "${bucketName}" 不存在。请在 Supabase 控制台中创建该 bucket 并设置为 public。`
+      )
+    }
+    throw new Error(`图片上传失败: ${uploadError.message}`)
+  }
+
+  // 获取公开 URL
+  const { data: urlData } = supabase.storage.from(bucketName).getPublicUrl(fileName)
+
+  if (!urlData?.publicUrl) {
+    throw new Error('获取图片公开 URL 失败')
+  }
+
+  console.log('[Supabase] 图片公开 URL:', urlData.publicUrl)
+  return urlData.publicUrl
 }
 

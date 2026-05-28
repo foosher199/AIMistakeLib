@@ -8,14 +8,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
-import { recognizeWithBaidu } from '@/lib/ai/baidu'
-import { recognizeWithGemini } from '@/lib/ai/gemini'
 import { z } from 'zod'
 
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
-  imageBase64: z.string().min(1, '图片数据不能为空'),
-  provider: z.enum(['alibaba', 'baidu', 'gemini']).default('alibaba'),
+  imageUrl: z.string().url('图片URL格式无效'),
+  provider: z.enum(['alibaba']).default('alibaba'),
 })
 
 /**
@@ -23,8 +21,8 @@ const RecognizeRequestSchema = z.object({
  *
  * 请求体：
  * {
- *   imageBase64: string,  // base64 编码的图片数据
- *   provider: 'alibaba' | 'baidu' | 'gemini'  // AI 服务提供商（默认 alibaba）
+ *   imageUrl: string,  // 图片公开URL（如 Supabase Storage URL）
+ *   provider: 'alibaba' | 'baidu' | 'gemini' | 'kimi' | 'minimax'  // AI 服务提供商（默认 alibaba）
  * }
  *
  * 响应：
@@ -84,60 +82,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errors }, { status: 400 })
     }
 
-    const { imageBase64, provider } = validation.data
-
-    // 验证 base64 图片格式
-    if (
-      !imageBase64.startsWith('data:image/') &&
-      !imageBase64.match(/^[A-Za-z0-9+/=]+$/)
-    ) {
-      return NextResponse.json(
-        { error: '无效的图片格式，请提供 base64 编码的图片' },
-        { status: 400 }
-      )
-    }
+    const { imageUrl, provider } = validation.data
 
     // 根据提供商选择识别服务
+    // 目前只有阿里云可以正常使用，其他模型暂时停用
     let results
 
     try {
-      if (provider === 'baidu') {
-        results = await recognizeWithBaidu(imageBase64)
-      } else if (provider === 'gemini') {
-        results = await recognizeWithGemini(imageBase64)
-      } else {
-        // 默认使用阿里云
-        results = await recognizeWithAlibaba(imageBase64)
-      }
+      // 只使用阿里云
+      results = await recognizeWithAlibaba(imageUrl)
     } catch (aiError) {
       console.error(`AI 识别失败 (${provider}):`, aiError)
-
-      // 如果是阿里云或 Gemini 失败，尝试自动切换到备用方案
-      if (provider === 'alibaba' || provider === 'gemini') {
-        try {
-          const fallbackProvider = provider === 'alibaba' ? 'Gemini' : '百度 OCR'
-          console.log(`${provider === 'alibaba' ? '阿里云' : 'Gemini'} 识别失败，尝试使用${fallbackProvider}...`)
-
-          if (provider === 'alibaba') {
-            // 阿里云失败，尝试 Gemini
-            try {
-              results = await recognizeWithGemini(imageBase64)
-            } catch {
-              // Gemini 也失败，尝试百度
-              console.log('Gemini 识别失败，尝试使用百度 OCR...')
-              results = await recognizeWithBaidu(imageBase64)
-            }
-          } else {
-            // Gemini 失败，尝试百度
-            results = await recognizeWithBaidu(imageBase64)
-          }
-        } catch (fallbackError) {
-          console.error('备用方案也失败:', fallbackError)
-          throw aiError // 抛出原始错误
-        }
-      } else {
-        throw aiError
-      }
+      throw aiError
     }
 
     // 验证结果

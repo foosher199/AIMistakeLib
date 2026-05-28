@@ -241,8 +241,6 @@ export default function UploadPage() {
           >
             <TabsList>
               <TabsTrigger value="alibaba">阿里云</TabsTrigger>
-              <TabsTrigger value="baidu">百度</TabsTrigger>
-              <TabsTrigger value="gemini">Gemini</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -340,12 +338,6 @@ export default function UploadPage() {
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
               <span>每张图片可识别多道题目，系统会自动分离</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
-              <span>
-                如果阿里云识别效果不佳，可尝试切换到百度引擎
-              </span>
             </li>
           </ul>
         </div>

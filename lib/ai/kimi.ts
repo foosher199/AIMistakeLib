@@ -1,25 +1,45 @@
 /**
- * Google Gemini AI Service
- * 使用 Gemini 2.0 Flash 模型进行图像识别和题目解析
- * 直接通过 REST API 调用，无需 SDK
+ * Kimi (Moonshot AI) Service
+ * 使用 kimi-k2-0711-preview 模型进行图像识别和题目解析
+ * 支持多模态输入（图片+文本）
  */
 
 import type { Subject, Difficulty } from '@/types/database'
 import type { AIRecognitionResult } from './alibaba'
 
+interface KimiResponse {
+  id: string
+  object: string
+  created: number
+  model: string
+  choices: Array<{
+    index: number
+    message: {
+      role: string
+      content: string
+    }
+    finish_reason: string
+  }>
+  usage?: {
+    prompt_tokens: number
+    completion_tokens: number
+    total_tokens: number
+  }
+}
+
 /**
- * 调用 Google Gemini API 识别题目
+ * 调用 Kimi (Moonshot AI) API 识别题目
  */
-export async function recognizeWithGemini(
+export async function recognizeWithKimi(
   imageBase64: string
 ): Promise<AIRecognitionResult[]> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
+  const apiKey = process.env.KIMI_API_KEY
 
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY 或 GOOGLE_API_KEY 未配置')
+    throw new Error('KIMI_API_KEY 未配置')
   }
 
-  const systemInstruction = `你是一个专业的题目识别助手。请仔细分析图片中的题目，并按照指定的JSON格式返回结果。
+  const systemPrompt = `你是一个专业的题目识别助手。请仔细分析图片中的题目，并按照指定的JSON格式返回结果。
 
 要求：
 1. 准确识别题目的完整内容，包括公式和特殊符号
@@ -30,9 +50,9 @@ export async function recognizeWithGemini(
 6. confidence 表示识别的置信度（0-1之间）
 7. 如果图片中有多道题目，请全部识别并返回数组
 
-请严格按照JSON Schema返回结果。`
+请严格按照JSON格式返回结果，不要添加markdown代码块标记。`
 
-  const prompt = `请识别并提取图中所有的题目，返回以下格式的JSON数组：
+  const userPrompt = `请识别并提取图中所有的题目，返回以下格式的JSON数组：
 
 [
   {
@@ -49,47 +69,52 @@ export async function recognizeWithGemini(
 请直接返回JSON数组，不要有其他内容。`
 
   try {
-    // 准备图片数据
-    const imageData = imageBase64.startsWith('data:')
-      ? imageBase64.split(',')[1]
-      : imageBase64
+    // 支持三种输入：HTTP URL、data URI、纯 base64 字符串
+    const imageUrl = imageBase64.startsWith('http://') || imageBase64.startsWith('https://')
+      ? imageBase64
+      : imageBase64.startsWith('data:')
+        ? imageBase64
+        : `data:image/jpeg;base64,${imageBase64}`
 
-    // 调用 Gemini REST API
-    // 使用 AbortController 设置 8 秒超时（Vercel Hobby 函数限制 10 秒）
+    // 使用 AbortController 设置 25 秒超时
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 8000)
+    const timeoutId = setTimeout(() => controller.abort(), 25000)
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,
+      'https://api.kimi.com/coding/v1/chat/completions',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
+          Authorization: `Bearer ${apiKey}`,
         },
         signal: controller.signal,
         body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemInstruction }],
-          },
-          contents: [
+          model: 'kimi-k2-0711-preview',
+          messages: [
             {
-              parts: [
+              role: 'system',
+              content: systemPrompt,
+            },
+            {
+              role: 'user',
+              content: [
                 {
-                  inlineData: {
-                    mimeType: 'image/jpeg',
-                    data: imageData,
+                  type: 'image_url',
+                  image_url: {
+                    url: imageUrl,
                   },
                 },
-                { text: prompt },
+                {
+                  type: 'text',
+                  text: userPrompt,
+                },
               ],
             },
           ],
-          generationConfig: {
-            temperature: 0.1,
-            topP: 0.9,
-            responseMimeType: 'application/json',
-          },
+          temperature: 0.1,
+          top_p: 0.9,
+          max_tokens: 4096,
         }),
       }
     )
@@ -98,14 +123,14 @@ export async function recognizeWithGemini(
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Gemini API 请求失败: ${response.status} ${errorText}`)
+      throw new Error(`Kimi API 请求失败: ${response.status} ${errorText}`)
     }
 
-    const data = await response.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+    const data: KimiResponse = await response.json()
+    const text = data.choices?.[0]?.message?.content
 
     if (!text || text.trim().length === 0) {
-      throw new Error('Gemini AI 返回的内容为空')
+      throw new Error('Kimi AI 返回的内容为空')
     }
 
     // 解析 JSON（移除可能的 markdown 代码块标记）
@@ -120,7 +145,7 @@ export async function recognizeWithGemini(
 
     // 验证结果格式
     if (!Array.isArray(results) || results.length === 0) {
-      throw new Error('Gemini AI 返回的数据格式不正确')
+      throw new Error('Kimi AI 返回的数据格式不正确')
     }
 
     // 验证每个结果的必填字段
@@ -132,7 +157,7 @@ export async function recognizeWithGemini(
         !result.difficulty ||
         !result.answer
       ) {
-        throw new Error('Gemini AI 返回的题目信息不完整')
+        throw new Error('Kimi AI 返回的题目信息不完整')
       }
 
       // 验证学科是否合法
@@ -163,40 +188,34 @@ export async function recognizeWithGemini(
         result.confidence < 0 ||
         result.confidence > 1
       ) {
-        result.confidence = 0.85 // 默认置信度
+        result.confidence = 0.9 // 默认置信度
       }
     }
 
     return results
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new Error('Gemini AI 返回的 JSON 格式无效，请重试')
+      throw new Error('Kimi AI 返回的 JSON 格式无效，请重试')
     }
 
     if (error instanceof Error) {
       // 处理超时
-      if (error.name === 'AbortError' || error.message.includes('timeout') || error.message.includes('UND_ERR_CONNECT_TIMEOUT')) {
-        throw new Error('Gemini API 连接超时，请检查网络或稍后重试')
+      if (error.name === 'AbortError' || error.message.includes('timeout')) {
+        throw new Error('Kimi API 连接超时，请检查网络或稍后重试')
       }
-      // 处理常见的 Gemini API 错误
-      if (error.message.includes('API key')) {
-        throw new Error('Gemini API Key 无效或未配置')
+      // 处理常见的 Kimi API 错误
+      if (error.message.includes('API key') || error.message.includes('Unauthorized')) {
+        throw new Error('Kimi API Key 无效或未配置')
       }
-      if (error.message.includes('quota')) {
-        throw new Error('Gemini API 配额已用完')
+      if (error.message.includes('quota') || error.message.includes('rate limit')) {
+        throw new Error('Kimi API 配额已用完或请求过于频繁')
       }
-      if (error.message.includes('safety')) {
-        throw new Error('图片内容被 Gemini 安全过滤器拦截')
-      }
-      if (error.message.includes('not supported') || error.message.includes('FAILED_PRECONDITION')) {
-        throw new Error('Gemini API 当前区域不可用，请更换区域后重试')
-      }
-      if (error.message.includes('not found') || error.message.includes('models/')) {
-        throw new Error('Gemini 模型不可用或已被移除，请联系管理员')
+      if (error.message.includes('content filter') || error.message.includes('safety')) {
+        throw new Error('图片内容被 Kimi 安全过滤器拦截')
       }
       throw error
     }
 
-    throw new Error('Gemini 识别失败，请重试')
+    throw new Error('Kimi 识别失败，请重试')
   }
 }

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { compressImage } from '@/lib/utils'
+import { uploadImageToSupabase } from '@/lib/utils'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { toast } from 'sonner'
 
-export type AIProvider = 'alibaba' | 'baidu' | 'gemini'
+export type AIProvider = 'alibaba'
 
 export type ImageQueueStatus = 'pending' | 'processing' | 'success' | 'failed'
 
@@ -64,11 +64,11 @@ export function useOCR() {
 
       setProgress(20)
 
-      // 3. 压缩图片并转换为 base64（最大 600px，质量 0.7）
-      const imageBase64 = await compressImage(file)
+      // 3. 上传图片到 Supabase Storage 获取公开 URL
+      const imageUrl = await uploadImageToSupabase(file)
       setProgress(40)
 
-      // 4. 调用 API
+      // 4. 调用 API（传入图片 URL，不再传 base64）
       const currentProvider = options?.provider || provider
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
@@ -76,7 +76,7 @@ export function useOCR() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imageBase64,
+          imageUrl,
           provider: currentProvider,
         }),
       })
@@ -151,19 +151,19 @@ export function useOCR() {
         item.progress = 20
         callbacks?.onItemProgress?.(item, 20)
 
-        // 3. 压缩图片
-        const imageBase64 = await compressImage(item.file, 1024, 0.9)
+        // 3. 上传图片到 Supabase Storage 获取公开 URL
+        const imageUrl = await uploadImageToSupabase(item.file)
         item.progress = 40
         callbacks?.onItemProgress?.(item, 40)
 
-        // 4. 调用 API
+        // 4. 调用 API（传入图片 URL）
         const response = await fetch('/api/ai/recognize', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            imageBase64,
+            imageUrl,
             provider,
           }),
         })
@@ -257,19 +257,19 @@ export function useOCR() {
       item.progress = 20
       callbacks?.onProgress?.(item, 20)
 
-      // 3. 压缩图片
-      const imageBase64 = await compressImage(item.file, 1024, 0.9)
+      // 3. 上传图片到 Supabase Storage 获取公开 URL
+      const imageUrl = await uploadImageToSupabase(item.file)
       item.progress = 40
       callbacks?.onProgress?.(item, 40)
 
-      // 4. 调用 API
+      // 4. 调用 API（传入图片 URL）
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imageBase64,
+          imageUrl,
           provider,
         }),
       })
@@ -314,8 +314,6 @@ export function useOCR() {
     setProvider(newProvider)
     const providerNames = {
       alibaba: '阿里云 DashScope',
-      baidu: '百度 OCR',
-      gemini: 'Google Gemini',
     }
     toast.success(`已切换到 ${providerNames[newProvider]} AI`)
   }
