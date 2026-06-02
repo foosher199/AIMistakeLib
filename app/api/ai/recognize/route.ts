@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
+import { createAdminClient } from '@/lib/supabase'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
 import { z } from 'zod'
@@ -103,6 +104,28 @@ export async function POST(request: NextRequest) {
         { error: '未识别到题目内容，请确保图片清晰可读' },
         { status: 400 }
       )
+    }
+
+    // 识别完成后，删除 Storage 中的临时图片
+    try {
+      const url = new URL(imageUrl)
+      const pathParts = url.pathname.split('/')
+      const fileName = pathParts[pathParts.length - 1]
+
+      if (fileName) {
+        const adminClient = createAdminClient()
+        const { error: deleteError } = await adminClient.storage
+          .from('mistake-images')
+          .remove([fileName])
+
+        if (deleteError) {
+          console.error('[Storage] 删除临时图片失败:', deleteError.message)
+        } else {
+          console.log('[Storage] 临时图片已删除:', fileName)
+        }
+      }
+    } catch (deleteErr) {
+      console.error('[Storage] 删除临时图片出错:', deleteErr)
     }
 
     return NextResponse.json({ results })
