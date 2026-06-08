@@ -5,7 +5,7 @@ import { uploadImageToSupabase, compressImage } from '@/lib/utils'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { toast } from 'sonner'
 
-export type AIProvider = 'alibaba'
+export type RecognitionMode = 'text' | 'vision'
 
 export type ImageQueueStatus = 'pending' | 'processing' | 'success' | 'failed'
 
@@ -20,7 +20,7 @@ export interface ImageQueueItem {
 }
 
 interface RecognizeOptions {
-  provider?: AIProvider
+  mode?: RecognitionMode
 }
 
 interface BatchRecognizeCallbacks {
@@ -37,11 +37,8 @@ interface BatchRecognizeCallbacks {
 export function useOCR() {
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [provider, setProvider] = useState<AIProvider>('alibaba')
+  const [mode, setMode] = useState<RecognitionMode>('text')
 
-  /**
-   * 识别图片中的题目
-   */
   /**
    * 将 Data URL 转换为 File 对象
    */
@@ -79,7 +76,7 @@ export function useOCR() {
 
       setProgress(10)
 
-      // 3. 压缩图片（最大 1200px，质量 0.8），减少阿里云处理时间
+      // 3. 压缩图片（最大 1200px，质量 0.8）
       const compressedBase64 = await compressImage(file, 1200, 0.8)
       const compressedFile = dataUrlToFile(compressedBase64, file.name)
       setProgress(25)
@@ -88,8 +85,8 @@ export function useOCR() {
       const imageUrl = await uploadImageToSupabase(compressedFile)
       setProgress(40)
 
-      // 5. 调用 API（传入图片 URL）
-      const currentProvider = options?.provider || provider
+      // 5. 调用 API
+      const currentMode = options?.mode || mode
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
         headers: {
@@ -97,7 +94,7 @@ export function useOCR() {
         },
         body: JSON.stringify({
           imageUrl,
-          provider: currentProvider,
+          mode: currentMode,
         }),
       })
 
@@ -126,7 +123,7 @@ export function useOCR() {
       throw new Error('识别失败，请稍后重试')
     } finally {
       setLoading(false)
-      setTimeout(() => setProgress(0), 500) // 延迟重置进度条
+      setTimeout(() => setProgress(0), 500)
     }
   }
 
@@ -139,7 +136,6 @@ export function useOCR() {
     concurrency: number = 2,
     maxRetries: number = 1
   ): Promise<ImageQueueItem[]> => {
-    // 初始化队列项
     const items: ImageQueueItem[] = files.map((file, index) => ({
       id: `${Date.now()}-${index}`,
       file,
@@ -148,22 +144,17 @@ export function useOCR() {
       retryCount: 0,
     }))
 
-    /**
-     * 处理单张图片（带重试）
-     */
     const processImage = async (item: ImageQueueItem): Promise<void> => {
       item.status = 'processing'
       callbacks?.onItemStart?.(item)
 
       try {
-        // 1. 验证文件类型
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
         if (!validTypes.includes(item.file.type)) {
           throw new Error('不支持的图片格式')
         }
 
-        // 2. 验证文件大小
-        const maxSize = 10 * 1024 * 1024 // 10MB
+        const maxSize = 10 * 1024 * 1024
         if (item.file.size > maxSize) {
           throw new Error('图片文件过大')
         }
@@ -171,27 +162,19 @@ export function useOCR() {
         item.progress = 15
         callbacks?.onItemProgress?.(item, 15)
 
-        // 3. 压缩图片（最大 1200px，质量 0.8）
         const compressedBase64 = await compressImage(item.file, 1200, 0.8)
         const compressedFile = dataUrlToFile(compressedBase64, item.file.name)
         item.progress = 30
         callbacks?.onItemProgress?.(item, 30)
 
-        // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
         const imageUrl = await uploadImageToSupabase(compressedFile)
         item.progress = 45
         callbacks?.onItemProgress?.(item, 45)
 
-        // 5. 调用 API（传入图片 URL）
         const response = await fetch('/api/ai/recognize', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageUrl,
-            provider,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl, mode }),
         })
 
         item.progress = 80
@@ -208,7 +191,6 @@ export function useOCR() {
           throw new Error('未识别到题目内容')
         }
 
-        // 成功
         item.status = 'success'
         item.progress = 100
         item.result = data.results
@@ -216,14 +198,12 @@ export function useOCR() {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : '识别失败'
 
-        // 重试逻辑
         if (item.retryCount < maxRetries) {
           item.retryCount++
-          await new Promise(resolve => setTimeout(resolve, 1000)) // 等待 1 秒后重试
+          await new Promise(resolve => setTimeout(resolve, 1000))
           return processImage(item)
         }
 
-        // 重试次数用尽，标记为失败
         item.status = 'failed'
         item.error = errorMessage
         item.progress = 0
@@ -231,9 +211,6 @@ export function useOCR() {
       }
     }
 
-    /**
-     * 并发处理（分批）
-     */
     const processBatch = async () => {
       for (let i = 0; i < items.length; i += concurrency) {
         const batch = items.slice(i, i + concurrency)
@@ -241,7 +218,6 @@ export function useOCR() {
       }
     }
 
-    // 开始处理
     await processBatch()
     callbacks?.onComplete?.(items)
 
@@ -260,7 +236,6 @@ export function useOCR() {
       onError?: (item: ImageQueueItem, error: string) => void
     }
   ): Promise<ImageQueueItem> => {
-    // 重置状态
     item.status = 'processing'
     item.progress = 0
     item.error = undefined
@@ -268,14 +243,12 @@ export function useOCR() {
     callbacks?.onStart?.(item)
 
     try {
-      // 1. 验证文件类型
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
       if (!validTypes.includes(item.file.type)) {
         throw new Error('不支持的图片格式')
       }
 
-      // 2. 验证文件大小
-      const maxSize = 10 * 1024 * 1024 // 10MB
+      const maxSize = 10 * 1024 * 1024
       if (item.file.size > maxSize) {
         throw new Error('图片文件过大')
       }
@@ -283,27 +256,19 @@ export function useOCR() {
       item.progress = 15
       callbacks?.onProgress?.(item, 15)
 
-      // 3. 压缩图片（最大 1200px，质量 0.8）
       const compressedBase64 = await compressImage(item.file, 1200, 0.8)
       const compressedFile = dataUrlToFile(compressedBase64, item.file.name)
       item.progress = 30
       callbacks?.onProgress?.(item, 30)
 
-      // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
       const imageUrl = await uploadImageToSupabase(compressedFile)
       item.progress = 45
       callbacks?.onProgress?.(item, 45)
 
-      // 5. 调用 API（传入图片 URL）
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageUrl,
-          provider,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl, mode }),
       })
 
       item.progress = 80
@@ -320,7 +285,6 @@ export function useOCR() {
         throw new Error('未识别到题目内容')
       }
 
-      // 成功
       item.status = 'success'
       item.progress = 100
       item.result = data.results
@@ -340,14 +304,15 @@ export function useOCR() {
   }
 
   /**
-   * 切换 AI 提供商
+   * 切换识别模式
    */
-  const switchProvider = (newProvider: AIProvider) => {
-    setProvider(newProvider)
-    const providerNames = {
-      alibaba: '阿里云 DashScope',
+  const switchMode = (newMode: RecognitionMode) => {
+    setMode(newMode)
+    const modeNames = {
+      text: '文本模式 (OCR + DeepSeek)',
+      vision: '视觉模式 (阿里云 qwen-vl-plus)',
     }
-    toast.success(`已切换到 ${providerNames[newProvider]} AI`)
+    toast.success(`已切换到 ${modeNames[newMode]}`)
   }
 
   return {
@@ -356,7 +321,7 @@ export function useOCR() {
     retryImage,
     loading,
     progress,
-    provider,
-    switchProvider,
+    mode,
+    switchMode,
   }
 }

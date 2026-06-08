@@ -2,6 +2,9 @@
  * AI Recognition API
  *
  * POST /api/ai/recognize - AI 识别图片中的题目
+ * 支持两种模式：
+ *   - vision: 阿里云 qwen-vl-plus 直接看图（高精度，慢，贵）
+ *   - text: Tesseract OCR + DeepSeek 文本分析（低精度，快，便宜）
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,36 +12,42 @@ import { createServerClient } from '@/lib/supabase-server'
 import { createAdminClient } from '@/lib/supabase'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
+import { extractTextFromImage } from '@/lib/ai/ocr'
+import { analyzeTextWithDeepSeek } from '@/lib/ai/deepseek'
+import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { z } from 'zod'
 
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
   imageUrl: z.string().url('图片URL格式无效'),
-  provider: z.enum(['alibaba']).default('alibaba'),
+  mode: z.enum(['vision', 'text']).default('text'),
 })
 
 /**
- * POST /api/ai/recognize
- *
- * 请求体：
- * {
- *   imageUrl: string,  // 图片公开URL（如 Supabase Storage URL）
- *   provider: 'alibaba'  // AI 服务提供商（默认 alibaba）
- * }
- *
- * 响应：
- * {
- *   results: Array<{
- *     content: string,
- *     subject: string,
- *     category: string,
- *     difficulty: 'easy' | 'medium' | 'hard',
- *     answer: string,
- *     explanation?: string,
- *     confidence: number
- *   }>
- * }
+ * 从 URL 中提取文件名，删除 Storage 中的临时图片
  */
+async function deleteTempImage(imageUrl: string): Promise<void> {
+  try {
+    const url = new URL(imageUrl)
+    const pathParts = url.pathname.split('/')
+    const fileName = pathParts[pathParts.length - 1]
+
+    if (fileName) {
+      const adminClient = createAdminClient()
+      const { error: deleteError } = await adminClient.storage
+        .from('mistake-images')
+        .remove([fileName])
+
+      if (deleteError) {
+        console.error('[Storage] 删除临时图片失败:', deleteError.message)
+      } else {
+        console.log('[Storage] 临时图片已删除:', fileName)
+      }
+    }
+  } catch (deleteErr) {
+    console.error('[Storage] 删除临时图片出错:', deleteErr)
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,18 +93,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errors }, { status: 400 })
     }
 
-    const { imageUrl, provider } = validation.data
+    const { imageUrl, mode } = validation.data
 
-    // 根据提供商选择识别服务
-    // 目前只有阿里云可以正常使用，其他模型暂时停用
-    let results
+    let results: AIRecognitionResult[]
 
-    try {
-      // 只使用阿里云
-      results = await recognizeWithAlibaba(imageUrl)
-    } catch (aiError) {
-      console.error(`AI 识别失败 (${provider}):`, aiError)
-      throw aiError
+    if (mode === 'text') {
+      // ===== 文本模式：Tesseract OCR + DeepSeek =====
+      console.log('[API] 使用文本模式 (OCR + DeepSeek)')
+
+      try {
+        // 1. OCR 提取纯文本
+        const extractedText = await extractTextFromImage(imageUrl)
+
+        // 2. DeepSeek 分析文本
+        results = await analyzeTextWithDeepSeek(extractedText)
+      } catch (textError) {
+        console.error('[API] 文本模式失败:', textError)
+        throw textError
+      }
+    } else {
+      // ===== 视觉模式：阿里云 qwen-vl-plus 直接看图 =====
+      console.log('[API] 使用视觉模式 (阿里云 qwen-vl-plus)')
+
+      try {
+        results = await recognizeWithAlibaba(imageUrl)
+      } catch (visionError) {
+        console.error('[API] 视觉模式失败:', visionError)
+        throw visionError
+      }
     }
 
     // 验证结果
@@ -107,26 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 识别完成后，删除 Storage 中的临时图片
-    try {
-      const url = new URL(imageUrl)
-      const pathParts = url.pathname.split('/')
-      const fileName = pathParts[pathParts.length - 1]
-
-      if (fileName) {
-        const adminClient = createAdminClient()
-        const { error: deleteError } = await adminClient.storage
-          .from('mistake-images')
-          .remove([fileName])
-
-        if (deleteError) {
-          console.error('[Storage] 删除临时图片失败:', deleteError.message)
-        } else {
-          console.log('[Storage] 临时图片已删除:', fileName)
-        }
-      }
-    } catch (deleteErr) {
-      console.error('[Storage] 删除临时图片出错:', deleteErr)
-    }
+    await deleteTempImage(imageUrl)
 
     return NextResponse.json({ results })
   } catch (error) {

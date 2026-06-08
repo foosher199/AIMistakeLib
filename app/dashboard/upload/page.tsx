@@ -8,7 +8,7 @@ import { ImageQueueList } from '@/components/upload/ImageQueueList'
 import { RecognitionResults } from '@/components/upload/RecognitionResults'
 import { QuestionForm } from '@/components/upload/QuestionForm'
 import { LoginDialog } from '@/components/auth/LoginDialog'
-import { useOCR, type AIProvider, type ImageQueueItem } from '@/hooks/useOCR'
+import { useOCR, type RecognitionMode, type ImageQueueItem } from '@/hooks/useOCR'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sparkles, Camera, BookOpen, Check, Loader2 } from 'lucide-react'
@@ -17,7 +17,7 @@ import { toast } from 'sonner'
 export default function UploadPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
-  const { recognizeBatch, retryImage, provider, switchProvider } = useOCR()
+  const { recognizeBatch, retryImage, mode, switchMode } = useOCR()
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
   const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
@@ -222,7 +222,7 @@ export default function UploadPage() {
         <p className="text-[#626a72]">使用 AI 自动识别图片中的错题内容</p>
       </div>
 
-      {/* AI 提供商切换 */}
+      {/* AI 识别模式切换 */}
       <div className="bg-white rounded-lg border border-[#dee5eb] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -230,17 +230,20 @@ export default function UploadPage() {
             <div>
               <p className="text-sm font-medium text-[#1f1f1f]">AI 识别引擎</p>
               <p className="text-xs text-[#626a72] mt-0.5">
-                选择不同的 AI 提供商以获得最佳识别效果
+                {mode === 'text'
+                  ? '文本模式：Tesseract OCR + DeepSeek，速度快、成本低，适合纯文字题目'
+                  : '视觉模式：阿里云 qwen-vl-plus 直接看图，精度高，适合含图形/公式题目'}
               </p>
             </div>
           </div>
 
           <Tabs
-            value={provider}
-            onValueChange={(v) => switchProvider(v as AIProvider)}
+            value={mode}
+            onValueChange={(v) => switchMode(v as RecognitionMode)}
           >
             <TabsList>
-              <TabsTrigger value="alibaba">阿里云</TabsTrigger>
+              <TabsTrigger value="text">文本模式</TabsTrigger>
+              <TabsTrigger value="vision">视觉模式</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
