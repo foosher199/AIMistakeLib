@@ -12,6 +12,7 @@ import { spawn } from 'child_process'
 import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
+import { extractTextWithBaidu } from './baidu-ocr'
 
 /**
  * 下载图片到临时文件
@@ -72,22 +73,34 @@ function runTesseract(imagePath: string): Promise<string> {
 
 /**
  * 从图片 URL 提取纯文本
+ * 优先使用百度 OCR，失败时回退到 Tesseract CLI
  * @param imageUrl 图片公开 URL
  * @returns 提取的纯文本
  */
 export async function extractTextFromImage(imageUrl: string): Promise<string> {
   const startTime = Date.now()
+
+  // 优先尝试百度 OCR（中文识别率更高）
+  try {
+    const text = await extractTextWithBaidu(imageUrl)
+    console.log(
+      `[OCR] 百度OCR识别完成, 总耗时: ${Date.now() - startTime}ms, 字数: ${text.length}`
+    )
+    return text
+  } catch (baiduError) {
+    console.warn('[OCR] 百度OCR失败，回退到 Tesseract:', baiduError)
+    // 继续执行 Tesseract 回退逻辑
+  }
+
+  // 回退：Tesseract CLI
   let tempPath: string | null = null
 
   try {
-    // 1. 下载图片到临时文件
     tempPath = await downloadImageToTemp(imageUrl)
-
-    // 2. 调用 Tesseract CLI
     const text = await runTesseract(tempPath)
 
     console.log(
-      `[OCR] 识别完成, 耗时: ${Date.now() - startTime}ms, 字数: ${text.length}`
+      `[OCR] Tesseract识别完成, 总耗时: ${Date.now() - startTime}ms, 字数: ${text.length}`
     )
 
     if (!text || text.trim().length === 0) {
@@ -106,7 +119,6 @@ export async function extractTextFromImage(imageUrl: string): Promise<string> {
     }
     throw new Error('OCR 识别失败，请重试')
   } finally {
-    // 3. 清理临时文件
     if (tempPath) {
       fs.unlink(tempPath).catch(() => {
         // 忽略删除失败
