@@ -4,10 +4,6 @@
  * 文档：https://cloud.baidu.com/doc/OCR/s/1k3h7y3db
  */
 
-import fs from 'fs/promises'
-import path from 'path'
-import os from 'os'
-
 interface BaiduTokenResponse {
   access_token: string
   expires_in: number
