@@ -6,60 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Chinese-language web application for capturing wrong/missed exam questions via AI-powered image recognition, storing them in the cloud, and reviewing them over time. Built with Next.js 15, React 19, TypeScript, and Supabase.
 
-## Project Layout
-
-```
-/
-├── app/
-│   ├── layout.tsx              # Root layout with providers
-│   ├── page.tsx                # Home page
-│   ├── globals.css             # Global styles + Tailwind imports
-│   ├── api/                    # Next.js API routes
-│   │   ├── ai/recognize/       # AI image recognition endpoint
-│   │   └── questions/          # CRUD API for questions
-│   └── dashboard/
-│       ├── layout.tsx          # Dashboard layout with Navbar + Footer
-│       ├── page.tsx            # Main dashboard page (question list)
-│       ├── upload/             # Upload page for new questions
-│       ├── questions/          # Question detail pages
-│       ├── history/            # Review history page
-│       ├── profile/            # User profile page
-│       └── feedback/           # User feedback page
-├── components/
-│   ├── auth/                   # Auth components (LoginForm, RegisterForm, LoginDialog)
-│   ├── layout/                 # Layout components (Navbar, Footer)
-│   ├── questions/              # Question-related components (QuestionCard, QuestionList, etc.)
-│   ├── upload/                 # Upload-related components
-│   └── ui/                     # Shadcn UI components (button, dialog, dropdown-menu, etc.)
-├── hooks/
-│   ├── useAuth.ts              # Supabase auth hook (login, register, anonymous login)
-│   ├── useQuestions.ts         # React Query hooks for question CRUD operations
-│   └── useOCR.ts               # AI image recognition hook
-├── lib/
-│   ├── supabase.ts             # Supabase client factory (browser, server, admin)
-│   ├── supabase-client.ts      # Browser client wrapper
-│   ├── supabase-server.ts      # Server client wrapper
-│   ├── utils.ts                # Utility functions (cn, image compression, etc.)
-│   ├── providers.tsx           # React Query provider
-│   ├── ai/
-│   │   ├── alibaba.ts          # Alibaba DashScope integration (qwen-vl-plus)
-│   │   ├── baidu.ts            # Baidu OCR integration (fallback)
-│   │   └── gemini.ts           # Google Gemini integration (gemini-2.0-flash-exp)
-│   └── validations/            # Zod schemas for form validation
-├── types/
-│   └── database.ts             # Supabase database types + type helpers
-├── cloud-functions/
-│   └── ai-recognize/
-│       ├── index.js            # Tencent Cloud Function for AI proxy (optional CORS workaround)
-│       └── package.json        # Dependencies: axios
-├── supabase/
-│   └── migrations/             # Database migration files
-├── package.json
-├── next.config.js              # Next.js config
-├── tsconfig.json               # TypeScript config with @/* path alias
-└── tailwind.config.js          # Tailwind CSS config with custom animations
-```
-
 ## Commands
 
 ```bash
@@ -72,79 +18,130 @@ npm run lint         # ESLint
 
 There is no test suite configured in this project.
 
+## Project Layout
+
+```
+/
+├── app/                        # Next.js App Router
+│   ├── layout.tsx              # Root layout with Providers, Navbar, Footer, Toaster
+│   ├── page.tsx                # Home/landing page
+│   ├── globals.css             # Global styles + Tailwind imports + CSS variables
+│   ├── api/                    # API routes
+│   │   ├── ai/recognize/       # POST /api/ai/recognize - AI image recognition
+│   │   ├── questions/          # GET/POST /api/questions + [id]/review/master
+│   │   └── feedbacks/          # GET/POST /api/feedbacks
+│   └── dashboard/              # Dashboard pages (no layout.tsx here - uses root)
+│       ├── page.tsx            # Main dashboard (question list with filters)
+│       ├── upload/             # Upload page for new questions
+│       ├── questions/[id]/     # Question detail/edit page
+│       ├── history/            # Review history page
+│       ├── profile/            # User profile page
+│       └── feedback/           # User feedback page
+├── components/
+│   ├── auth/                   # LoginForm, RegisterForm, LoginDialog
+│   ├── layout/                 # Navbar, Footer
+│   ├── questions/              # QuestionCard, QuestionList, QuestionFilters, etc.
+│   ├── upload/                 # ImageUploader, RecognitionResult, etc.
+│   └── ui/                     # Shadcn UI primitives (button, dialog, dropdown-menu, etc.)
+├── hooks/
+│   ├── useAuth.ts              # Supabase auth (anonymous, email/password, bindEmail)
+│   ├── useQuestions.ts         # React Query hooks for question CRUD + optimistic updates
+│   └── useOCR.ts               # AI image recognition hook
+├── lib/
+│   ├── supabase.ts             # Browser/Server/Admin client factories + getCurrentUser/requireAuth
+│   ├── supabase-client.ts      # Browser client only (for 'use client' components)
+│   ├── supabase-server.ts      # Server client + admin client (for API routes/server components)
+│   ├── utils.ts                # cn() utility, image compression
+│   ├── providers.tsx           # React Query QueryClientProvider
+│   ├── rate-limit.ts           # LRU-based rate limiter for AI recognition
+│   ├── ai/
+│   │   ├── alibaba.ts          # Alibaba DashScope (qwen3.6-plus) vision recognition
+│   │   ├── ocr.ts              # Tesseract CLI OCR (downloads image, runs tesseract, cleans up)
+│   │   └── deepseek.ts         # DeepSeek text analysis (deepseek-v4-flash)
+│   └── validations/
+│       └── question.ts         # Zod schemas for question CRUD + parseAndValidate helper
+├── types/
+│   └── database.ts             # Supabase Database types, Question/Profile/Feedback types, SUBJECTS/DIFFICULTIES/CATEGORIES constants
+├── cloud-functions/
+│   └── ai-recognize/           # Tencent Cloud Function proxy (optional CORS workaround)
+├── supabase/
+│   └── migrations/             # Database migration files
+├── package.json
+├── next.config.js              # Next.js config (port 4001 dev, reactStrictMode, remotePatterns)
+├── tsconfig.json               # TypeScript with @/* alias, noUnusedLocals/noUnusedParameters
+├── tailwind.config.js          # Tailwind with custom colors, animations, sidebar tokens
+├── vercel.json                 # Vercel deployment config (regions, maxDuration 10s for API)
+└── Dockerfile                  # Render deployment with Tesseract OCR + Chinese language pack
+```
+
 ## Architecture & Data Flow
 
-**Framework:** Next.js 15 with App Router. Pages are in `app/`, layouts use nested routing, and data fetching uses React Server Components where applicable.
+**Framework:** Next.js 15 with App Router. Server components by default; client components need `'use client'`.
 
-**Routing:** URL-based routing via Next.js App Router. Main routes:
+**Routing:**
 - `/` - Home/landing page
-- `/dashboard` - Main dashboard (question list)
-- `/dashboard/upload` - Upload new questions
-- `/dashboard/questions/[id]` - Question detail page
+- `/dashboard` - Question list with filters (subject, difficulty, mastered status, search)
+- `/dashboard/upload` - Image upload + AI recognition
+- `/dashboard/questions/[id]` - Question detail/edit
 - `/dashboard/history` - Review history
 - `/dashboard/profile` - User profile
-- `/dashboard/feedback` - User feedback
+- `/dashboard/feedback` - Submit feedback
 
-**Authentication:** Supabase Auth with three modes:
-1. **Anonymous login** (`useAuth().loginAnonymous()`) - Quick guest access, data saved to user_id, can upgrade to email/password later
-2. **Email/password registration** (`useAuth().signUp()`) - Email verification currently disabled for faster onboarding
-3. **Email/password login** (`useAuth().signIn()`)
-4. **Guest upgrade** (`useAuth().bindEmail()`) - Anonymous users can bind email to keep their data
+**Authentication:** Supabase Auth with four modes (all via `useAuth` hook):
+1. **Anonymous login** (`loginAnonymous()`) - Quick guest access, `user.is_anonymous = true`
+2. **Email/password registration** (`signUp()`) - Email verification disabled for faster onboarding
+3. **Email/password login** (`signIn()`)
+4. **Guest upgrade** (`bindEmail()`) - Anonymous users bind email/password, keeps user_id and data
 
-Auth state is managed client-side via `useAuth` hook (hooks/useAuth.ts), which wraps Supabase Auth SDK and provides reactive state updates via `onAuthStateChange`.
+Auth state managed via `onAuthStateChange` listener in `useAuth` hook.
 
-**Database:** Supabase (PostgreSQL) with Row Level Security (RLS). Two main tables:
-- `mistake_questions` - Question records with subject, difficulty, answer, image_url, review_count, is_mastered, etc. All queries scoped to user via RLS.
+**Database:** Supabase PostgreSQL with RLS. Three tables:
+- `mistake_questions` - Question records (content, subject, category, difficulty, answer, image_url, review_count, is_mastered, user_id)
 - `mistake_profiles` - User profile extensions (username, avatar_url)
 - `mistake_feedbacks` - User feedback (category, subject, content, status)
 
-See `types/database.ts` for full schema and type definitions.
+All queries scoped to user via RLS. See `types/database.ts` for full schema and helper constants (SUBJECTS, DIFFICULTIES, CATEGORIES).
 
-**Data layer:** React Query (`@tanstack/react-query`) for server state management:
-- `useQuestions()` - Fetch question list with filters
+**Data layer:** React Query (`@tanstack/react-query`) for server state:
+- `useQuestions(params)` - Fetch list with filters, staleTime 5min
 - `useQuestion(id)` - Fetch single question
 - `useQuestionStats()` - Fetch stats (total, mastered, pending)
-- `useCreateQuestion()` - Create new question
-- `useUpdateQuestion()` - Update question (optimistic updates)
-- `useDeleteQuestion()` - Delete question
-- `useReviewQuestion()` - Increment review_count
-- `useMasterQuestion()` - Mark as mastered
-- `useCreateFeedback()` - Submit user feedback
-- `useFeedbacks()` - Get user's feedback history
+- `useCreateQuestion()` - Create (invalidates questions + stats)
+- `useUpdateQuestion()` - Update with optimistic updates + rollback
+- `useDeleteQuestion()` - Delete with cache removal
+- `useReviewQuestion()` - Increment review_count with optimistic update
+- `useMasterQuestion()` - Mark mastered with optimistic update
 
-All mutations use optimistic updates and automatic cache invalidation for responsive UX.
+All mutations use `onMutate` for optimistic updates, `onError` for rollback, `onSuccess` for cache invalidation.
 
-**Supabase client pattern:** Three client types based on context:
-1. `createBrowserClient()` - Client components (`'use client'`), auto session management
-2. `createServerClient()` - Server components, Server Actions, API routes, reads from cookies
-3. `createAdminClient()` - API routes only, bypasses RLS, requires `SUPABASE_SERVICE_ROLE_KEY`
-
-See `lib/supabase.ts` for detailed usage examples and warnings.
+**Supabase client pattern:** Three clients based on context:
+1. `createBrowserClient()` - Client components (`'use client'`), auto session management. Import from `@/lib/supabase-client`
+2. `createServerClient()` - Server components, API routes, reads from cookies. Import from `@/lib/supabase-server`
+3. `createAdminClient()` - API routes only, bypasses RLS, requires `SUPABASE_SERVICE_ROLE_KEY`. Import from `@/lib/supabase-server`
 
 **AI recognition flow:**
-1. User uploads image(s) in `/dashboard/upload`
-2. `useOCR().recognize(file)` validates file, compresses to max 1024px, converts to base64
-3. Calls `/api/ai/recognize` POST endpoint with `{ imageBase64, provider }`
-4. API route selects AI provider and calls corresponding service
-5. **Supported AI providers:**
-   - **Alibaba DashScope (default):** Uses qwen-vl-plus model for multimodal understanding, returns structured JSON with content, subject, difficulty, answer, explanation. High accuracy (0.8-0.95 confidence).
-   - **Google Gemini:** Uses gemini-2.0-flash-exp model with structured output, similar capabilities to Alibaba. High accuracy (0.85-0.95 confidence).
-   - **Baidu OCR (fallback):** Text-only OCR with keyword-based subject/difficulty inference. Medium accuracy (0.75 confidence).
-6. **Automatic fallback:** If primary provider fails, API automatically tries backup providers (Alibaba → Gemini → Baidu)
-7. Results returned as `AIRecognitionResult[]`, user reviews and saves to Supabase
+1. User uploads image in `/dashboard/upload`
+2. Image uploaded to Supabase Storage (`mistake-images` bucket), public URL returned
+3. `useOCR().recognize(imageUrl)` calls `/api/ai/recognize` with `{ imageUrl, mode }`
+4. API route validates auth, checks rate limit (20 requests/hour per user)
+5. Two recognition modes:
+   - **text mode (default):** Tesseract OCR extracts text → DeepSeek analyzes text structure
+   - **vision mode:** Alibaba DashScope qwen3.6-plus directly processes image
+6. Results returned as `AIRecognitionResult[]`, user reviews and saves via `useCreateQuestion()`
+7. After recognition, temporary image deleted from Storage
 
-**Cloud Function (optional):** `cloud-functions/ai-recognize` is a Tencent Cloud Function that proxies AI API calls to avoid CORS issues. It's not required if API calls work directly from the client. The function receives `{ imageBase64, provider }` and returns `{ success: true, data: [...] }` or `{ success: false, error: "..." }`.
+**Rate limiting:** In-memory LRU cache (`lib/rate-limit.ts`), 20 requests/hour per user for AI recognition.
 
 ## Key Patterns & Conventions
 
-- **Path alias:** All imports use `@/` alias (e.g., `@/hooks/useAuth`, `@/lib/supabase`). Configured in tsconfig.json.
+- **Path alias:** All imports use `@/` alias (e.g., `@/hooks/useAuth`, `@/lib/supabase-server`). Configured in tsconfig.json.
 - **TypeScript strictness:** `noUnusedLocals` and `noUnusedParameters` are enabled. Unused variables will cause build errors.
 - **Client vs Server components:** Components with state, hooks, or browser APIs must have `'use client'` directive. Server components (default) can use async/await for data fetching.
 - **UI components:** All primitives from `components/ui/` (Shadcn wrappers around Radix UI + `class-variance-authority`). Do not add new third-party component libraries.
-- **Toast notifications:** Use `sonner`'s `toast` for all user feedback (success, error, info). `<Toaster />` rendered globally in root layout.
-- **Styling:** Tailwind CSS with custom color tokens. Animations via `tailwindcss-animate`.
-- **Form validation:** Zod schemas in `lib/validations/` for type-safe validation.
-- **Data fetching:** Prefer React Query hooks (`useQuestions`, etc.) over raw fetch in components. API routes handle auth via `createServerClient()` (imported from `@/lib/supabase-server`) and validate user session before operations.
+- **Toast notifications:** Use `sonner`'s `toast` for all user feedback. `<Toaster />` rendered globally in root layout at `app/layout.tsx:34`.
+- **Styling:** Tailwind CSS with custom HSL color tokens in `globals.css`. Animations via `tailwindcss-animate`.
+- **Form validation:** Zod schemas in `lib/validations/` with `parseAndValidate()` and `formatValidationError()` helpers.
+- **Data fetching:** Prefer React Query hooks over raw fetch in components. API routes handle auth via `createServerClient()` from `@/lib/supabase-server`.
 - **Optimistic updates:** All mutation hooks use `onMutate` for immediate UI feedback, `onError` for rollback, `onSuccess` for cache invalidation.
 
 ## Environment Variables
@@ -152,69 +149,29 @@ See `lib/supabase.ts` for detailed usage examples and warnings.
 Required in `.env.local`:
 
 ```bash
-# Supabase
+# Supabase (required)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Server-side only, bypasses RLS
 
-# AI Providers (server-side only)
-ALIBABA_API_KEY=your-alibaba-dashscope-key        # Alibaba DashScope API key
-BAIDU_API_KEY=your-baidu-api-key                  # Baidu OCR API key
-BAIDU_SECRET_KEY=your-baidu-secret-key            # Baidu OCR Secret key
-GEMINI_API_KEY=your-google-gemini-key             # Google Gemini API key (or use GOOGLE_API_KEY)
+# AI Providers (at least one needed for recognition)
+ALIBABA_API_KEY=your-alibaba-dashscope-key        # For vision mode
+DEEPSEEK_API_KEY=your-deepseek-key                # For text mode analysis
+
+# Optional: Tesseract OCR is used locally, no API key needed
+# For deployment, see Dockerfile for Tesseract + chi_sim installation
 ```
-
-## Database Schema
-
-**mistake_questions** table:
-- `id` (uuid, PK)
-- `user_id` (uuid, FK to auth.users) - RLS ensures users only see their own questions
-- `content` (text) - Question text
-- `subject` (text) - One of: math, chinese, english, physics, chemistry, biology, history, geography, politics
-- `category` (text) - Subject-specific category (e.g., "代数", "几何" for math)
-- `difficulty` (text) - One of: easy, medium, hard
-- `answer` (text) - Correct answer
-- `user_answer` (text, nullable) - User's answer
-- `explanation` (text, nullable) - Explanation/solution
-- `image_url` (text, nullable) - Original question image URL
-- `review_count` (integer, default 0) - Number of times reviewed
-- `is_mastered` (boolean, default false) - Whether user has mastered this question
-- `last_reviewed` (timestamp, nullable)
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
-
-**mistake_profiles** table:
-- `id` (uuid, PK, FK to auth.users)
-- `username` (text, nullable)
-- `avatar_url` (text, nullable)
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
-
-**mistake_feedbacks** table:
-- `id` (uuid, PK)
-- `user_id` (uuid, nullable, FK to auth.users)
-- `email` (text, nullable)
-- `category` (text) - One of: bug, feature, improvement, other
-- `subject` (text)
-- `content` (text)
-- `status` (text) - One of: pending, processing, resolved, closed
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
-
-See `types/database.ts` for TypeScript types and helper constants (SUBJECTS, DIFFICULTIES, CATEGORIES).
 
 ## API Routes
 
-All routes in `app/api/`:
-
 **AI Recognition:**
-- `POST /api/ai/recognize` - Recognizes questions from base64 image, returns `{ results: AIRecognitionResult[] }`
+- `POST /api/ai/recognize` - Body: `{ imageUrl: string, mode: 'vision' | 'text' }`. Returns `{ results: AIRecognitionResult[] }`
 
 **Questions CRUD:**
-- `GET /api/questions?subject=&difficulty=&is_mastered=&search=&limit=&offset=` - List questions with filters
-- `POST /api/questions` - Create new question, body: `QuestionInsert`
+- `GET /api/questions?subject=&difficulty=&is_mastered=&search=&limit=&offset=` - List with filters
+- `POST /api/questions` - Create new question, body: `CreateQuestionInput`
 - `GET /api/questions/[id]` - Get single question
-- `PATCH /api/questions/[id]` - Update question, body: `QuestionUpdate`
+- `PATCH /api/questions/[id]` - Update question, body: `UpdateQuestionInput`
 - `DELETE /api/questions/[id]` - Delete question
 - `POST /api/questions/[id]/review` - Increment review_count and update last_reviewed
 - `POST /api/questions/[id]/master` - Mark as mastered (is_mastered = true)
@@ -224,13 +181,22 @@ All routes in `app/api/`:
 - `POST /api/feedbacks` - Submit feedback (allows anonymous)
 - `GET /api/feedbacks` - Get current user's feedback list
 
-All routes require authentication via Supabase session (checked in route handler with `createServerClient()` imported from `@/lib/supabase-server`).
+All routes require authentication (checked via `createServerClient()` + `supabase.auth.getUser()`), except feedback POST which allows anonymous.
+
+## Deployment Notes
+
+**Vercel:** Configured in `vercel.json` with maxDuration 10s for API routes (AI recognition may need more). CORS headers configured for API routes.
+
+**Render/Docker:** `Dockerfile` installs Tesseract OCR + Chinese language pack (`tesseract-ocr-chi-sim`). Build runs `npm run build`, exposes port 3000.
+
+**Local Tesseract:** Required for text mode OCR. Install via:
+- Mac: `brew install tesseract tesseract-lang`
+- Ubuntu: `apt-get install -y tesseract-ocr tesseract-ocr-chi-sim`
 
 ## Adding New Features
 
-When adding features:
-1. **New pages:** Add under `app/dashboard/` with appropriate layout
-2. **New API routes:** Create in `app/api/`, use `createServerClient()` for auth, validate with Zod if needed
+1. **New pages:** Add under `app/dashboard/` (no separate layout, root layout handles Navbar/Footer)
+2. **New API routes:** Create in `app/api/`, use `createServerClient()` for auth, validate with Zod
 3. **New data queries:** Add React Query hooks in `hooks/useQuestions.ts` following existing patterns
 4. **New components:** Follow Shadcn conventions, use `@/` imports, add TypeScript types
-5. **Database changes:** Create Supabase migration, update `types/database.ts` (can generate with Supabase CLI)
+5. **Database changes:** Create Supabase migration, update `types/database.ts`
