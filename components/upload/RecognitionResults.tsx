@@ -5,8 +5,9 @@ import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { SUBJECTS, DIFFICULTIES } from '@/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Edit, Trash2, AlertCircle } from 'lucide-react'
+import { CheckCircle, Edit, Trash2, AlertCircle, Copy, Check } from 'lucide-react'
 import { useCreateQuestion } from '@/hooks/useQuestions'
+import { toast } from 'sonner'
 
 interface RecognitionResultsProps {
   results: AIRecognitionResult[]
@@ -17,6 +18,7 @@ interface RecognitionResultsProps {
 
 export function RecognitionResults({ results, onEdit, onDelete, onClear }: RecognitionResultsProps) {
   const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set())
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const createQuestion = useCreateQuestion()
 
   const handleSave = async (result: AIRecognitionResult, index: number) => {
@@ -45,6 +47,30 @@ export function RecognitionResults({ results, onEdit, onDelete, onClear }: Recog
       if (!savedIndices.has(i)) {
         await handleSave(results[i], i)
       }
+    }
+  }
+
+  const handleCopy = async (result: AIRecognitionResult, index: number) => {
+    const subjectLabel = SUBJECTS.find((s) => s.id === result.subject)?.label || result.subject
+    const difficultyLabel = DIFFICULTIES.find((d) => d.id === result.difficulty)?.label || result.difficulty
+
+    const text = `【学科】${subjectLabel}
+【难度】${difficultyLabel}
+【分类】${result.category}
+
+【题目】
+${result.content}
+
+【答案】
+${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}` : ''}`
+
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedIndex(index)
+      toast.success('题目已复制到剪贴板')
+      setTimeout(() => setCopiedIndex(null), 2000)
+    } catch {
+      toast.error('复制失败，请手动复制')
     }
   }
 
@@ -131,24 +157,39 @@ export function RecognitionResults({ results, onEdit, onDelete, onClear }: Recog
                 </div>
 
                 <div className="flex gap-1">
-                  {onDelete && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete(index)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCopy(result, index)}
+                    className="h-8 w-8 p-0"
+                    title="复制题目"
+                  >
+                    {copiedIndex === index ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </Button>
                   {!isSaved && onEdit && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(result, index)}
                       className="h-8 w-8 p-0"
+                      title="编辑"
                     >
                       <Edit className="w-4 h-4" />
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDelete(index)}
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      title="删除"
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
