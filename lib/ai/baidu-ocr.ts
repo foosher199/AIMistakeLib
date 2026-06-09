@@ -100,6 +100,8 @@ async function callBaiduOCR(imageBase64: string, accessToken: string): Promise<s
 
   const data: BaiduOCRResponse = await response.json()
 
+  console.log('[BaiduOCR] API 返回数据:', JSON.stringify(data, null, 2))
+
   if (data.error_code) {
     throw new Error(`百度OCR识别失败: ${data.error_msg} (code: ${data.error_code})`)
   }
