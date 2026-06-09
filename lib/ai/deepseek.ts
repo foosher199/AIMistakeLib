@@ -86,6 +86,21 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
     console.log('[DeepSeek] 开始分析文本, 字数:', text.length)
     const startTime = Date.now()
 
+    const requestBody = {
+      model: 'deepseek-v4-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPromptTemplate(text) },
+      ],
+      temperature: 0.1,
+      max_tokens: 2048,
+    }
+
+    console.log('[DeepSeek] 请求参数:', JSON.stringify({
+      ...requestBody,
+      messages: requestBody.messages.map((m) => ({ role: m.role, contentLength: m.content.length })),
+    }, null, 2))
+
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -93,15 +108,7 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
         Authorization: `Bearer ${apiKey}`,
       },
       signal: controller.signal,
-      body: JSON.stringify({
-        model: 'deepseek-v4-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPromptTemplate(text) },
-        ],
-        temperature: 0.1,
-        max_tokens: 2048,
-      }),
+      body: JSON.stringify(requestBody),
     })
 
     clearTimeout(timeoutId)
@@ -113,11 +120,16 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
     }
 
     const data: DeepSeekResponse = await response.json()
+
+    console.log('[DeepSeek] 原始返回数据:', JSON.stringify(data, null, 2))
+
     const content = data.choices[0]?.message?.content
 
     if (!content || content.trim().length === 0) {
       throw new Error('DeepSeek 返回的内容为空')
     }
+
+    console.log('[DeepSeek] content 原文:', content)
 
     // 解析 JSON
     let jsonStr = content.trim()
@@ -153,6 +165,8 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
     if (typeof result.confidence !== 'number' || result.confidence < 0 || result.confidence > 1) {
       result.confidence = 0.85
     }
+
+    console.log('[DeepSeek] 解析后的结果:', JSON.stringify(result, null, 2))
 
     return [result]
   } catch (error) {

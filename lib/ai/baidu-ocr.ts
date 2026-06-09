@@ -129,6 +129,7 @@ export async function extractTextWithBaidu(imageUrl: string): Promise<string> {
     console.log(
       `[BaiduOCR] 识别完成, 耗时: ${Date.now() - startTime}ms, 字数: ${text.length}`
     )
+    console.log('[BaiduOCR] 拼接后的完整文本:\n', text)
 
     return text
   } catch (error) {
