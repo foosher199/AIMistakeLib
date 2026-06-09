@@ -27,7 +27,7 @@ let tokenCache: {
 /**
  * 获取百度 OCR access_token（带缓存）
  */
-async function getAccessToken(): Promise<string> {
+export async function getAccessToken(): Promise<string> {
   const now = Date.now()
 
   // 缓存未过期（提前 1 小时刷新）

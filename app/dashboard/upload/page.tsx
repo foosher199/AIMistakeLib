@@ -231,8 +231,10 @@ export default function UploadPage() {
               <p className="text-sm font-medium text-[#1f1f1f]">AI 识别引擎</p>
               <p className="text-xs text-[#626a72] mt-0.5">
                 {mode === 'text'
-                  ? '文本模式：Tesseract OCR + DeepSeek，速度快、成本低，适合纯文字题目'
-                  : '视觉模式：阿里云 qwen-vl-plus 直接看图，精度高，适合含图形/公式题目'}
+                  ? '文本模式：OCR + DeepSeek，速度快、成本低，适合纯文字题目'
+                  : mode === 'baidu_understanding'
+                    ? '百度理解：直接分析图片内容，适合复杂排版和图文混合题目'
+                    : '视觉模式：阿里云 qwen-vl-plus 直接看图，精度高，适合含图形/公式题目'}
               </p>
             </div>
           </div>
@@ -243,6 +245,7 @@ export default function UploadPage() {
           >
             <TabsList>
               <TabsTrigger value="text">文本模式</TabsTrigger>
+              <TabsTrigger value="baidu_understanding">百度理解</TabsTrigger>
               <TabsTrigger value="vision">视觉模式</TabsTrigger>
             </TabsList>
           </Tabs>

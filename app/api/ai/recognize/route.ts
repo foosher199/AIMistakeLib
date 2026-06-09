@@ -14,13 +14,14 @@ import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
 import { extractTextFromImage } from '@/lib/ai/ocr'
 import { analyzeTextWithDeepSeek } from '@/lib/ai/deepseek'
+import { recognizeWithBaiduUnderstanding } from '@/lib/ai/baidu-understanding'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { z } from 'zod'
 
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
   imageUrl: z.string().url('图片URL格式无效'),
-  mode: z.enum(['vision', 'text']).default('text'),
+  mode: z.enum(['vision', 'text', 'baidu_understanding']).default('text'),
 })
 
 /**
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     let results: AIRecognitionResult[]
 
     if (mode === 'text') {
-      // ===== 文本模式：Tesseract OCR + DeepSeek =====
+      // ===== 文本模式：OCR + DeepSeek =====
       console.log('[API] 使用文本模式 (OCR + DeepSeek)')
 
       try {
@@ -110,6 +111,17 @@ export async function POST(request: NextRequest) {
       } catch (textError) {
         console.error('[API] 文本模式失败:', textError)
         throw textError
+      }
+    } else if (mode === 'baidu_understanding') {
+      // ===== 百度图像内容理解：直接看图返回结构化JSON =====
+      console.log('[API] 使用百度图像理解模式')
+
+      try {
+        // 百度直接返回 AIRecognitionResult[]
+        results = await recognizeWithBaiduUnderstanding(imageUrl)
+      } catch (baiduError) {
+        console.error('[API] 百度图像理解模式失败:', baiduError)
+        throw baiduError
       }
     } else {
       // ===== 视觉模式：阿里云 qwen-vl-plus 直接看图 =====

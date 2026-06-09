@@ -5,7 +5,7 @@ import { uploadImageToSupabase, compressImage } from '@/lib/utils'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { toast } from 'sonner'
 
-export type RecognitionMode = 'text' | 'vision'
+export type RecognitionMode = 'text' | 'vision' | 'baidu_understanding'
 
 export type ImageQueueStatus = 'pending' | 'processing' | 'success' | 'failed'
 
@@ -311,6 +311,7 @@ export function useOCR() {
     const modeNames = {
       text: '文本模式 (OCR + DeepSeek)',
       vision: '视觉模式 (阿里云 qwen-vl-plus)',
+      baidu_understanding: '百度图像理解',
     }
     toast.success(`已切换到 ${modeNames[newMode]}`)
   }
