@@ -3,7 +3,7 @@
  * 接收 OCR 提取的纯文本，分析题目结构并返回 JSON
  *
  * API: https://api.deepseek.com/v1/chat/completions
- * Model: deepseek-chat
+ * Model: deepseek-v4-flash
  */
 
 import type { Subject, Difficulty } from '@/types/database'
@@ -29,59 +29,27 @@ interface DeepSeekResponse {
   }
 }
 
-const systemPrompt = `你是一个专业的题目解析助手。请根据提供的题目文本，分析并提取以下信息：
+const systemPrompt = `你是一个题目解析助手。将用户提供的题目文本解析为结构化数据。
 
-严格要求（违反任何一条都会导致输出无法使用）：
-1. 只输出 JSON 数组，不要输出任何其他内容。禁止输出分析过程、思考说明、文字描述、markdown 代码块标记（如 \`\`\`json）。
-2. 如果文本包含多道题目，请分别识别每一道，返回 JSON 数组。每道题目对应数组中的一个对象。
-3. 忽略无效数据：
-   - 忽略页眉页脚（如教材名称、页码、出版社信息）
-   - 忽略手写批注、涂鸦、无关标注
-   - 忽略章节标题、单元介绍等非题目内容
-   - 忽略日期、姓名、班级等个人信息
-   - 只提取真正的题目（题干、选项、图表标注），丢弃无关文字
-4. 每道题的 content 需要格式化排版：
-   - 题干与选项之间换行分隔（\\n）
-   - 多小题之间换行分隔（\\n）
-   - 保持题目原有的层次结构
-   - 数学公式、化学方程式保持清晰可读
-5. subject: 学科，必须是以下之一：math(数学)、chinese(语文)、english(英语)、physics(物理)、chemistry(化学)、biology(生物)、history(历史)、geography(地理)、politics(政治)
-6. category: 知识点分类（如代数、几何、文言文、阅读理解、力学、电学等）
-7. difficulty: 难度，必须是 easy(简单)、medium(中等)、hard(困难) 之一
-8. answer: 正确答案
-9. explanation: 答案解析（必须返回，即使原文没有也要给出合理分析）
-10. confidence: 置信度(0-1之间)
+规则：
+1. 只输出 JSON 对象，不要输出任何其他文字、分析过程或 markdown
+2. 忽略页眉页脚、手写批注、章节标题、个人信息等非题目内容
+3. 多道题时分别识别，每道题作为一个独立对象
+4. content 字段使用 \\n 分隔题干与选项、多小题之间
+5. subject 必须是：math/chinese/english/physics/chemistry/biology/history/geography/politics
+6. difficulty 必须是：easy/medium/hard
+7. explanation 若原文没有则填"暂无解析"
+8. confidence 取值 0-1
 
-请严格按照JSON数组格式返回，不要添加markdown代码块标记。`
+输出格式：{"results":[...]}`
 
-const userPromptTemplate = (text: string) => `请分析以下题目文本，提取每道题目的信息，只返回 JSON 数组，不要有任何其他输出。
+const userPromptTemplate = (text: string) =>
+  `解析以下题目文本，输出 JSON 对象：
 
----
-题目文本：
 ${text}
----
 
-请返回以下格式的JSON数组（严格JSON，不要markdown）：
-
-[
-  {
-    "content": "完整的题目内容（格式化排版，题干与选项换行分隔）",
-    "subject": "学科代码(math/chinese/english/physics/chemistry/biology/history/geography/politics)",
-    "category": "知识点分类",
-    "difficulty": "难度(easy/medium/hard)",
-    "answer": "正确答案",
-    "explanation": "答案解析（必须给出）",
-    "confidence": 0.95
-  }
-]
-
-格式化要求：
-- content 字段必须格式化：题干、选项、小题之间用换行符(\\n)分隔
-- 如果文本包含多道题目，请分别识别并返回多个对象
-- 如果无法确定答案，answer 填"待补充"，但 explanation 仍必须给出合理分析
-- 如果无法确定学科，默认填 "math"
-- confidence 根据文本清晰度评估（0-1之间）
-- 不要输出任何分析过程、思考说明或额外文字，只输出 JSON 数组`
+输出格式：
+{"results":[{"content":"题目内容","subject":"学科","category":"分类","difficulty":"难度","answer":"答案","explanation":"解析","confidence":0.9}]}`
 
 /**
  * 调用 DeepSeek API 分析题目文本
@@ -106,8 +74,8 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPromptTemplate(text) },
       ],
-      temperature: 0.1,
-      max_tokens: 4096,
+      temperature: 0,
+      response_format: { type: 'json_object' as const },
     }
 
     console.log('[DeepSeek] 请求参数:', JSON.stringify({
@@ -145,23 +113,18 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
 
     console.log('[DeepSeek] content 原文:', content)
 
-    // 解析 JSON
-    let jsonStr = content.trim()
-    if (jsonStr.startsWith('```json')) {
-      jsonStr = jsonStr.replace(/^```json\s*/, '').replace(/\s*```$/, '')
-    } else if (jsonStr.startsWith('```')) {
-      jsonStr = jsonStr.replace(/^```\s*/, '').replace(/\s*```$/, '')
-    }
-
-    let results: TextAnalysisResult[]
+    // 解析 JSON（JSON mode 下应该已经是合法 JSON，但做一层防御）
+    let parsed: { results?: TextAnalysisResult[] }
     try {
-      results = JSON.parse(jsonStr) as TextAnalysisResult[]
+      parsed = JSON.parse(content.trim()) as { results?: TextAnalysisResult[] }
     } catch {
       throw new Error('DeepSeek 返回的 JSON 格式无效，请重试')
     }
 
+    const results = parsed.results
+
     if (!Array.isArray(results)) {
-      throw new Error('DeepSeek 返回的数据不是数组格式')
+      throw new Error('DeepSeek 返回的数据缺少 results 数组')
     }
 
     if (results.length === 0) {
