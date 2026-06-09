@@ -28,7 +28,8 @@ There is no test suite configured in this project.
 │   ├── globals.css             # Global styles + Tailwind imports + CSS variables
 │   ├── api/                    # API routes
 │   │   ├── ai/recognize/       # POST /api/ai/recognize - AI image recognition
-│   │   ├── questions/          # GET/POST /api/questions + [id]/review/master
+│   │   ├── drafts/             # GET/POST /api/drafts + [id]/save, DELETE [id]
+│   │   ├── questions/          # GET/POST /api/questions + [id]/review/master/stats
 │   │   └── feedbacks/          # GET/POST /api/feedbacks
 │   └── dashboard/              # Dashboard pages (no layout.tsx here - uses root)
 │       ├── page.tsx            # Main dashboard (question list with filters)
@@ -38,30 +39,35 @@ There is no test suite configured in this project.
 │       ├── profile/            # User profile page
 │       └── feedback/           # User feedback page
 ├── components/
-│   ├── auth/                   # LoginForm, RegisterForm, LoginDialog
+│   ├── auth/                   # LoginForm, RegisterForm, BindEmailForm, LoginDialog, AuthSection
 │   ├── layout/                 # Navbar, Footer
-│   ├── questions/              # QuestionCard, QuestionList, QuestionFilters, etc.
-│   ├── upload/                 # ImageUploader, RecognitionResult, etc.
-│   └── ui/                     # Shadcn UI primitives (button, dialog, dropdown-menu, etc.)
+│   ├── questions/              # QuestionCard, QuestionList, QuestionFilters, QuestionStats
+│   ├── upload/                 # ImageUpload, MultiImageUpload, QuestionForm, RecognitionResults, ImageQueueList
+│   └── ui/                     # Shadcn UI primitives (button, dialog, dropdown-menu, badge, input, progress, tabs)
 ├── hooks/
 │   ├── useAuth.ts              # Supabase auth (anonymous, email/password, bindEmail)
 │   ├── useQuestions.ts         # React Query hooks for question CRUD + optimistic updates
+│   ├── useDrafts.ts            # React Query hooks for drafts (list, save, delete)
+│   ├── useFeedback.ts          # React Query hooks for feedback (create, list)
 │   └── useOCR.ts               # AI image recognition hook
 ├── lib/
-│   ├── supabase.ts             # Browser/Server/Admin client factories + getCurrentUser/requireAuth
-│   ├── supabase-client.ts      # Browser client only (for 'use client' components)
-│   ├── supabase-server.ts      # Server client + admin client (for API routes/server components)
-│   ├── utils.ts                # cn() utility, image compression
+│   ├── supabase.ts             # createBrowserClient/createServerClient/createAdminClient + getCurrentUser/requireAuth
+│   ├── utils.ts                # cn() utility, image compression, formatValidationError
 │   ├── providers.tsx           # React Query QueryClientProvider
 │   ├── rate-limit.ts           # LRU-based rate limiter for AI recognition
 │   ├── ai/
-│   │   ├── alibaba.ts          # Alibaba DashScope (qwen3.6-plus) vision recognition
-│   │   ├── ocr.ts              # Tesseract CLI OCR (downloads image, runs tesseract, cleans up)
-│   │   └── deepseek.ts         # DeepSeek text analysis (deepseek-v4-flash)
+│   │   ├── alibaba.ts          # Alibaba DashScope (qwen-vl-plus) vision recognition
+│   │   ├── baidu.ts            # Baidu OCR + understanding pipeline
+│   │   ├── deepseek.ts         # DeepSeek text analysis
+│   │   ├── gemini.ts           # Google Gemini analysis
+│   │   ├── kimi.ts             # Moonshot Kimi analysis
+│   │   ├── minimax.ts          # MiniMax analysis
+│   │   ├── ocr.ts              # Tesseract CLI OCR wrapper
+│   │   └── image-utils.ts      # Image processing utilities
 │   └── validations/
 │       └── question.ts         # Zod schemas for question CRUD + parseAndValidate helper
 ├── types/
-│   └── database.ts             # Supabase Database types, Question/Profile/Feedback types, SUBJECTS/DIFFICULTIES/CATEGORIES constants
+│   └── database.ts             # Supabase Database types, Question/Draft/Profile/Feedback types, SUBJECTS/DIFFICULTIES/CATEGORIES constants
 ├── cloud-functions/
 │   └── ai-recognize/           # Tencent Cloud Function proxy (optional CORS workaround)
 ├── supabase/
@@ -95,10 +101,11 @@ There is no test suite configured in this project.
 
 Auth state managed via `onAuthStateChange` listener in `useAuth` hook.
 
-**Database:** Supabase PostgreSQL with RLS. Three tables:
+**Database:** Supabase PostgreSQL with RLS. Four tables:
 - `mistake_questions` - Question records (content, subject, category, difficulty, answer, image_url, review_count, is_mastered, user_id)
+- `mistake_drafts` - Temporary storage for AI-recognized questions before user saves (content, subject, category, difficulty, answer, confidence, image_url, user_id)
 - `mistake_profiles` - User profile extensions (username, avatar_url)
-- `mistake_feedbacks` - User feedback (category, subject, content, status)
+- `mistake_feedbacks` - User feedback (category, subject, content, status, email, user_id)
 
 All queries scoped to user via RLS. See `types/database.ts` for full schema and helper constants (SUBJECTS, DIFFICULTIES, CATEGORIES).
 
@@ -122,13 +129,18 @@ All mutations use `onMutate` for optimistic updates, `onError` for rollback, `on
 **AI recognition flow:**
 1. User uploads image in `/dashboard/upload`
 2. Image uploaded to Supabase Storage (`mistake-images` bucket), public URL returned
-3. `useOCR().recognize(imageUrl)` calls `/api/ai/recognize` with `{ imageUrl, mode }`
+3. `useOCR().recognize(imageUrl)` calls `/api/ai/recognize` with `{ imageUrl, provider }`
 4. API route validates auth, checks rate limit (20 requests/hour per user)
-5. Two recognition modes:
-   - **text mode (default):** Tesseract OCR extracts text → DeepSeek analyzes text structure
-   - **vision mode:** Alibaba DashScope qwen3.6-plus directly processes image
-6. Results returned as `AIRecognitionResult[]`, user reviews and saves via `useCreateQuestion()`
-7. After recognition, temporary image deleted from Storage
+5. Multiple AI providers available (configured via `AI_PROVIDER` env var):
+   - **alibaba** (default): Alibaba DashScope qwen-vl-plus vision model
+   - **baidu**: Baidu OCR + understanding pipeline
+   - **deepseek**: DeepSeek text analysis (used after OCR)
+   - **gemini**: Google Gemini analysis
+   - **kimi**: Moonshot Kimi analysis
+   - **minimax**: MiniMax analysis
+   - **text**: Tesseract OCR → DeepSeek text structure analysis
+6. Recognition results saved to `mistake_drafts` table, user reviews and saves via `useSaveDraft()`
+7. After saving, draft deleted and question created in `mistake_questions`
 
 **Rate limiting:** In-memory LRU cache (`lib/rate-limit.ts`), 20 requests/hour per user for AI recognition.
 
@@ -154,9 +166,15 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Server-side only, bypasses RLS
 
-# AI Providers (at least one needed for recognition)
-ALIBABA_API_KEY=your-alibaba-dashscope-key        # For vision mode
-DEEPSEEK_API_KEY=your-deepseek-key                # For text mode analysis
+# AI Provider selection (one or more needed for recognition)
+AI_PROVIDER=alibaba  # Default provider: alibaba, baidu, deepseek, gemini, kimi, minimax, text
+ALIBABA_API_KEY=your-alibaba-dashscope-key        # For alibaba provider
+BAIDU_API_KEY=your-baidu-api-key                  # For baidu provider
+BAIDU_SECRET_KEY=your-baidu-secret-key             # For baidu provider
+DEEPSEEK_API_KEY=your-deepseek-key                # For text mode / deepseek provider
+GEMINI_API_KEY=your-gemini-key                    # For gemini provider
+KIMI_API_KEY=your-kimi-key                        # For kimi provider
+MINIMAX_API_KEY=your-minimax-key                  # For minimax provider
 
 # Optional: Tesseract OCR is used locally, no API key needed
 # For deployment, see Dockerfile for Tesseract + chi_sim installation
@@ -165,7 +183,13 @@ DEEPSEEK_API_KEY=your-deepseek-key                # For text mode analysis
 ## API Routes
 
 **AI Recognition:**
-- `POST /api/ai/recognize` - Body: `{ imageUrl: string, mode: 'vision' | 'text' }`. Returns `{ results: AIRecognitionResult[] }`
+- `POST /api/ai/recognize` - Body: `{ imageUrl: string, provider?: string }`. Returns `{ results: AIRecognitionResult[] }`
+
+**Drafts:**
+- `GET /api/drafts` - List current user's drafts
+- `POST /api/drafts` - Create draft from recognition results
+- `DELETE /api/drafts/[id]` - Delete a draft
+- `POST /api/drafts/[id]/save` - Convert draft to question in `mistake_questions`
 
 **Questions CRUD:**
 - `GET /api/questions?subject=&difficulty=&is_mastered=&search=&limit=&offset=` - List with filters

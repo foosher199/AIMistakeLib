@@ -5,6 +5,7 @@
  */
 
 import type { Subject, Difficulty } from '@/types/database'
+import { logger } from '@/lib/logger'
 
 export interface AIRecognitionResult {
   content: string
@@ -64,7 +65,10 @@ export async function recognizeWithAlibaba(
 
 请直接返回JSON数组，不要有其他内容。`
 
+  const log = logger('Alibaba')
+
   try {
+    log.step('1. 准备请求参数')
     // 支持三种输入：HTTP URL、data URI、纯 base64 字符串
     const imageUrl = imageBase64.startsWith('http://') || imageBase64.startsWith('https://')
       ? imageBase64
@@ -75,7 +79,7 @@ export async function recognizeWithAlibaba(
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 60000)
 
-    console.log('[Alibaba] 开始请求, model: qwen3.6-plus, imageUrl:', imageUrl.slice(0, 60) + '...')
+    log.step('2. 发送 API 请求到阿里云 DashScope')
     const startTime = Date.now()
 
     const response = await fetch(
@@ -113,20 +117,24 @@ export async function recognizeWithAlibaba(
     )
 
     clearTimeout(timeoutId)
-    console.log(`[Alibaba] 收到响应, 状态: ${response.status}, 耗时: ${Date.now() - startTime}ms`)
+    const apiElapsed = Date.now() - startTime
+    log.step(`3. 收到响应, HTTP状态: ${response.status}, API调用耗时: ${apiElapsed}ms`)
 
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(`Alibaba API 请求失败: ${response.status} ${errorText}`)
     }
 
+    log.step('4. 解析响应 JSON')
     const data: DashScopeResponse = await response.json()
     const content = data.choices[0]?.message?.content
+    log.step(`5. 提取 content 成功, 长度: ${content?.length ?? 0}`)
 
     if (!content || content.trim().length === 0) {
       throw new Error('AI 返回的内容为空')
     }
 
+    log.step('6. 清理 JSON 字符串 (移除 markdown 代码块)')
     // 尝试解析 JSON（移除可能的 markdown 代码块标记）
     let jsonStr = content.trim()
     if (jsonStr.startsWith('```json')) {
@@ -135,8 +143,10 @@ export async function recognizeWithAlibaba(
       jsonStr = jsonStr.replace(/^```\s*/, '').replace(/\s*```$/, '')
     }
 
+    log.step('7. 解析 JSON 为对象')
     const results = JSON.parse(jsonStr) as AIRecognitionResult[]
 
+    log.step('8. 验证结果格式')
     // 验证结果格式
     if (!Array.isArray(results) || results.length === 0) {
       throw new Error('AI 返回的数据格式不正确')
@@ -186,8 +196,11 @@ export async function recognizeWithAlibaba(
       }
     }
 
+    log.done(`完成! 共 ${results.length} 道题目`)
     return results
   } catch (error) {
+    log.error('识别失败', error)
+
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         throw new Error('阿里云 API 连接超时，请检查网络或稍后重试')

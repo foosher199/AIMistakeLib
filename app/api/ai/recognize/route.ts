@@ -16,6 +16,7 @@ import { extractTextFromImage } from '@/lib/ai/ocr'
 import { analyzeTextWithDeepSeek } from '@/lib/ai/deepseek'
 import { recognizeWithBaiduUnderstanding } from '@/lib/ai/baidu-understanding'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
+import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 // 请求体验证 schema
@@ -51,10 +52,13 @@ async function deleteTempImage(imageUrl: string): Promise<void> {
 }
 
 export async function POST(request: NextRequest) {
+  const log = logger('API/recognize')
+
   try {
+    log.step('1. 创建 Supabase 客户端')
     const supabase = await createServerClient()
 
-    // 验证用户登录
+    log.step('2. 验证用户登录')
     const {
       data: { user },
       error: authError,
@@ -64,6 +68,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    log.step('3. 限流检查 (20次/小时)')
     // 限流检查：每用户每小时 20 次
     const rateLimit = aiRateLimiter.check(`ai_recognize:${user.id}`, 20)
 
@@ -83,6 +88,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    log.step('4. 解析请求体')
     // 解析请求体
     const body = await request.json()
 
@@ -96,6 +102,7 @@ export async function POST(request: NextRequest) {
 
     const { imageUrl, mode } = validation.data
 
+    log.step(`5. 开始识别 (mode: ${mode})`)
     let results: AIRecognitionResult[]
 
     if (mode === 'text') {
@@ -104,12 +111,16 @@ export async function POST(request: NextRequest) {
 
       try {
         // 1. OCR 提取纯文本
+        log.step('5.1 [text模式] 开始OCR文字识别')
         const extractedText = await extractTextFromImage(imageUrl)
+        log.step(`5.1 [text模式] OCR完成, 提取文字长度: ${extractedText.length}`)
 
         // 2. DeepSeek 分析文本
+        log.step('5.2 [text模式] 开始DeepSeek文本分析')
         results = await analyzeTextWithDeepSeek(extractedText)
+        log.step(`5.2 [text模式] DeepSeek分析完成, 识别到 ${results.length} 道题目`)
       } catch (textError) {
-        console.error('[API] 文本模式失败:', textError)
+        log.error('文本模式失败', textError)
         throw textError
       }
     } else if (mode === 'baidu_understanding') {
@@ -120,7 +131,7 @@ export async function POST(request: NextRequest) {
         // 百度直接返回 AIRecognitionResult[]
         results = await recognizeWithBaiduUnderstanding(imageUrl)
       } catch (baiduError) {
-        console.error('[API] 百度图像理解模式失败:', baiduError)
+        log.error('百度图像理解模式失败', baiduError)
         throw baiduError
       }
     } else {
@@ -128,13 +139,16 @@ export async function POST(request: NextRequest) {
       console.log('[API] 使用视觉模式 (阿里云 qwen-vl-plus)')
 
       try {
+        log.step('5.x [vision模式] 开始阿里云API调用')
         results = await recognizeWithAlibaba(imageUrl)
+        log.step(`5.x [vision模式] 阿里云API调用完成, 识别到 ${results.length} 道题目`)
       } catch (visionError) {
-        console.error('[API] 视觉模式失败:', visionError)
+        log.error('视觉模式失败', visionError)
         throw visionError
       }
     }
 
+    log.step('6. 验证识别结果')
     // 验证结果
     if (!results || results.length === 0) {
       return NextResponse.json(
@@ -143,6 +157,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    log.step('7. 写入草稿表')
     // 将识别结果写入草稿表
     const draftsToInsert = results.map((r) => ({
       user_id: user.id,
@@ -165,15 +180,17 @@ export async function POST(request: NextRequest) {
       console.error('[API] 写入草稿表失败:', draftError)
       // 草稿写入失败不影响返回识别结果，只记录日志
     } else {
-      console.log(`[API] 已写入 ${insertedDrafts?.length ?? 0} 条草稿`)
+      log.step(`7.1 写入草稿完成: ${insertedDrafts?.length ?? 0} 条`)
     }
 
+    log.step('8. 删除临时图片')
     // 识别完成后，删除 Storage 中的临时图片
     await deleteTempImage(imageUrl)
 
+    log.done(`识别完成，返回 ${results.length} 条结果`)
     return NextResponse.json({ results, drafts: insertedDrafts })
   } catch (error) {
-    console.error('POST /api/ai/recognize error:', error)
+    log.error('识别失败', error)
 
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

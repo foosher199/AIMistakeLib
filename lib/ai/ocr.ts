@@ -13,6 +13,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 import { extractTextWithBaidu } from './baidu-ocr'
+import { logger } from '@/lib/logger'
 
 /**
  * 下载图片到临时文件
@@ -78,17 +79,17 @@ function runTesseract(imagePath: string): Promise<string> {
  * @returns 提取的纯文本
  */
 export async function extractTextFromImage(imageUrl: string): Promise<string> {
-  const startTime = Date.now()
+  const log = logger('OCR')
 
   // 优先尝试百度 OCR（中文识别率更高）
   try {
+    log.step('1. 开始百度OCR识别')
     const text = await extractTextWithBaidu(imageUrl)
-    console.log(
-      `[OCR] 百度OCR识别完成, 总耗时: ${Date.now() - startTime}ms, 字数: ${text.length}`
-    )
+    log.step(`2. 百度OCR完成, 字数: ${text.length}`)
     return text
   } catch (baiduError) {
-    console.warn('[OCR] 百度OCR失败，回退到 Tesseract:', baiduError)
+    log.step('1. 百度OCR失败，回退到 Tesseract')
+    console.warn('[OCR] 百度OCR失败:', baiduError)
     // 继续执行 Tesseract 回退逻辑
   }
 
@@ -96,19 +97,23 @@ export async function extractTextFromImage(imageUrl: string): Promise<string> {
   let tempPath: string | null = null
 
   try {
+    log.step('2. 下载图片到临时文件')
     tempPath = await downloadImageToTemp(imageUrl)
-    const text = await runTesseract(tempPath)
+    log.step(`3. 图片已下载到: ${tempPath}`)
 
-    console.log(
-      `[OCR] Tesseract识别完成, 总耗时: ${Date.now() - startTime}ms, 字数: ${text.length}`
-    )
+    log.step('4. 开始 Tesseract OCR 识别')
+    const text = await runTesseract(tempPath)
+    log.step(`5. Tesseract完成, 字数: ${text.length}`)
 
     if (!text || text.trim().length === 0) {
       throw new Error('未识别到文字内容')
     }
 
+    log.done('OCR完成')
     return text.trim()
   } catch (error) {
+    log.error('OCR失败', error)
+
     if (error instanceof Error) {
       if (error.message.includes('tesseract')) {
         throw error
@@ -120,6 +125,7 @@ export async function extractTextFromImage(imageUrl: string): Promise<string> {
     throw new Error('OCR 识别失败，请重试')
   } finally {
     if (tempPath) {
+      log.step('6. 删除临时文件')
       fs.unlink(tempPath).catch(() => {
         // 忽略删除失败
       })

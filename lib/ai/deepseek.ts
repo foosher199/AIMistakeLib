@@ -7,6 +7,7 @@
  */
 
 import type { Subject, Difficulty } from '@/types/database'
+import { logger } from '@/lib/logger'
 
 export interface TextAnalysisResult {
   content: string
@@ -61,12 +62,12 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
     throw new Error('DEEPSEEK_API_KEY 未配置')
   }
 
+  const log = logger('DeepSeek')
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 30000)
 
   try {
-    console.log('[DeepSeek] 开始分析文本, 字数:', text.length)
-    const startTime = Date.now()
+    log.step('1. 开始分析文本, 字数: ' + text.length)
 
     const requestBody = {
       model: 'deepseek-v4-flash',
@@ -78,10 +79,8 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
       response_format: { type: 'json_object' as const },
     }
 
-    console.log('[DeepSeek] 请求参数:', JSON.stringify({
-      ...requestBody,
-      messages: requestBody.messages.map((m) => ({ role: m.role, contentLength: m.content.length })),
-    }, null, 2))
+    log.step('2. 发送 API 请求到 DeepSeek')
+    const startTime = Date.now()
 
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
@@ -94,25 +93,25 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
     })
 
     clearTimeout(timeoutId)
-    console.log(`[DeepSeek] 收到响应, 状态: ${response.status}, 耗时: ${Date.now() - startTime}ms`)
+    const apiElapsed = Date.now() - startTime
+    log.step(`3. 收到响应, HTTP状态: ${response.status}, API耗时: ${apiElapsed}ms`)
 
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(`DeepSeek API 请求失败: ${response.status} ${errorText}`)
     }
 
+    log.step('4. 解析响应 JSON')
     const data: DeepSeekResponse = await response.json()
 
-    console.log('[DeepSeek] 原始返回数据:', JSON.stringify(data, null, 2))
-
     const content = data.choices[0]?.message?.content
+    log.step(`5. 提取 content 成功, 长度: ${content?.length ?? 0}`)
 
     if (!content || content.trim().length === 0) {
       throw new Error('DeepSeek 返回的内容为空')
     }
 
-    console.log('[DeepSeek] content 原文:', content)
-
+    log.step('6. 解析 JSON 为对象')
     // 解析 JSON（JSON mode 下应该已经是合法 JSON，但做一层防御）
     let parsed: { results?: TextAnalysisResult[] }
     try {
@@ -122,6 +121,7 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
     }
 
     const results = parsed.results
+    log.step(`7. 提取 results 数组, 长度: ${results?.length ?? 0}`)
 
     if (!Array.isArray(results)) {
       throw new Error('DeepSeek 返回的数据缺少 results 数组')
@@ -131,6 +131,7 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
       throw new Error('DeepSeek 未返回任何题目')
     }
 
+    log.step('8. 验证并标准化结果字段')
     const validSubjects: Subject[] = [
       'math', 'chinese', 'english', 'physics', 'chemistry',
       'biology', 'history', 'geography', 'politics',
@@ -164,10 +165,12 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
       }
     }
 
-    console.log('[DeepSeek] 解析后的结果:', JSON.stringify(results, null, 2))
+    log.done(`完成! 共 ${results.length} 道题目`)
 
     return results
   } catch (error) {
+    log.error('分析失败', error)
+
     clearTimeout(timeoutId)
 
     if (error instanceof SyntaxError) {
