@@ -48,7 +48,7 @@ export async function recognizeWithAlibaba(
     "category": "知识点分类（例如：代数/几何/文言文/阅读理解等）",
     "difficulty": "难度（easy/medium/hard）",
     "answer": "正确答案",
-    "explanation": "答案解析（可选）",
+    "explanation": "答案解析（必须给出）",
     "confidence": 0.95
   }
 ]
