@@ -9,22 +9,57 @@ import { RecognitionResults } from '@/components/upload/RecognitionResults'
 import { QuestionForm } from '@/components/upload/QuestionForm'
 import { LoginDialog } from '@/components/auth/LoginDialog'
 import { useOCR, type RecognitionMode, type ImageQueueItem } from '@/hooks/useOCR'
+import { useDrafts, useSaveDraft, useDeleteDraft } from '@/hooks/useDrafts'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
+import type { Draft } from '@/types/database'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Sparkles, Camera, BookOpen, Check, Loader2 } from 'lucide-react'
+import { Sparkles, Camera, BookOpen, Check, Loader2, Inbox } from 'lucide-react'
 import { toast } from 'sonner'
+
+/**
+ * 将 Draft 转换为 AIRecognitionResult
+ */
+function draftToResult(draft: Draft): AIRecognitionResult {
+  return {
+    content: draft.content,
+    subject: draft.subject as AIRecognitionResult['subject'],
+    category: draft.category,
+    difficulty: draft.difficulty as AIRecognitionResult['difficulty'],
+    answer: draft.answer,
+    explanation: draft.explanation ?? undefined,
+    confidence: draft.confidence ?? undefined,
+  }
+}
 
 export default function UploadPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
   const { recognizeBatch, retryImage, mode, switchMode } = useOCR()
+
+  // 草稿相关 hooks
+  const { data: serverDrafts, isLoading: draftsLoading } = useDrafts()
+  const saveDraftMutation = useSaveDraft()
+  const deleteDraftMutation = useDeleteDraft()
+
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
   const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
+  const [allDraftIds, setAllDraftIds] = useState<string[]>([])
+  const [savedDraftIds, setSavedDraftIds] = useState<Set<string>>(new Set())
   const [isProcessing, setIsProcessing] = useState(false)
   const [editingResult, setEditingResult] = useState<AIRecognitionResult | undefined>()
   const [formOpen, setFormOpen] = useState(false)
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
+
+  // 页面加载时：将服务器草稿同步到本地状态
+  useEffect(() => {
+    if (serverDrafts && serverDrafts.length > 0) {
+      const results = serverDrafts.map(draftToResult)
+      const ids = serverDrafts.map((d) => d.id)
+      setAllResults(results)
+      setAllDraftIds(ids)
+    }
+  }, [serverDrafts])
 
   // 检查登录状态
   useEffect(() => {
@@ -46,22 +81,18 @@ export default function UploadPage() {
   }
 
   const handleUpload = async (files: File[]) => {
-    // 检查登录状态
     if (!user) {
       setPendingFiles(files)
       setLoginDialogOpen(true)
       toast.info('请先登录后再上传图片')
       return
     }
-
-    // 已登录，继续上传
     processUpload(files)
   }
 
   const processUpload = async (files: File[]) => {
     setIsProcessing(true)
     setQueueItems([])
-    setAllResults([])
 
     try {
       const items = await recognizeBatch(
@@ -89,7 +120,7 @@ export default function UploadPage() {
               return prev
             })
           },
-          onItemSuccess: (item, results) => {
+          onItemSuccess: (item, results, draftIds) => {
             setQueueItems((prev) => {
               const index = prev.findIndex((i) => i.id === item.id)
               if (index >= 0) {
@@ -99,8 +130,9 @@ export default function UploadPage() {
               }
               return prev
             })
-            // 汇总所有结果
+            // 汇总所有结果（追加到现有结果）
             setAllResults((prev) => [...prev, ...results])
+            setAllDraftIds((prev) => [...prev, ...(draftIds ?? [])])
           },
           onItemError: (item, error) => {
             setQueueItems((prev) => {
@@ -126,8 +158,8 @@ export default function UploadPage() {
             }
           },
         },
-        2, // 并发数：2
-        1  // 最大重试次数：1
+        2,
+        1
       )
 
       setQueueItems(items)
@@ -160,14 +192,14 @@ export default function UploadPage() {
             )
           )
         },
-        onSuccess: (item, results) => {
+        onSuccess: (item, results, draftIds) => {
           setQueueItems((prev) =>
             prev.map((i) =>
               i.id === item.id ? { ...item, result: results } : i
             )
           )
-          // 添加到总结果中
           setAllResults((prev) => [...prev, ...results])
+          setAllDraftIds((prev) => [...prev, ...(draftIds ?? [])])
         },
         onError: (item, error) => {
           setQueueItems((prev) =>
@@ -178,7 +210,6 @@ export default function UploadPage() {
         },
       })
     } catch (error) {
-      // 错误已在 retryImage 中处理
       console.error('Retry error:', error)
     }
   }
@@ -190,12 +221,44 @@ export default function UploadPage() {
 
   const handleClearResults = () => {
     setAllResults([])
+    setAllDraftIds([])
+    setSavedDraftIds(new Set())
     setQueueItems([])
   }
 
   const handleDeleteResult = (index: number) => {
     setAllResults((prev) => prev.filter((_, i) => i !== index))
+    setAllDraftIds((prev) => prev.filter((_, i) => i !== index))
     toast.success('已删除该题目')
+  }
+
+  const handleSaveDraft = async (draftId: string, _index: number) => {
+    try {
+      await saveDraftMutation.mutateAsync(draftId)
+      setSavedDraftIds((prev) => new Set(prev).add(draftId))
+      // 从显示列表中移除（可选：保留但标记为已保存）
+      const idx = allDraftIds.indexOf(draftId)
+      if (idx >= 0) {
+        setAllResults((prev) => prev.filter((_, i) => i !== idx))
+        setAllDraftIds((prev) => prev.filter((_, i) => i !== idx))
+      }
+    } catch {
+      // 错误已在 hook 中处理
+    }
+  }
+
+  const handleDeleteDraft = async (draftId: string, _index: number) => {
+    try {
+      await deleteDraftMutation.mutateAsync(draftId)
+      // 从显示列表中移除
+      const idx = allDraftIds.indexOf(draftId)
+      if (idx >= 0) {
+        setAllResults((prev) => prev.filter((_, i) => i !== idx))
+        setAllDraftIds((prev) => prev.filter((_, i) => i !== idx))
+      }
+    } catch {
+      // 错误已在 hook 中处理
+    }
   }
 
   const handleFormClose = (open: boolean) => {
@@ -206,13 +269,15 @@ export default function UploadPage() {
   }
 
   const handleLoginSuccess = () => {
-    // 登录成功后，如果有待处理的文件，自动上传
     if (pendingFiles.length > 0) {
       toast.success('登录成功，开始识别图片')
       processUpload(pendingFiles)
       setPendingFiles([])
     }
   }
+
+  const hasResults = allResults.length > 0
+  const hasDrafts = serverDrafts && serverDrafts.length > 0
 
   return (
     <div className="space-y-6">
@@ -272,7 +337,7 @@ export default function UploadPage() {
           {[
             { icon: Sparkles, title: '自动识别', desc: 'AI 智能识别题目内容' },
             { icon: BookOpen, title: '批量提取', desc: '一张图识别多道题目' },
-            { icon: Check, title: '灵活保存', desc: '选择有效题目保存' },
+            { icon: Check, title: '自动暂存', desc: '识别结果自动保存，随时处理' },
           ].map((tip, index) => {
             const Icon = tip.icon
             return (
@@ -302,48 +367,77 @@ export default function UploadPage() {
         />
       )}
 
-      {/* 识别结果 */}
-      {allResults.length > 0 && (
+      {/* 识别结果 / 草稿列表 */}
+      {hasResults ? (
         <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
           <RecognitionResults
             results={allResults}
+            draftIds={allDraftIds}
             onEdit={handleEdit}
             onDelete={handleDeleteResult}
             onClear={handleClearResults}
+            onSaveDraft={handleSaveDraft}
+            onDeleteDraft={handleDeleteDraft}
+            savingDraftId={saveDraftMutation.isPending ? saveDraftMutation.variables : null}
+            deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : null}
           />
         </div>
-      )}
+      ) : draftsLoading ? (
+        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-2" />
+            <span className="text-gray-600">加载草稿...</span>
+          </div>
+        </div>
+      ) : hasDrafts ? (
+        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
+          <RecognitionResults
+            results={allResults}
+            draftIds={allDraftIds}
+            onEdit={handleEdit}
+            onDelete={handleDeleteResult}
+            onClear={handleClearResults}
+            onSaveDraft={handleSaveDraft}
+            onDeleteDraft={handleDeleteDraft}
+            savingDraftId={saveDraftMutation.isPending ? saveDraftMutation.variables : null}
+            deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : null}
+          />
+        </div>
+      ) : null}
 
-      {/* 提示信息 */}
-      {allResults.length === 0 && queueItems.length === 0 && !isProcessing && (
+      {/* 空状态提示 */}
+      {!hasResults && !hasDrafts && queueItems.length === 0 && !isProcessing && (
         <div className="bg-[#cce5f3]/30 border border-[#0070a0]/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-[#1f1f1f] mb-3">
-            使用提示
-          </h3>
+          <div className="flex items-center gap-3 mb-3">
+            <Inbox className="w-6 h-6 text-[#0070a0]" />
+            <h3 className="text-lg font-semibold text-[#1f1f1f]">
+              使用提示
+            </h3>
+          </div>
           <ul className="space-y-2 text-sm text-[#626a72]">
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>确保图片清晰，光线充足</span>
+              <span>上传图片后，AI 会自动识别题目并<strong>暂存到草稿箱</strong></span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>尽量让题目内容完整，避免遮挡</span>
+              <span>您可以随时关闭页面，识别结果不会丢失</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>支持 JPG、PNG、GIF、WebP 格式</span>
+              <span>确认无误后点击保存，题目才会进入您的错题库</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>单张图片最大 10MB</span>
+              <span>确保图片清晰，光线充足，避免遮挡</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-[#0070a0]">•</span>
+              <span>支持 JPG、PNG、GIF、WebP 格式，单张最大 10MB</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
               <span>支持一次上传多张图片（最多 10 张）</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
-              <span>每张图片可识别多道题目，系统会自动分离</span>
             </li>
           </ul>
         </div>

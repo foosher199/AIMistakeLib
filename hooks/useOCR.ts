@@ -26,7 +26,7 @@ interface RecognizeOptions {
 interface BatchRecognizeCallbacks {
   onItemStart?: (item: ImageQueueItem) => void
   onItemProgress?: (item: ImageQueueItem, progress: number) => void
-  onItemSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[]) => void
+  onItemSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], draftIds?: string[]) => void
   onItemError?: (item: ImageQueueItem, error: string) => void
   onComplete?: (items: ImageQueueItem[]) => void
 }
@@ -194,7 +194,8 @@ export function useOCR() {
         item.status = 'success'
         item.progress = 100
         item.result = data.results
-        callbacks?.onItemSuccess?.(item, data.results)
+        const draftIds: string[] = data.drafts?.map((d: { id: string }) => d.id) ?? []
+        callbacks?.onItemSuccess?.(item, data.results, draftIds)
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : '识别失败'
 
@@ -232,7 +233,7 @@ export function useOCR() {
     callbacks?: {
       onStart?: (item: ImageQueueItem) => void
       onProgress?: (item: ImageQueueItem, progress: number) => void
-      onSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[]) => void
+      onSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], draftIds?: string[]) => void
       onError?: (item: ImageQueueItem, error: string) => void
     }
   ): Promise<ImageQueueItem> => {
@@ -288,7 +289,8 @@ export function useOCR() {
       item.status = 'success'
       item.progress = 100
       item.result = data.results
-      callbacks?.onSuccess?.(item, data.results)
+      const draftIds: string[] = data.drafts?.map((d: { id: string }) => d.id) ?? []
+      callbacks?.onSuccess?.(item, data.results, draftIds)
       toast.success(`${item.file.name} 重试成功`)
 
       return item

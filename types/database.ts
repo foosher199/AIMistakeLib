@@ -119,6 +119,62 @@ export interface Database {
         ]
       }
       /**
+       * 草稿/待处理题目表
+       * 图片识别后的临时存储，用户保存后才移入 mistake_questions
+       */
+      mistake_drafts: {
+        Row: {
+          id: string
+          user_id: string
+          content: string
+          subject: string
+          category: string
+          difficulty: 'easy' | 'medium' | 'hard'
+          answer: string
+          explanation: string | null
+          confidence: number | null
+          image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content: string
+          subject: string
+          category: string
+          difficulty: 'easy' | 'medium' | 'hard'
+          answer: string
+          explanation?: string | null
+          confidence?: number | null
+          image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content?: string
+          subject?: string
+          category?: string
+          difficulty?: 'easy' | 'medium' | 'hard'
+          answer?: string
+          explanation?: string | null
+          confidence?: number | null
+          image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'mistake_drafts_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      /**
        * 用户反馈表
        */
       mistake_feedbacks: {
@@ -193,6 +249,11 @@ export type ProfileUpdate = Database['public']['Tables']['mistake_profiles']['Up
 export type Question = Database['public']['Tables']['mistake_questions']['Row']
 export type QuestionInsert = Database['public']['Tables']['mistake_questions']['Insert']
 export type QuestionUpdate = Database['public']['Tables']['mistake_questions']['Update']
+
+// 草稿类型
+export type Draft = Database['public']['Tables']['mistake_drafts']['Row']
+export type DraftInsert = Database['public']['Tables']['mistake_drafts']['Insert']
+export type DraftUpdate = Database['public']['Tables']['mistake_drafts']['Update']
 
 // 用户反馈类型
 export type Feedback = Database['public']['Tables']['mistake_feedbacks']['Row']

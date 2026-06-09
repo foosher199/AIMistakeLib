@@ -11,17 +11,45 @@ import { toast } from 'sonner'
 
 interface RecognitionResultsProps {
   results: AIRecognitionResult[]
+  draftIds?: string[] // 与 results 一一对应的草稿ID，空字符串表示无草稿
   onEdit?: (result: AIRecognitionResult, index: number) => void
   onDelete?: (index: number) => void
   onClear?: () => void
+  onSaveDraft?: (draftId: string, index: number) => void
+  onDeleteDraft?: (draftId: string, index: number) => void
+  savingDraftId?: string | null
+  deletingDraftId?: string | null
 }
 
-export function RecognitionResults({ results, onEdit, onDelete, onClear }: RecognitionResultsProps) {
+export function RecognitionResults({
+  results,
+  draftIds,
+  onEdit,
+  onDelete,
+  onClear,
+  onSaveDraft,
+  onDeleteDraft,
+  savingDraftId,
+  deletingDraftId,
+}: RecognitionResultsProps) {
   const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set())
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const createQuestion = useCreateQuestion()
 
+  const getDraftId = (index: number): string | undefined => {
+    return draftIds?.[index]
+  }
+
   const handleSave = async (result: AIRecognitionResult, index: number) => {
+    const draftId = getDraftId(index)
+
+    if (draftId) {
+      // 有草稿ID，走草稿保存流程
+      onSaveDraft?.(draftId, index)
+      return
+    }
+
+    // 无草稿ID，直接创建题目（兼容旧逻辑）
     const questionData = {
       content: result.content,
       subject: result.subject,
@@ -37,7 +65,6 @@ export function RecognitionResults({ results, onEdit, onDelete, onClear }: Recog
       await createQuestion.mutateAsync(questionData as unknown as import('@/types/database').QuestionInsert)
       setSavedIndices((prev) => new Set(prev).add(index))
     } catch (error) {
-      // 错误已由 useCreateQuestion 的 onError 处理
       console.error('Save question error:', error)
     }
   }
@@ -48,6 +75,15 @@ export function RecognitionResults({ results, onEdit, onDelete, onClear }: Recog
         await handleSave(results[i], i)
       }
     }
+  }
+
+  const handleDelete = (index: number) => {
+    const draftId = getDraftId(index)
+    if (draftId) {
+      onDeleteDraft?.(draftId, index)
+      return
+    }
+    onDelete?.(index)
   }
 
   const handleCopy = async (result: AIRecognitionResult, index: number) => {
@@ -78,6 +114,9 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
     return null
   }
 
+  const allSaved = savedIndices.size === results.length
+  const isSaving = savingDraftId !== undefined || createQuestion.isPending
+
   return (
     <div className="space-y-4">
       {/* 头部操作栏 */}
@@ -90,9 +129,9 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
             variant="outline"
             size="sm"
             onClick={handleSaveAll}
-            disabled={savedIndices.size === results.length || createQuestion.isPending}
+            disabled={allSaved || isSaving}
           >
-            {createQuestion.isPending ? '保存中...' : '全部保存'}
+            {isSaving ? '保存中...' : '全部保存'}
           </Button>
           {onClear && (
             <Button variant="ghost" size="sm" onClick={onClear}>
@@ -106,7 +145,10 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
       {/* 结果列表 */}
       <div className="space-y-4">
         {results.map((result, index) => {
+          const draftId = getDraftId(index)
           const isSaved = savedIndices.has(index)
+          const isCurrentSaving = savingDraftId === draftId
+          const isCurrentDeleting = deletingDraftId === draftId
           const subjectLabel = SUBJECTS.find((s) => s.id === result.subject)?.label || result.subject
           const difficultyLabel = DIFFICULTIES.find((d) => d.id === result.difficulty)?.label || result.difficulty
           const difficultyColor = {
@@ -170,6 +212,22 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
                       <Copy className="w-4 h-4" />
                     )}
                   </Button>
+                  {!isSaved && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSave(result, index)}
+                      className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                      title="保存"
+                      disabled={isCurrentSaving}
+                    >
+                      {isCurrentSaving ? (
+                        <Check className="w-4 h-4 animate-pulse" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
                   {!isSaved && onEdit && (
                     <Button
                       variant="ghost"
@@ -181,17 +239,16 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
                       <Edit className="w-4 h-4" />
                     </Button>
                   )}
-                  {onDelete && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete(index)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      title="删除"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(index)}
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    title="删除"
+                    disabled={isCurrentDeleting}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
 

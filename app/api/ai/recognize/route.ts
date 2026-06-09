@@ -143,10 +143,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 将识别结果写入草稿表
+    const draftsToInsert = results.map((r) => ({
+      user_id: user.id,
+      content: r.content,
+      subject: r.subject,
+      category: r.category,
+      difficulty: r.difficulty,
+      answer: r.answer,
+      explanation: r.explanation ?? null,
+      confidence: r.confidence ?? null,
+      image_url: imageUrl,
+    }))
+
+    const { data: insertedDrafts, error: draftError } = await supabase
+      .from('mistake_drafts')
+      .insert(draftsToInsert)
+      .select('id, content, subject, category, difficulty, answer, explanation, confidence, image_url')
+
+    if (draftError) {
+      console.error('[API] 写入草稿表失败:', draftError)
+      // 草稿写入失败不影响返回识别结果，只记录日志
+    } else {
+      console.log(`[API] 已写入 ${insertedDrafts?.length ?? 0} 条草稿`)
+    }
+
     // 识别完成后，删除 Storage 中的临时图片
     await deleteTempImage(imageUrl)
 
-    return NextResponse.json({ results })
+    return NextResponse.json({ results, drafts: insertedDrafts })
   } catch (error) {
     console.error('POST /api/ai/recognize error:', error)
 
