@@ -13,7 +13,7 @@ export interface AIRecognitionResult {
   difficulty: Difficulty
   answer: string
   explanation?: string
-  confidence: number
+  confidence?: number
 }
 
 interface DashScopeResponse {

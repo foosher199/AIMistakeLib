@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { MultiImageUpload } from '@/components/upload/MultiImageUpload'
@@ -42,24 +42,31 @@ export default function UploadPage() {
   const deleteDraftMutation = useDeleteDraft()
 
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
-  const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
-  const [allDraftIds, setAllDraftIds] = useState<string[]>([])
+  // 新上传的识别结果（尚未在草稿表中的）
+  const [uploadedResults, setUploadedResults] = useState<AIRecognitionResult[]>([])
+  const [uploadedDraftIds, setUploadedDraftIds] = useState<string[]>([])
+  // 已从显示列表中移除的草稿ID（保存或删除后）
+  const [removedDraftIds, setRemovedDraftIds] = useState<Set<string>>(new Set())
   const [isProcessing, setIsProcessing] = useState(false)
   const [editingResult, setEditingResult] = useState<AIRecognitionResult | undefined>()
   const [formOpen, setFormOpen] = useState(false)
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
 
-  // 页面加载时：将服务器草稿同步到本地状态
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    if (serverDrafts && serverDrafts.length > 0) {
-      const results = serverDrafts.map(draftToResult)
-      const ids = serverDrafts.map((d) => d.id)
-      setAllResults(results)
-      setAllDraftIds(ids)
-    }
-  }, [serverDrafts])
+  // 计算要显示的完整结果列表（服务器草稿 + 新上传结果）
+  const displayResults = useMemo(() => {
+    const draftResults = (serverDrafts ?? [])
+      .filter((d) => !removedDraftIds.has(d.id))
+      .map(draftToResult)
+    return [...draftResults, ...uploadedResults]
+  }, [serverDrafts, uploadedResults, removedDraftIds])
+
+  const displayDraftIds = useMemo(() => {
+    const draftIds = (serverDrafts ?? [])
+      .filter((d) => !removedDraftIds.has(d.id))
+      .map((d) => d.id)
+    return [...draftIds, ...uploadedDraftIds]
+  }, [serverDrafts, uploadedDraftIds, removedDraftIds])
 
   // 检查登录状态
   useEffect(() => {
@@ -120,19 +127,19 @@ export default function UploadPage() {
               return prev
             })
           },
-          onItemSuccess: (item, results, draftIds) => {
+          onItemSuccess: (_item, results, draftIds) => {
             setQueueItems((prev) => {
-              const index = prev.findIndex((i) => i.id === item.id)
+              const index = prev.findIndex((i) => i.id === _item.id)
               if (index >= 0) {
                 const newItems = [...prev]
-                newItems[index] = { ...item, result: results }
+                newItems[index] = { ..._item, result: results }
                 return newItems
               }
               return prev
             })
-            // 汇总所有结果（追加到现有结果）
-            setAllResults((prev) => [...prev, ...results])
-            setAllDraftIds((prev) => [...prev, ...(draftIds ?? [])])
+            // 追加到上传结果列表
+            setUploadedResults((prev) => [...prev, ...results])
+            setUploadedDraftIds((prev) => [...prev, ...(draftIds ?? [])])
           },
           onItemError: (item, error) => {
             setQueueItems((prev) => {
@@ -192,14 +199,14 @@ export default function UploadPage() {
             )
           )
         },
-        onSuccess: (item, results, draftIds) => {
+        onSuccess: (_item, results, draftIds) => {
           setQueueItems((prev) =>
             prev.map((i) =>
-              i.id === item.id ? { ...item, result: results } : i
+              i.id === _item.id ? { ..._item, result: results } : i
             )
           )
-          setAllResults((prev) => [...prev, ...results])
-          setAllDraftIds((prev) => [...prev, ...(draftIds ?? [])])
+          setUploadedResults((prev) => [...prev, ...results])
+          setUploadedDraftIds((prev) => [...prev, ...(draftIds ?? [])])
         },
         onError: (item, error) => {
           setQueueItems((prev) =>
@@ -220,26 +227,43 @@ export default function UploadPage() {
   }
 
   const handleClearResults = () => {
-    setAllResults([])
-    setAllDraftIds([])
+    setUploadedResults([])
+    setUploadedDraftIds([])
+    // 将当前所有服务器草稿也标记为已移除
+    const allServerIds = (serverDrafts ?? []).map((d) => d.id)
+    setRemovedDraftIds((prev) => {
+      const next = new Set(prev)
+      allServerIds.forEach((id) => next.add(id))
+      return next
+    })
     setQueueItems([])
   }
 
   const handleDeleteResult = (index: number) => {
-    setAllResults((prev) => prev.filter((_, i) => i !== index))
-    setAllDraftIds((prev) => prev.filter((_, i) => i !== index))
+    const draftId = displayDraftIds[index]
+    if (draftId) {
+      // 检查是服务器草稿还是新上传的
+      const isUploaded = index >= (serverDrafts?.length ?? 0) - [...removedDraftIds].filter((id) =>
+        serverDrafts?.some((d) => d.id === id)
+      ).length
+      if (isUploaded) {
+        // 新上传的，直接从 uploaded 中移除
+        const uploadIndex = index - (displayDraftIds.length - uploadedResults.length)
+        setUploadedResults((prev) => prev.filter((_, i) => i !== uploadIndex))
+        setUploadedDraftIds((prev) => prev.filter((_, i) => i !== uploadIndex))
+      } else {
+        // 服务器草稿，标记为已移除
+        setRemovedDraftIds((prev) => new Set(prev).add(draftId))
+      }
+    }
     toast.success('已删除该题目')
   }
 
   const handleSaveDraft = async (draftId: string) => {
     try {
       await saveDraftMutation.mutateAsync(draftId)
-      // 从显示列表中移除
-      const idx = allDraftIds.indexOf(draftId)
-      if (idx >= 0) {
-        setAllResults((prev) => prev.filter((_r, i) => i !== idx))
-        setAllDraftIds((prev) => prev.filter((_id, i) => i !== idx))
-      }
+      // 标记为已移除，useMemo 会自动过滤掉
+      setRemovedDraftIds((prev) => new Set(prev).add(draftId))
     } catch {
       // 错误已在 hook 中处理
     }
@@ -248,12 +272,8 @@ export default function UploadPage() {
   const handleDeleteDraft = async (draftId: string) => {
     try {
       await deleteDraftMutation.mutateAsync(draftId)
-      // 从显示列表中移除
-      const idx = allDraftIds.indexOf(draftId)
-      if (idx >= 0) {
-        setAllResults((prev) => prev.filter((_r, i) => i !== idx))
-        setAllDraftIds((prev) => prev.filter((_id, i) => i !== idx))
-      }
+      // 标记为已移除，useMemo 会自动过滤掉
+      setRemovedDraftIds((prev) => new Set(prev).add(draftId))
     } catch {
       // 错误已在 hook 中处理
     }
@@ -274,8 +294,7 @@ export default function UploadPage() {
     }
   }
 
-  const hasResults = allResults.length > 0
-  const hasDrafts = serverDrafts && serverDrafts.length > 0
+  const hasResults = displayResults.length > 0
 
   return (
     <div className="space-y-6">
@@ -366,11 +385,11 @@ export default function UploadPage() {
       )}
 
       {/* 识别结果 / 草稿列表 */}
-      {hasResults ? (
+      {hasResults && (
         <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
           <RecognitionResults
-            results={allResults}
-            draftIds={allDraftIds}
+            results={displayResults}
+            draftIds={displayDraftIds}
             onEdit={handleEdit}
             onDelete={handleDeleteResult}
             onClear={handleClearResults}
@@ -380,31 +399,20 @@ export default function UploadPage() {
             deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : null}
           />
         </div>
-      ) : draftsLoading ? (
+      )}
+
+      {/* 加载草稿中 */}
+      {draftsLoading && !hasResults && (
         <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-2" />
             <span className="text-gray-600">加载草稿...</span>
           </div>
         </div>
-      ) : hasDrafts ? (
-        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
-          <RecognitionResults
-            results={allResults}
-            draftIds={allDraftIds}
-            onEdit={handleEdit}
-            onDelete={handleDeleteResult}
-            onClear={handleClearResults}
-            onSaveDraft={handleSaveDraft}
-            onDeleteDraft={handleDeleteDraft}
-            savingDraftId={saveDraftMutation.isPending ? saveDraftMutation.variables : null}
-            deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : null}
-          />
-        </div>
-      ) : null}
+      )}
 
       {/* 空状态提示 */}
-      {!hasResults && !hasDrafts && queueItems.length === 0 && !isProcessing && (
+      {!hasResults && !draftsLoading && queueItems.length === 0 && !isProcessing && (
         <div className="bg-[#cce5f3]/30 border border-[#0070a0]/20 rounded-lg p-6">
           <div className="flex items-center gap-3 mb-3">
             <Inbox className="w-6 h-6 text-[#0070a0]" />

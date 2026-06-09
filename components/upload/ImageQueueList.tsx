@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ImageQueueItem, ImageQueueStatus } from '@/hooks/useOCR'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
@@ -24,13 +24,19 @@ interface ImageQueueListProps {
 
 export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps) {
   const [previews, setPreviews] = useState<Map<string, string>>(new Map())
+  const previewsRef = useRef(previews)
+
+  // 保持 ref 与 state 同步
+  useEffect(() => {
+    previewsRef.current = previews
+  }, [previews])
 
   // 生成预览图
   useEffect(() => {
     const newPreviews = new Map<string, string>()
 
     items.forEach((item) => {
-      if (!previews.has(item.id)) {
+      if (!previewsRef.current.has(item.id)) {
         const reader = new FileReader()
         reader.onload = (e) => {
           newPreviews.set(item.id, e.target?.result as string)
@@ -42,10 +48,15 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
 
     // 清理不再使用的预览
     return () => {
-      previews.forEach((url, id) => {
-        if (!items.find(item => item.id === id)) {
-          URL.revokeObjectURL(url)
-        }
+      setPreviews((prev) => {
+        const next = new Map(prev)
+        prev.forEach((url, id) => {
+          if (!items.find((item) => item.id === id)) {
+            URL.revokeObjectURL(url)
+            next.delete(id)
+          }
+        })
+        return next
       })
     }
   }, [items])

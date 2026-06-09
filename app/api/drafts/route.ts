@@ -4,7 +4,7 @@
  * GET /api/drafts - 获取当前用户的草稿列表
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
 
 /**
@@ -13,7 +13,7 @@ import { createServerClient } from '@/lib/supabase-server'
  * 获取当前用户的草稿列表
  * 按创建时间倒序排列
  */
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerClient()
 
