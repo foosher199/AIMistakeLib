@@ -34,7 +34,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
         const reader = new FileReader()
         reader.onload = (e) => {
           newPreviews.set(item.id, e.target?.result as string)
-          setPreviews(new Map([...previews, ...newPreviews]))
+          setPreviews((prev) => new Map([...prev, ...newPreviews]))
         }
         reader.readAsDataURL(item.file)
       }

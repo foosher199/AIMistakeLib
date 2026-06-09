@@ -44,7 +44,6 @@ export default function UploadPage() {
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
   const [allResults, setAllResults] = useState<AIRecognitionResult[]>([])
   const [allDraftIds, setAllDraftIds] = useState<string[]>([])
-  const [savedDraftIds, setSavedDraftIds] = useState<Set<string>>(new Set())
   const [isProcessing, setIsProcessing] = useState(false)
   const [editingResult, setEditingResult] = useState<AIRecognitionResult | undefined>()
   const [formOpen, setFormOpen] = useState(false)
@@ -52,6 +51,7 @@ export default function UploadPage() {
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
 
   // 页面加载时：将服务器草稿同步到本地状态
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (serverDrafts && serverDrafts.length > 0) {
       const results = serverDrafts.map(draftToResult)
@@ -222,7 +222,6 @@ export default function UploadPage() {
   const handleClearResults = () => {
     setAllResults([])
     setAllDraftIds([])
-    setSavedDraftIds(new Set())
     setQueueItems([])
   }
 
@@ -232,29 +231,28 @@ export default function UploadPage() {
     toast.success('已删除该题目')
   }
 
-  const handleSaveDraft = async (draftId: string, _index: number) => {
+  const handleSaveDraft = async (draftId: string) => {
     try {
       await saveDraftMutation.mutateAsync(draftId)
-      setSavedDraftIds((prev) => new Set(prev).add(draftId))
-      // 从显示列表中移除（可选：保留但标记为已保存）
+      // 从显示列表中移除
       const idx = allDraftIds.indexOf(draftId)
       if (idx >= 0) {
-        setAllResults((prev) => prev.filter((_, i) => i !== idx))
-        setAllDraftIds((prev) => prev.filter((_, i) => i !== idx))
+        setAllResults((prev) => prev.filter((_r, i) => i !== idx))
+        setAllDraftIds((prev) => prev.filter((_id, i) => i !== idx))
       }
     } catch {
       // 错误已在 hook 中处理
     }
   }
 
-  const handleDeleteDraft = async (draftId: string, _index: number) => {
+  const handleDeleteDraft = async (draftId: string) => {
     try {
       await deleteDraftMutation.mutateAsync(draftId)
       // 从显示列表中移除
       const idx = allDraftIds.indexOf(draftId)
       if (idx >= 0) {
-        setAllResults((prev) => prev.filter((_, i) => i !== idx))
-        setAllDraftIds((prev) => prev.filter((_, i) => i !== idx))
+        setAllResults((prev) => prev.filter((_r, i) => i !== idx))
+        setAllDraftIds((prev) => prev.filter((_id, i) => i !== idx))
       }
     } catch {
       // 错误已在 hook 中处理

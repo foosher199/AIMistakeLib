@@ -15,8 +15,8 @@ interface RecognitionResultsProps {
   onEdit?: (result: AIRecognitionResult, index: number) => void
   onDelete?: (index: number) => void
   onClear?: () => void
-  onSaveDraft?: (draftId: string, index: number) => void
-  onDeleteDraft?: (draftId: string, index: number) => void
+  onSaveDraft?: (draftId: string) => void
+  onDeleteDraft?: (draftId: string) => void
   savingDraftId?: string | null
   deletingDraftId?: string | null
 }
@@ -45,7 +45,7 @@ export function RecognitionResults({
 
     if (draftId) {
       // 有草稿ID，走草稿保存流程
-      onSaveDraft?.(draftId, index)
+      onSaveDraft?.(draftId)
       return
     }
 
@@ -80,7 +80,7 @@ export function RecognitionResults({
   const handleDelete = (index: number) => {
     const draftId = getDraftId(index)
     if (draftId) {
-      onDeleteDraft?.(draftId, index)
+      onDeleteDraft?.(draftId)
       return
     }
     onDelete?.(index)
