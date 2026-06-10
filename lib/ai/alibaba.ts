@@ -77,7 +77,7 @@ export async function recognizeWithAlibaba(
         : `data:image/jpeg;base64,${imageBase64}`
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 60000)
+    const timeoutId = setTimeout(() => controller.abort(), 180000)
 
     log.step('2. 发送 API 请求到阿里云 DashScope')
     const startTime = Date.now()
