@@ -36,7 +36,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to get IP' }, { status: 500 })
   }
 }
