@@ -24,7 +24,7 @@ import { z } from 'zod'
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
   imageUrl: z.string().url('图片URL格式无效'),
-  mode: z.enum(['vision', 'text', 'baidu_understanding', 'baidu_paper_cut']).default('text'),
+  mode: z.enum(['vision', 'text', 'baidu_understanding', 'baidu_paper_cut']).default('baidu_understanding'),
 })
 
 /**

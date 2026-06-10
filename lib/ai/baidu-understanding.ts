@@ -41,7 +41,7 @@ const GET_RESULT_URL =
   'https://aip.baidubce.com/rest/2.0/image-classify/v1/image-understanding/get-result'
 
 // question 限制 100 字符，使用简短提示
-const QUESTION = '请识别图片中的所有题目，返回JSON数组格式，包含content、subject、category、difficulty、answer、explanation字段。所有答案和解析请用中文输出，不要使用英文。'
+const QUESTION = '识别图片中的题目，返回JSON数组，含content/subject/category/difficulty/answer/explanation字段。答案和解析用中文输出'
 
 /**
  * 提交图像理解请求

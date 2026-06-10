@@ -37,7 +37,7 @@ interface BatchRecognizeCallbacks {
 export function useOCR() {
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [mode, setMode] = useState<RecognitionMode>('text')
+  const [mode, setMode] = useState<RecognitionMode>('baidu_understanding')
 
   /**
    * 将 Data URL 转换为 File 对象
