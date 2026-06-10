@@ -40,31 +40,8 @@ const SUBMIT_URL =
 const GET_RESULT_URL =
   'https://aip.baidubce.com/rest/2.0/image-classify/v1/image-understanding/get-result'
 
-// 要求百度直接返回结构化 JSON
-const QUESTION = `请仔细识别图片中的题目，并按以下 JSON 数组格式返回（可以包含多道题目）：
-
-[
-  {
-    "content": "题目内容（完整的题干）",
-    "subject": "学科（math/chinese/english/physics/chemistry/biology/history/geography/politics）",
-    "category": "知识点分类",
-    "difficulty": "难度（easy/medium/hard）",
-    "answer": "正确答案",
-    "explanation": "答案解析（必须给出）",
-    "confidence": 0.9
-  }
-]
-
-要求：
-1. 准确识别题目的完整内容
-2. 根据题目内容判断学科，必须是上述9个学科之一
-3. 分析知识点分类
-4. 评估难度级别
-5. 如果图片包含答案或解析，请一并提取
-6. confidence 表示识别的置信度（0-1之间）
-7. 如果图片中有多道题目，请全部识别并返回数组
-
-请直接返回 JSON 数组，不要添加任何 markdown 标记或其他说明文字。`
+// question 限制 100 字符，使用简短提示
+const QUESTION = '请识别图片中的所有题目，返回JSON数组格式，包含content、subject、category、difficulty、answer、explanation字段'
 
 /**
  * 提交图像理解请求
