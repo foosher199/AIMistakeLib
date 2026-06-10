@@ -395,8 +395,8 @@ export default function UploadPage() {
             onClear={handleClearResults}
             onSaveDraft={handleSaveDraft}
             onDeleteDraft={handleDeleteDraft}
-            savingDraftId={saveDraftMutation.isPending ? saveDraftMutation.variables : null}
-            deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : null}
+            savingDraftId={saveDraftMutation.isPending ? saveDraftMutation.variables : undefined}
+            deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : undefined}
           />
         </div>
       )}

@@ -123,7 +123,7 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
   }
 
   const allSaved = savedIndices.size === results.length
-  const isSaving = savingDraftId !== undefined || createQuestion.isPending
+  const isSaving = savingDraftId != null
 
   return (
     <div className="space-y-4">
