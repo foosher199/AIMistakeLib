@@ -89,3 +89,36 @@ export function useDeleteDraft() {
     },
   })
 }
+
+/**
+ * 批量删除草稿
+ */
+export function useDeleteDrafts() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (draftIds: string[]) => {
+      const response = await fetch('/api/drafts', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: draftIds }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || '批量删除草稿失败')
+      }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drafts'] })
+      toast.success('已清空所有草稿')
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+  })
+}

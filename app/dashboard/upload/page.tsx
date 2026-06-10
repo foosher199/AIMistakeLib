@@ -9,7 +9,7 @@ import { RecognitionResults } from '@/components/upload/RecognitionResults'
 import { QuestionForm } from '@/components/upload/QuestionForm'
 import { LoginDialog } from '@/components/auth/LoginDialog'
 import { useOCR, type RecognitionMode, type ImageQueueItem } from '@/hooks/useOCR'
-import { useDrafts, useSaveDraft, useDeleteDraft } from '@/hooks/useDrafts'
+import { useDrafts, useSaveDraft, useDeleteDraft, useDeleteDrafts } from '@/hooks/useDrafts'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import type { Draft } from '@/types/database'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -40,6 +40,7 @@ export default function UploadPage() {
   const { data: serverDrafts, isLoading: draftsLoading } = useDrafts()
   const saveDraftMutation = useSaveDraft()
   const deleteDraftMutation = useDeleteDraft()
+  const deleteDraftsMutation = useDeleteDrafts()
 
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
   // 新上传的识别结果（尚未在草稿表中的）
@@ -226,20 +227,25 @@ export default function UploadPage() {
     setFormOpen(true)
   }
 
-  const handleClearResults = () => {
+  const handleClearResults = async () => {
+    // 删除所有服务器草稿（批量删除）
+    const allServerIds = (serverDrafts ?? []).map((d) => d.id)
+    if (allServerIds.length > 0) {
+      try {
+        await deleteDraftsMutation.mutateAsync(allServerIds)
+      } catch {
+        // 删除失败不影响后续清理
+      }
+    }
+
+    // 清空本地状态
     setUploadedResults([])
     setUploadedDraftIds([])
-    // 将当前所有服务器草稿也标记为已移除
-    const allServerIds = (serverDrafts ?? []).map((d) => d.id)
-    setRemovedDraftIds((prev) => {
-      const next = new Set(prev)
-      allServerIds.forEach((id) => next.add(id))
-      return next
-    })
+    setRemovedDraftIds(new Set())
     setQueueItems([])
   }
 
-  const handleDeleteResult = (index: number) => {
+  const handleDeleteResult = async (index: number) => {
     const draftId = displayDraftIds[index]
     if (draftId) {
       // 检查是服务器草稿还是新上传的
@@ -252,7 +258,12 @@ export default function UploadPage() {
         setUploadedResults((prev) => prev.filter((_, i) => i !== uploadIndex))
         setUploadedDraftIds((prev) => prev.filter((_, i) => i !== uploadIndex))
       } else {
-        // 服务器草稿，标记为已移除
+        // 服务器草稿，删除数据库记录并从 UI 移除
+        try {
+          await deleteDraftMutation.mutateAsync(draftId)
+        } catch {
+          // 删除失败不影响 UI 更新
+        }
         setRemovedDraftIds((prev) => new Set(prev).add(draftId))
       }
     }
