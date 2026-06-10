@@ -355,7 +355,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
               disabled={createQuestion.isPending || updateQuestion.isPending}
             >
               {createQuestion.isPending || updateQuestion.isPending
-                ? '保存中...'
+                ? '待确认...'
                 : isEditMode
                 ? '更新'
                 : '保存'}

@@ -5,6 +5,13 @@ import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { SUBJECTS, DIFFICULTIES } from '@/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { CheckCircle, Edit, Trash2, AlertCircle, Copy, Check } from 'lucide-react'
 import { useCreateQuestion } from '@/hooks/useQuestions'
 import { toast } from 'sonner'
@@ -34,6 +41,7 @@ export function RecognitionResults({
 }: RecognitionResultsProps) {
   const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set())
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
   const createQuestion = useCreateQuestion()
 
   const getDraftId = (index: number): string | undefined => {
@@ -131,10 +139,10 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
             onClick={handleSaveAll}
             disabled={allSaved || isSaving}
           >
-            {isSaving ? '保存中...' : '全部保存'}
+            {isSaving ? '待确认...' : '全部保存'}
           </Button>
           {onClear && (
-            <Button variant="ghost" size="sm" onClick={onClear}>
+            <Button variant="ghost" size="sm" onClick={() => setShowClearConfirm(true)}>
               <Trash2 className="w-4 h-4 mr-1" />
               清空
             </Button>
@@ -288,6 +296,32 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
           )
         })}
       </div>
+
+      {/* 确认清空对话框 */}
+      <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>确认清空</DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-600">
+            确定要清空所有识别结果吗？此操作不可撤销。
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowClearConfirm(false)}>
+              取消
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setShowClearConfirm(false)
+                onClear?.()
+              }}
+            >
+              确认清空
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
