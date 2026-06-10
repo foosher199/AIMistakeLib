@@ -62,7 +62,7 @@ export async function getAccessToken(): Promise<string> {
 /**
  * 下载图片并转为 base64（去掉 data URI 前缀）
  */
-async function downloadImageToBase64(imageUrl: string): Promise<string> {
+export async function downloadImageToBase64(imageUrl: string): Promise<string> {
   const response = await fetch(imageUrl, { method: 'GET' })
 
   if (!response.ok) {

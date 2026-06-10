@@ -326,8 +326,8 @@ export default function UploadPage() {
                 {mode === 'text'
                   ? '文本模式：OCR + DeepSeek，速度快、成本低，适合纯文字题目'
                   : mode === 'baidu_understanding'
-                    ? '百度理解：直接分析图片内容，适合复杂排版和图文混合题目'
-                    : '视觉模式：阿里云 qwen-vl-plus 直接看图，精度高，适合含图形/公式题目'}
+                    ? '百度模型：直接分析图片内容，适合复杂排版和图文混合题目'
+                    : '阿里模型：阿里云 qwen-vl-plus 直接看图，精度高，适合含图形/公式题目'}
               </p>
             </div>
           </div>
@@ -337,9 +337,8 @@ export default function UploadPage() {
             onValueChange={(v) => switchMode(v as RecognitionMode)}
           >
             <TabsList>
-              <TabsTrigger value="text">文本模式</TabsTrigger>
-              <TabsTrigger value="baidu_understanding">百度理解</TabsTrigger>
-              <TabsTrigger value="vision">视觉模式</TabsTrigger>
+              <TabsTrigger value="baidu_understanding">百度模型</TabsTrigger>
+              <TabsTrigger value="vision">阿里模型</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

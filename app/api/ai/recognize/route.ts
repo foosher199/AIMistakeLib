@@ -15,6 +15,8 @@ import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
 import { extractTextFromImage } from '@/lib/ai/ocr'
 import { analyzeTextWithDeepSeek } from '@/lib/ai/deepseek'
 import { recognizeWithBaiduUnderstanding } from '@/lib/ai/baidu-understanding'
+import { recognizeWithBaiduPaperCut } from '@/lib/ai/baidu-paper-cut'
+import { downloadImageToBase64 } from '@/lib/ai/baidu-ocr'
 import type { AIRecognitionResult } from '@/lib/ai/alibaba'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -22,7 +24,7 @@ import { z } from 'zod'
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
   imageUrl: z.string().url('图片URL格式无效'),
-  mode: z.enum(['vision', 'text', 'baidu_understanding']).default('text'),
+  mode: z.enum(['vision', 'text', 'baidu_understanding', 'baidu_paper_cut']).default('text'),
 })
 
 /**
@@ -133,6 +135,20 @@ export async function POST(request: NextRequest) {
       } catch (baiduError) {
         log.error('百度图像理解模式失败', baiduError)
         throw baiduError
+      }
+    } else if (mode === 'baidu_paper_cut') {
+      // ===== 百度试卷切题：专项识别试卷题目 =====
+      console.log('[API] 使用百度试卷切题模式')
+
+      try {
+        log.step('5.x [baidu_paper_cut模式] 下载图片并转为base64')
+        const imageBase64 = await downloadImageToBase64(imageUrl)
+        log.step('5.x [baidu_paper_cut模式] 开始百度试卷切题API调用')
+        results = await recognizeWithBaiduPaperCut(imageBase64)
+        log.step(`5.x [baidu_paper_cut模式] 识别完成, 识别到 ${results.length} 道题目`)
+      } catch (paperCutError) {
+        log.error('百度试卷切题模式失败', paperCutError)
+        throw paperCutError
       }
     } else {
       // ===== 视觉模式：阿里云 qwen-vl-plus 直接看图 =====
