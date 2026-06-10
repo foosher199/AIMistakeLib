@@ -52,31 +52,8 @@ interface QuestionElement {
 
 const PAPER_CUT_URL = 'https://aip.baidubce.com/rest/2.0/ocr/v1/paper_cut_edu'
 
-// 学科映射
-const SUBJECT_MAP: Record<string, Subject> = {
-  math: 'math',
-  mathematics: 'math',
-  数学: 'math',
-  chinese: 'chinese',
-  语文: 'chinese',
-  english: 'english',
-  英语: 'english',
-  physics: 'physics',
-  物理: 'physics',
-  chemistry: 'chemistry',
-  化学: 'chemistry',
-  biology: 'biology',
-  生物: 'biology',
-  history: 'history',
-  历史: 'history',
-  geography: 'geography',
-  地理: 'geography',
-  politics: 'politics',
-  政治: 'politics',
-}
-
 // 根据题目类型判断难度
-function inferDifficulty(content: string, answer: string): Difficulty {
+function inferDifficulty(content: string): Difficulty {
   // 简单的启发式判断
   const longContent = content.length > 100
   const hasMultipleParts = content.includes('且') || content.includes('如果')
@@ -251,7 +228,6 @@ function parseResultsFromResponse(data: PaperCutResponse): AIRecognitionResult[]
   for (const qus of data.qus_result) {
     // 提取各部分文本
     const stemText = qus.elem_text?.stem_text || ''
-    const subqusText = qus.elem_text?.subqus_text || ''
     const answerText = qus.elem_text?.answer_text || ''
     const optionText = qus.elem_text?.option_text || ''
     const interpretationText = qus.elem_text?.interpretation_text || ''
@@ -278,7 +254,7 @@ function parseResultsFromResponse(data: PaperCutResponse): AIRecognitionResult[]
     const qusType = qus.qus_type ?? 4
     const subject = inferSubject(content, optionText)
     const category = inferCategory(qusType, content)
-    const difficulty = inferDifficulty(content, answer)
+    const difficulty = inferDifficulty(content)
 
     results.push({
       content: content.trim(),
