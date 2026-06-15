@@ -72,6 +72,9 @@ CREATE TABLE "mistake_questions" (
   "review_count" INTEGER NOT NULL DEFAULT 0,
   "is_mastered" BOOLEAN NOT NULL DEFAULT false,
   "last_reviewed" TIMESTAMP WITH TIME ZONE,
+  "mistake_reason" TEXT[] DEFAULT '{}',
+  "mistake_reason_detail" TEXT,
+  "mistake_reason_advice" TEXT,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   "user_id" UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
@@ -90,6 +93,9 @@ COMMENT ON COLUMN "mistake_questions"."image_url" IS '题目图片URL（可选�
 COMMENT ON COLUMN "mistake_questions"."review_count" IS '复习次数';
 COMMENT ON COLUMN "mistake_questions"."is_mastered" IS '是否已掌握';
 COMMENT ON COLUMN "mistake_questions"."last_reviewed" IS '最后复习时间';
+COMMENT ON COLUMN "mistake_questions"."mistake_reason" IS '错因标签数组，如：{概念不清,计算失误}';
+COMMENT ON COLUMN "mistake_questions"."mistake_reason_detail" IS '错因一句话说明';
+COMMENT ON COLUMN "mistake_questions"."mistake_reason_advice" IS '针对性改进建议';
 COMMENT ON COLUMN "mistake_questions"."created_at" IS '创建时间';
 COMMENT ON COLUMN "mistake_questions"."updated_at" IS '最后更新时间';
 COMMENT ON COLUMN "mistake_questions"."user_id" IS '所属用户ID，关联auth.users(id)';
@@ -206,7 +212,89 @@ CREATE INDEX "mistake_questions_content_trgm_idx"
 CREATE INDEX "mistake_questions_category_trgm_idx"
   ON "mistake_questions" USING gin (category gin_trgm_ops);
 
--- mistake_feedbacks 表索引
+-- 错因标签 GIN 索引
+CREATE INDEX "mistake_questions_mistake_reason_idx"
+  ON "mistake_questions" USING gin (mistake_reason);
+
+-- ==========================================
+-- AI 生成练习题目表
+-- 说明: 存储 AI 根据错题生成的举一反三练习题目
+-- ==========================================
+CREATE TABLE "ai_generated_questions" (
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "user_id" UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  "source_question_id" UUID REFERENCES mistake_questions(id) ON DELETE SET NULL,
+  "content" TEXT NOT NULL,
+  "subject" TEXT NOT NULL,
+  "category" TEXT NOT NULL,
+  "difficulty" TEXT NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
+  "answer" TEXT NOT NULL,
+  "explanation" TEXT,
+  "feedback_status" TEXT NOT NULL DEFAULT 'pending' CHECK (feedback_status IN ('pending', 'valid', 'invalid')),
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE "ai_generated_questions" IS 'AI 根据错题生成的举一反三练习题目';
+COMMENT ON COLUMN "ai_generated_questions"."id" IS '生成题目唯一标识';
+COMMENT ON COLUMN "ai_generated_questions"."user_id" IS '所属用户ID';
+COMMENT ON COLUMN "ai_generated_questions"."source_question_id" IS '关联的原始错题ID';
+COMMENT ON COLUMN "ai_generated_questions"."content" IS '题目内容';
+COMMENT ON COLUMN "ai_generated_questions"."subject" IS '学科';
+COMMENT ON COLUMN "ai_generated_questions"."category" IS '知识点分类';
+COMMENT ON COLUMN "ai_generated_questions"."difficulty" IS '难度';
+COMMENT ON COLUMN "ai_generated_questions"."answer" IS '正确答案';
+COMMENT ON COLUMN "ai_generated_questions"."explanation" IS '答案解析';
+COMMENT ON COLUMN "ai_generated_questions"."feedback_status" IS '题目质量状态：pending 待校验/valid 校验通过/invalid 用户反馈不合理';
+COMMENT ON COLUMN "ai_generated_questions"."created_at" IS '创建时间';
+COMMENT ON COLUMN "ai_generated_questions"."updated_at" IS '最后更新时间';
+
+-- 启用 Row Level Security (RLS)
+ALTER TABLE "ai_generated_questions" ENABLE ROW LEVEL SECURITY;
+
+-- RLS 策略：用户只能查看自己的 AI 生成题目
+CREATE POLICY "Users can view own ai questions"
+  ON "ai_generated_questions"
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- RLS 策略：用户只能插入自己的 AI 生成题目
+CREATE POLICY "Users can insert own ai questions"
+  ON "ai_generated_questions"
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- RLS 策略：用户只能更新自己的 AI 生成题目
+CREATE POLICY "Users can update own ai questions"
+  ON "ai_generated_questions"
+  FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- RLS 策略：用户只能删除自己的 AI 生成题目
+CREATE POLICY "Users can delete own ai questions"
+  ON "ai_generated_questions"
+  FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- ai_generated_questions 表索引
+CREATE INDEX "ai_generated_questions_user_id_idx"
+  ON "ai_generated_questions"("user_id");
+
+CREATE INDEX "ai_generated_questions_source_question_id_idx"
+  ON "ai_generated_questions"("source_question_id");
+
+CREATE INDEX "ai_generated_questions_created_at_idx"
+  ON "ai_generated_questions"("created_at" DESC);
+
+-- 为 ai_generated_questions 表添加触发器
+CREATE TRIGGER ai_generated_questions_update_updated_at
+  BEFORE UPDATE ON ai_generated_questions
+  FOR EACH ROW
+  EXECUTE FUNCTION mistake_update_updated_at_column();
+
+-- ==========================================
+-- 用户反馈表
 -- 基础索引：按创建时间倒序查询
 CREATE INDEX "mistake_feedbacks_created_at_idx"
   ON "mistake_feedbacks"("created_at" DESC);

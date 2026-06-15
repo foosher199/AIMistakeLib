@@ -74,6 +74,9 @@ export const UpdateQuestionSchema = z.object({
   review_count: z.number().int().min(0).optional(),
   is_mastered: z.boolean().optional(),
   last_reviewed: z.string().datetime().optional().nullable(),
+  mistake_reason: z.array(z.string()).optional().nullable(),
+  mistake_reason_detail: z.string().optional().nullable(),
+  mistake_reason_advice: z.string().optional().nullable(),
 })
 
 export type UpdateQuestionInput = z.infer<typeof UpdateQuestionSchema>
@@ -145,6 +148,51 @@ export const MasterQuestionSchema = z.object({
 })
 
 export type MasterQuestionInput = z.infer<typeof MasterQuestionSchema>
+
+/**
+ * AI 错因分析请求 Schema
+ *
+ * 用途：POST /api/questions/[id]/analyze-mistake
+ */
+export const AnalyzeMistakeSchema = z.object({
+  // 无需额外参数，根据错题已有字段分析
+})
+
+export type AnalyzeMistakeInput = z.infer<typeof AnalyzeMistakeSchema>
+
+/**
+ * AI 举一反三请求 Schema
+ *
+ * 用途：POST /api/questions/[id]/generate-variations
+ */
+export const GenerateVariationsSchema = z.object({
+  count: z.number().int().min(1).max(10).default(3),
+  difficulty: z.enum(['same', 'easier', 'harder', 'mixed']).default('same'),
+})
+
+export type GenerateVariationsInput = z.infer<typeof GenerateVariationsSchema>
+
+/**
+ * 收藏 AI 生成题目 Schema
+ *
+ * 用途：POST /api/ai-generated/[id]/collect
+ */
+export const CollectVariationSchema = z.object({
+  // 无需额外参数，直接转为正式错题
+})
+
+export type CollectVariationInput = z.infer<typeof CollectVariationSchema>
+
+/**
+ * AI 生成题目反馈 Schema
+ *
+ * 用途：POST /api/ai-generated/[id]/feedback
+ */
+export const FeedbackVariationSchema = z.object({
+  status: z.enum(['valid', 'invalid']),
+})
+
+export type FeedbackVariationInput = z.infer<typeof FeedbackVariationSchema>
 
 /**
  * 批量操作 Schema

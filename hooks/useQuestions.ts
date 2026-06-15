@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import type { Question, QuestionInsert, QuestionUpdate } from '@/types/database'
+import type { Question, QuestionInsert, QuestionUpdate, AIGeneratedQuestion } from '@/types/database'
 import { toast } from 'sonner'
 
 // 查询参数类型
@@ -336,6 +336,104 @@ export function useMasterQuestion() {
       queryClient.invalidateQueries({ queryKey: ['questions'] })
       queryClient.invalidateQueries({ queryKey: ['question-stats'] })
       toast.success('已标记为掌握！')
+    },
+  })
+}
+
+interface AnalyzeMistakeResponse {
+  question: Question
+  analysis: {
+    tags: string[]
+    detail: string
+    advice: string
+  }
+}
+
+/**
+ * AI 错因分析
+ */
+export function useAnalyzeMistake() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/questions/${id}/analyze-mistake`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || '错因分析失败')
+      }
+
+      const result: AnalyzeMistakeResponse = await response.json()
+      return result
+    },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['question', id] })
+      const previousQuestion = queryClient.getQueryData<Question>(['question', id])
+      return { previousQuestion }
+    },
+    onError: (error: Error, _id, context) => {
+      if (context?.previousQuestion) {
+        queryClient.setQueryData(['question', context.previousQuestion.id], context.previousQuestion)
+      }
+      toast.error(error.message)
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['question', data.question.id], data.question)
+      queryClient.invalidateQueries({ queryKey: ['questions'] })
+      toast.success('错因分析完成！')
+    },
+  })
+}
+
+interface GenerateVariationsResponse {
+  variations: AIGeneratedQuestion[]
+}
+
+/**
+ * AI 举一反三
+ */
+export function useGenerateVariations() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      count,
+      difficulty,
+    }: {
+      id: string
+      count?: number
+      difficulty?: 'same' | 'easier' | 'harder' | 'mixed'
+    }) => {
+      const response = await fetch(`/api/questions/${id}/generate-variations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ count, difficulty }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || '生成变式题失败')
+      }
+
+      const result: GenerateVariationsResponse = await response.json()
+      return result
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ai-generated-questions'] })
+      toast.success('变式题生成成功！')
     },
   })
 }

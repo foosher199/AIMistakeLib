@@ -71,6 +71,9 @@ export interface Database {
           review_count: number
           is_mastered: boolean
           last_reviewed: string | null
+          mistake_reason: string[] | null
+          mistake_reason_detail: string | null
+          mistake_reason_advice: string | null
           created_at: string
           updated_at: string
           user_id: string
@@ -88,6 +91,9 @@ export interface Database {
           review_count?: number
           is_mastered?: boolean
           last_reviewed?: string | null
+          mistake_reason?: string[] | null
+          mistake_reason_detail?: string | null
+          mistake_reason_advice?: string | null
           created_at?: string
           updated_at?: string
           user_id: string
@@ -105,6 +111,9 @@ export interface Database {
           review_count?: number
           is_mastered?: boolean
           last_reviewed?: string | null
+          mistake_reason?: string[] | null
+          mistake_reason_detail?: string | null
+          mistake_reason_advice?: string | null
           created_at?: string
           updated_at?: string
           user_id?: string
@@ -170,6 +179,67 @@ export interface Database {
             foreignKeyName: 'mistake_drafts_user_id_fkey'
             columns: ['user_id']
             referencedRelation: 'users'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      /**
+       * AI生成的练习题目表
+       */
+      ai_generated_questions: {
+        Row: {
+          id: string
+          user_id: string
+          source_question_id: string | null
+          content: string
+          subject: string
+          category: string
+          difficulty: 'easy' | 'medium' | 'hard'
+          answer: string
+          explanation: string | null
+          feedback_status: 'pending' | 'valid' | 'invalid'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          source_question_id?: string | null
+          content: string
+          subject: string
+          category: string
+          difficulty: 'easy' | 'medium' | 'hard'
+          answer: string
+          explanation?: string | null
+          feedback_status?: 'pending' | 'valid' | 'invalid'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          source_question_id?: string | null
+          content?: string
+          subject?: string
+          category?: string
+          difficulty?: 'easy' | 'medium' | 'hard'
+          answer?: string
+          explanation?: string | null
+          feedback_status?: 'pending' | 'valid' | 'invalid'
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ai_generated_questions_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_generated_questions_source_question_id_fkey'
+            columns: ['source_question_id']
+            referencedRelation: 'mistake_questions'
             referencedColumns: ['id']
           }
         ]
@@ -249,6 +319,11 @@ export type ProfileUpdate = Database['public']['Tables']['mistake_profiles']['Up
 export type Question = Database['public']['Tables']['mistake_questions']['Row']
 export type QuestionInsert = Database['public']['Tables']['mistake_questions']['Insert']
 export type QuestionUpdate = Database['public']['Tables']['mistake_questions']['Update']
+
+// AI生成题目类型
+export type AIGeneratedQuestion = Database['public']['Tables']['ai_generated_questions']['Row']
+export type AIGeneratedQuestionInsert = Database['public']['Tables']['ai_generated_questions']['Insert']
+export type AIGeneratedQuestionUpdate = Database['public']['Tables']['ai_generated_questions']['Update']
 
 // 草稿类型
 export type Draft = Database['public']['Tables']['mistake_drafts']['Row']
