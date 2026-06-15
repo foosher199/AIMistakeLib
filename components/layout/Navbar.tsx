@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginDialog } from '@/components/auth/LoginDialog'
 import { Button } from '@/components/ui/button'
-import { BookOpen, User, Camera, History, LogIn } from 'lucide-react'
+import { BookOpen, User, Camera, History, LogIn, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Navbar() {
@@ -19,6 +19,7 @@ export function Navbar() {
     { href: '/dashboard/upload', label: '拍照识题', icon: Camera },
     { href: '/dashboard/questions', label: '我的错题', icon: BookOpen },
     { href: '/dashboard/history', label: '历史题库', icon: History },
+    { href: '/dashboard/stats', label: '数据统计', icon: BarChart3 },
   ]
 
   return (

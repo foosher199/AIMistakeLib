@@ -394,3 +394,16 @@ export const CATEGORIES: Record<Subject, string[]> = {
   geography: ['自然地理', '人文地理', '区域地理'],
   politics: ['哲学', '经济学', '政治学', '文化生活'],
 }
+
+/**
+ * AI 错因标签配置
+ */
+export const MISTAKE_REASONS: { id: string; label: string; color: string }[] = [
+  { id: '概念不清', label: '概念不清', color: '#ef4444' },
+  { id: '计算失误', label: '计算失误', color: '#f59e0b' },
+  { id: '审题偏差', label: '审题偏差', color: '#3b82f6' },
+  { id: '思路卡壳', label: '思路卡壳', color: '#8b5cf6' },
+  { id: '方法混淆', label: '方法混淆', color: '#06b6d4' },
+  { id: '粗心大意', label: '粗心大意', color: '#10b981' },
+]
+
