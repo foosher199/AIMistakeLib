@@ -1,11 +1,54 @@
 /**
  * Draft API - 单条草稿操作
  *
+ * GET    /api/drafts/[id] - 获取草稿详情
  * DELETE /api/drafts/[id] - 删除草稿
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/lib/supabase-server'
+
+/**
+ * GET /api/drafts/[id]
+ *
+ * 获取草稿详情
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const { supabase, user } = authResult
+
+    const { id } = await params
+
+    const { data: draft, error } = await supabase
+      .from('mistake_drafts')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error || !draft) {
+      return NextResponse.json({ error: '草稿不存在' }, { status: 404 })
+    }
+
+    return NextResponse.json({ draft })
+  } catch (error) {
+    console.error('GET /api/drafts/[id] error:', error)
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ error: '获取草稿失败' }, { status: 500 })
+  }
+}
 
 /**
  * DELETE /api/drafts/[id]
@@ -13,21 +56,16 @@ import { createServerClient } from '@/lib/supabase-server'
  * 删除草稿
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createServerClient()
-
-    // 验证用户登录
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const { supabase, user } = authResult
 
     const { id } = await params
 

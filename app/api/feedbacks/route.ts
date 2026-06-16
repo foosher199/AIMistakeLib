@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { getAuthClient, createAdminClient } from '@/lib/supabase-server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-    const body = await request.json()
+    // POST 允许匿名反馈，使用 admin client 绕过 RLS
+    // 但如果带了 Authorization header，则尝试解析用户
+    let userId: string | null = null
+    let userEmail: string | null = null
+    const authHeader = request.headers.get('Authorization')
 
+    if (authHeader?.startsWith('Bearer ')) {
+      const authResult = await getAuthClient(request)
+      if (authResult) {
+        userId = authResult.user.id
+        userEmail = authResult.user.email || null
+      }
+    }
+
+    const body = await request.json()
     const { category, subject, content, email } = body
 
     // 验证必填字段
@@ -25,17 +37,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 获取用户信息（如果已登录）
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // 使用 admin client 插入反馈（绕过 RLS 因为需要支持匿名）
+    const supabase = createAdminClient()
 
     // 插入反馈
     const { data, error } = await supabase
       .from('mistake_feedbacks')
       .insert({
-        user_id: user?.id || null,
-        email: email || user?.email || null,
+        user_id: userId,
+        email: email || userEmail || null,
         category,
         subject,
         content,
@@ -52,7 +62,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({ data })
+    return NextResponse.json({ feedback: data })
   } catch (error) {
     console.error('Feedback API error:', error)
     return NextResponse.json(
@@ -62,21 +72,17 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-
-    // 获取用户信息
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json(
         { error: '未登录' },
         { status: 401 }
       )
     }
+    const { supabase, user } = authResult
 
     // 查询用户的反馈
     const { data, error } = await supabase
@@ -93,7 +99,7 @@ export async function GET() {
       )
     }
 
-    return NextResponse.json({ data })
+    return NextResponse.json({ feedbacks: data })
   } catch (error) {
     console.error('Feedback API error:', error)
     return NextResponse.json(

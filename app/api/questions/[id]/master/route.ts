@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/lib/supabase-server'
 import { UUIDSchema } from '@/lib/validations/question'
 
 /**
@@ -20,21 +20,16 @@ import { UUIDSchema } from '@/lib/validations/question'
  * }
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createServerClient()
-
-    // 验证用户登录
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const { supabase } = authResult
 
     // 验证 ID 格式
     const { id } = await params

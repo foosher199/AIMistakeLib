@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/lib/supabase-server'
 import {
   UUIDSchema,
   parseAndValidate,
@@ -20,16 +20,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createServerClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const { supabase, user } = authResult
 
     const { id } = await params
     const idValidation = UUIDSchema.safeParse(id)

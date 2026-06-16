@@ -29,19 +29,23 @@ There is no test suite configured in this project.
 │   ├── api/                    # API routes
 │   │   ├── ai/recognize/       # POST /api/ai/recognize - AI image recognition
 │   │   ├── drafts/             # GET/POST /api/drafts + [id]/save, DELETE [id]
-│   │   ├── questions/          # GET/POST /api/questions + [id]/review/master/stats
-│   │   └── feedbacks/          # GET/POST /api/feedbacks
+│   │   ├── questions/          # GET/POST /api/questions + [id]/* (CRUD, review, master, stats)
+│   │   ├── feedbacks/          # GET/POST /api/feedbacks
+│   │   ├── ai-generated/       # GET/POST /api/ai-generated + [id]/collect, [id]/feedback
+│   │   └── diagnostic/ip/      # GET /api/diagnostic/ip - IP diagnostic
 │   └── dashboard/              # Dashboard pages (no layout.tsx here - uses root)
 │       ├── page.tsx            # Main dashboard (question list with filters)
 │       ├── upload/             # Upload page for new questions
 │       ├── questions/[id]/     # Question detail/edit page
 │       ├── history/            # Review history page
 │       ├── profile/            # User profile page
-│       └── feedback/           # User feedback page
+│       ├── feedback/           # User feedback page
+│       └── stats/              # Statistics page
 ├── components/
 │   ├── auth/                   # LoginForm, RegisterForm, BindEmailForm, LoginDialog, AuthSection
 │   ├── layout/                 # Navbar, Footer
 │   ├── questions/              # QuestionCard, QuestionList, QuestionFilters, QuestionStats
+│   ├── stats/                  # StatCard, DistributionBar, TimelineChart
 │   ├── upload/                 # ImageUpload, MultiImageUpload, QuestionForm, RecognitionResults, ImageQueueList
 │   └── ui/                     # Shadcn UI primitives (button, dialog, dropdown-menu, badge, input, progress, tabs)
 ├── hooks/
@@ -49,25 +53,32 @@ There is no test suite configured in this project.
 │   ├── useQuestions.ts         # React Query hooks for question CRUD + optimistic updates
 │   ├── useDrafts.ts            # React Query hooks for drafts (list, save, delete)
 │   ├── useFeedback.ts          # React Query hooks for feedback (create, list)
-│   └── useOCR.ts               # AI image recognition hook
+│   ├── useOCR.ts               # AI image recognition hook
+│   └── useAIGeneratedQuestions.ts  # React Query hooks for AI-generated variations
 ├── lib/
-│   ├── supabase.ts             # createBrowserClient/createServerClient/createAdminClient + getCurrentUser/requireAuth
+│   ├── supabase-client.ts      # createBrowserClient for client components
+│   ├── supabase-server.ts      # createServerClient + createAdminClient for server/API
 │   ├── utils.ts                # cn() utility, image compression, formatValidationError
 │   ├── providers.tsx           # React Query QueryClientProvider
 │   ├── rate-limit.ts           # LRU-based rate limiter for AI recognition
 │   ├── ai/
-│   │   ├── alibaba.ts          # Alibaba DashScope (qwen-vl-plus) vision recognition
+│   │   ├── alibaba.ts          # Alibaba DashScope qwen-vl-plus vision recognition
 │   │   ├── baidu.ts            # Baidu OCR + understanding pipeline
+│   │   ├── baidu-ocr.ts        # Baidu OCR utilities
+│   │   ├── baidu-understanding.ts   # Baidu image understanding
+│   │   ├── baidu-paper-cut.ts  # Baidu paper cutting
 │   │   ├── deepseek.ts         # DeepSeek text analysis
 │   │   ├── gemini.ts           # Google Gemini analysis
 │   │   ├── kimi.ts             # Moonshot Kimi analysis
 │   │   ├── minimax.ts          # MiniMax analysis
 │   │   ├── ocr.ts              # Tesseract CLI OCR wrapper
+│   │   ├── mistake-analysis.ts # AI mistake reason analysis
+│   │   ├── variation-generator.ts  # AI "举一反三" question variation generator
 │   │   └── image-utils.ts      # Image processing utilities
 │   └── validations/
 │       └── question.ts         # Zod schemas for question CRUD + parseAndValidate helper
 ├── types/
-│   └── database.ts             # Supabase Database types, Question/Draft/Profile/Feedback types, SUBJECTS/DIFFICULTIES/CATEGORIES constants
+│   └── database.ts             # Supabase Database types, Question/Draft/Profile/Feedback/AIGeneratedQuestion types, SUBJECTS/DIFFICULTIES/CATEGORIES/MISTAKE_REASONS constants
 ├── cloud-functions/
 │   └── ai-recognize/           # Tencent Cloud Function proxy (optional CORS workaround)
 ├── supabase/
@@ -92,6 +103,7 @@ There is no test suite configured in this project.
 - `/dashboard/history` - Review history
 - `/dashboard/profile` - User profile
 - `/dashboard/feedback` - Submit feedback
+- `/dashboard/stats` - Statistics page
 
 **Authentication:** Supabase Auth with four modes (all via `useAuth` hook):
 1. **Anonymous login** (`loginAnonymous()`) - Quick guest access, `user.is_anonymous = true`
@@ -101,13 +113,14 @@ There is no test suite configured in this project.
 
 Auth state managed via `onAuthStateChange` listener in `useAuth` hook.
 
-**Database:** Supabase PostgreSQL with RLS. Four tables:
-- `mistake_questions` - Question records (content, subject, category, difficulty, answer, image_url, review_count, is_mastered, user_id)
+**Database:** Supabase PostgreSQL with RLS. Five tables:
+- `mistake_questions` - Question records (content, subject, category, difficulty, answer, image_url, review_count, is_mastered, mistake_reason, mistake_reason_detail, mistake_reason_advice, user_id)
 - `mistake_drafts` - Temporary storage for AI-recognized questions before user saves (content, subject, category, difficulty, answer, confidence, image_url, user_id)
 - `mistake_profiles` - User profile extensions (username, avatar_url)
 - `mistake_feedbacks` - User feedback (category, subject, content, status, email, user_id)
+- `ai_generated_questions` - AI-generated variation questions (source_question_id, feedback_status: pending/valid/invalid)
 
-All queries scoped to user via RLS. See `types/database.ts` for full schema and helper constants (SUBJECTS, DIFFICULTIES, CATEGORIES).
+All queries scoped to user via RLS. See `types/database.ts` for full schema and helper constants (SUBJECTS, DIFFICULTIES, CATEGORIES, MISTAKE_REASONS).
 
 **Data layer:** React Query (`@tanstack/react-query`) for server state:
 - `useQuestions(params)` - Fetch list with filters, staleTime 5min
@@ -128,19 +141,25 @@ All mutations use `onMutate` for optimistic updates, `onError` for rollback, `on
 
 **AI recognition flow:**
 1. User uploads image in `/dashboard/upload`
-2. Image uploaded to Supabase Storage (`mistake-images` bucket), public URL returned
+2. Image compressed (max 1200px, 0.8 quality) and uploaded to Supabase Storage (`mistake-images` bucket), public URL returned
 3. `useOCR().recognize(imageUrl)` calls `/api/ai/recognize` with `{ imageUrl, provider }`
 4. API route validates auth, checks rate limit (20 requests/hour per user)
-5. Multiple AI providers available (configured via `AI_PROVIDER` env var):
-   - **alibaba** (default): Alibaba DashScope qwen-vl-plus vision model
-   - **baidu**: Baidu OCR + understanding pipeline
+5. Multiple AI providers available (configured via `AI_PROVIDER` env var or `provider` parameter):
+   - **vision** (default): Alibaba DashScope `qwen3.6-plus` vision model
+   - **text**: Tesseract OCR → DeepSeek text structure analysis
+   - **baidu_understanding**: Baidu image understanding
+   - **baidu_paper_cut**: Baidu paper cutting
+   - **alibaba**: Same as vision
    - **deepseek**: DeepSeek text analysis (used after OCR)
    - **gemini**: Google Gemini analysis
    - **kimi**: Moonshot Kimi analysis
    - **minimax**: MiniMax analysis
-   - **text**: Tesseract OCR → DeepSeek text structure analysis
 6. Recognition results saved to `mistake_drafts` table, user reviews and saves via `useSaveDraft()`
 7. After saving, draft deleted and question created in `mistake_questions`
+
+**AI mistake analysis:** `POST /api/questions/[id]/analyze-mistake` uses `lib/ai/mistake-analysis.ts` to generate mistake reasons, details, and advice.
+
+**AI question variations:** `POST /api/questions/[id]/generate-variations` uses `lib/ai/variation-generator.ts` to generate "举一反三" (infer similar questions) via DeepSeek.
 
 **Rate limiting:** In-memory LRU cache (`lib/rate-limit.ts`), 20 requests/hour per user for AI recognition.
 
@@ -200,6 +219,13 @@ MINIMAX_API_KEY=your-minimax-key                  # For minimax provider
 - `POST /api/questions/[id]/review` - Increment review_count and update last_reviewed
 - `POST /api/questions/[id]/master` - Mark as mastered (is_mastered = true)
 - `GET /api/questions/stats` - Get stats (total, mastered, pending)
+- `POST /api/questions/[id]/analyze-mistake` - AI analyze mistake reasons, details, and advice
+- `POST /api/questions/[id]/generate-variations` - AI generate "举一反三" similar questions
+
+**AI-Generated Questions:**
+- `GET /api/ai-generated` - List AI-generated variations for a source question
+- `POST /api/ai-generated/[id]/collect` - Save AI variation to user's questions
+- `POST /api/ai-generated/[id]/feedback` - Mark variation as valid/invalid
 
 **Feedback:**
 - `POST /api/feedbacks` - Submit feedback (allows anonymous)

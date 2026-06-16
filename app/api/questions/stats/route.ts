@@ -4,8 +4,8 @@
  * GET /api/questions/stats - 获取统计信息
  */
 
-import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuthClient } from '@/lib/supabase-server'
 
 /**
  * GET /api/questions/stats
@@ -19,19 +19,14 @@ import { createServerClient } from '@/lib/supabase-server'
  *   }
  * }
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-
-    // 验证用户登录
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const { supabase } = authResult
 
     // RLS 自动过滤 user_id
     // 获取总数

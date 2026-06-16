@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/lib/supabase-server'
 import { createAdminClient } from '@/lib/supabase'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
@@ -58,19 +58,14 @@ export async function POST(request: NextRequest) {
 
   try {
     log.step('1. 创建 Supabase 客户端')
-    const supabase = await createServerClient()
-
-    log.step('2. 验证用户登录')
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // 优先使用Bearer Token认证（iOS/Android），回退到Cookie认证（Web）
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const { supabase, user } = authResult
 
-    log.step('3. 限流检查 (20次/小时)')
+    log.step('2. 限流检查 (20次/小时)')
     // 限流检查：每用户每小时 20 次
     const rateLimit = aiRateLimiter.check(`ai_recognize:${user.id}`, 20)
 
@@ -90,7 +85,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    log.step('4. 解析请求体')
+    log.step('3. 解析请求体')
     // 解析请求体
     const body = await request.json()
 
@@ -104,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     const { imageUrl, mode } = validation.data
 
-    log.step(`5. 开始识别 (mode: ${mode})`)
+    log.step(`4. 开始识别 (mode: ${mode})`)
     let results: AIRecognitionResult[]
 
     if (mode === 'text') {
@@ -164,7 +159,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    log.step('6. 验证识别结果')
+    log.step('5. 验证识别结果')
     // 验证结果
     if (!results || results.length === 0) {
       return NextResponse.json(
@@ -173,7 +168,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    log.step('7. 写入草稿表')
+    log.step('6. 写入草稿表')
     // 将识别结果写入草稿表
     const draftsToInsert = results.map((r) => ({
       user_id: user.id,
@@ -196,10 +191,10 @@ export async function POST(request: NextRequest) {
       console.error('[API] 写入草稿表失败:', draftError)
       // 草稿写入失败不影响返回识别结果，只记录日志
     } else {
-      log.step(`7.1 写入草稿完成: ${insertedDrafts?.length ?? 0} 条`)
+      log.step(`6.1 写入草稿完成: ${insertedDrafts?.length ?? 0} 条`)
     }
 
-    log.step('8. 删除临时图片')
+    log.step('7. 删除临时图片')
     // 识别完成后，删除 Storage 中的临时图片
     await deleteTempImage(imageUrl)
 
