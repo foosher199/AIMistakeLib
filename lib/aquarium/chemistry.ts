@@ -35,7 +35,13 @@ export function deriveWater(state: TankState, bioLoad: number): DerivedWater {
   const nobRatio = bacteria.nob / cap
 
   let cycle: DerivedWater['cycle'] = 'new'
-  if (aobRatio > 0.55 && nobRatio > 0.5 && water.tan < 0.25 && water.no2 < 0.25) {
+  const stable = water.tan < 0.25 && water.no2 < 0.25
+  if (
+    stable &&
+    aobRatio > 0.22 &&
+    nobRatio > 0.2 &&
+    (water.no3 > 4 || aobRatio > 0.5)
+  ) {
     cycle = 'cycled'
   } else if (
     (aobRatio > 0.12 || water.no2 > 0.4 || water.no3 > 8) &&
@@ -122,8 +128,10 @@ export function stepChemistry(
   const tempFactor = clamp(1 - Math.abs(nextWater.tempC - 26) / 18, 0.25, 1.15)
   const aobGrowth = 0.012 * aobFood * tempFactor * dtHours
   const nobGrowth = 0.008 * nobFood * tempFactor * dtHours
-  const aobStarve = 0.0012 * (1 - aobFood) * dtHours
-  const nobStarve = 0.001 * (1 - nobFood) * dtHours
+  // Stocked tanks produce ammonia continuously even when the meter reads 0.
+  const starveMul = bioLoad > 0.2 ? 0.12 : 1
+  const aobStarve = 0.0012 * (1 - aobFood) * starveMul * dtHours
+  const nobStarve = 0.001 * (1 - nobFood) * starveMul * dtHours
 
   nextBacteria.aob = clamp(
     nextBacteria.aob * (1 + aobGrowth - aobStarve),
