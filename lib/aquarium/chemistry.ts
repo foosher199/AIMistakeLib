@@ -23,7 +23,7 @@ export function unionizedAmmonia(tan: number, pH: number, tempC: number): number
 }
 
 export function filterCapacity(volumeL: number, filter: Equipment['filter']): number {
-  return Math.max(0.08, FILTER_FACTOR[filter] * (volumeL / 60))
+  return Math.max(0.2, FILTER_FACTOR[filter] * (volumeL / 10))
 }
 
 export function deriveWater(state: TankState, bioLoad: number): DerivedWater {
@@ -120,17 +120,18 @@ export function stepChemistry(
   const aobFood = monod(water.tan + leftoverAmmonia, 0.35)
   const nobFood = monod(water.no2 + convertedTan, 0.35)
   const tempFactor = clamp(1 - Math.abs(nextWater.tempC - 26) / 18, 0.25, 1.15)
-  const aobGrowth = (0.003 + 0.01 * aobFood) * tempFactor * dtHours
-  const nobGrowth = (0.002 + 0.007 * nobFood) * tempFactor * dtHours
-  const decay = 0.0015 * dtHours
+  const aobGrowth = 0.012 * aobFood * tempFactor * dtHours
+  const nobGrowth = 0.008 * nobFood * tempFactor * dtHours
+  const aobStarve = 0.0012 * (1 - aobFood) * dtHours
+  const nobStarve = 0.001 * (1 - nobFood) * dtHours
 
   nextBacteria.aob = clamp(
-    nextBacteria.aob + nextBacteria.aob * aobGrowth - decay * 0.4,
+    nextBacteria.aob * (1 + aobGrowth - aobStarve),
     0.002,
     cap
   )
   nextBacteria.nob = clamp(
-    nextBacteria.nob + nextBacteria.nob * nobGrowth - decay,
+    nextBacteria.nob * (1 + nobGrowth - nobStarve),
     0.0015,
     cap * 0.92
   )

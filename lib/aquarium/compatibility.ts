@@ -122,13 +122,13 @@ export function analyzeStocking(state: TankState): StockingIssue[] {
 
   const load = totalBioLoad(fish)
   const loadPerL = load / volumeL
-  if (loadPerL > 0.085) {
+  if (loadPerL > 0.16) {
     issues.push({
       severity: 'danger',
       title: '生物负荷过高',
       detail: `当前负荷 ${load.toFixed(1)} / ${volumeL} L。过滤来不及处理氨，循环容易崩溃。`,
     })
-  } else if (loadPerL > 0.05) {
+  } else if (loadPerL > 0.11) {
     issues.push({
       severity: 'warn',
       title: '生物负荷偏高',

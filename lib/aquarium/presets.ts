@@ -14,7 +14,7 @@ function base(volumeL: number): Omit<TankState, 'water' | 'bacteria' | 'fish' | 
       plants: 25,
     },
     tap: { ...DEFAULT_TAP },
-    speed: 6,
+    speed: 1,
   }
 }
 
@@ -138,7 +138,7 @@ export function cycledCommunity(): TankState {
       algae: 8,
       leftoverFood: 0.1,
     },
-    bacteria: { aob: 1.6, nob: 1.35 },
+    bacteria: { aob: 16, nob: 13.5 },
     fish: [
       ...Array.from({ length: 10 }, (_, i) => ({
         id: `neon-${i}`,
