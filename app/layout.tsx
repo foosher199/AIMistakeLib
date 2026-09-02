@@ -2,8 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Providers } from '@/lib/providers'
 import { Toaster } from 'sonner'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
+import { AppShell } from '@/components/layout/AppShell'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,17 +23,10 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={inter.className}>
         <Providers>
-          <div className="min-h-screen bg-[#f7f9fa] flex flex-col">
-            <Navbar />
-            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <AppShell>{children}</AppShell>
           <Toaster position="top-center" richColors />
         </Providers>
       </body>
     </html>
   )
 }
-
