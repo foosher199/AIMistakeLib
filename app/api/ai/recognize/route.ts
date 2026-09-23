@@ -9,7 +9,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthClient } from '@/lib/supabase-server'
-import { createAdminClient } from '@/lib/supabase'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
 import { extractTextFromImage } from '@/lib/ai/ocr'
@@ -26,32 +25,6 @@ const RecognizeRequestSchema = z.object({
   imageUrl: z.string().url('图片URL格式无效'),
   mode: z.enum(['vision', 'text', 'baidu_understanding', 'baidu_paper_cut']).default('vision'),
 })
-
-/**
- * 从 URL 中提取文件名，删除 Storage 中的临时图片
- */
-async function deleteTempImage(imageUrl: string): Promise<void> {
-  try {
-    const url = new URL(imageUrl)
-    const pathParts = url.pathname.split('/')
-    const fileName = pathParts[pathParts.length - 1]
-
-    if (fileName) {
-      const adminClient = createAdminClient()
-      const { error: deleteError } = await adminClient.storage
-        .from('mistake-images')
-        .remove([fileName])
-
-      if (deleteError) {
-        console.error('[Storage] 删除临时图片失败:', deleteError.message)
-      } else {
-        console.log('[Storage] 临时图片已删除:', fileName)
-      }
-    }
-  } catch (deleteErr) {
-    console.error('[Storage] 删除临时图片出错:', deleteErr)
-  }
-}
 
 export async function POST(request: NextRequest) {
   const log = logger('API/recognize')
@@ -185,7 +158,7 @@ export async function POST(request: NextRequest) {
     const { data: insertedDrafts, error: draftError } = await supabase
       .from('mistake_drafts')
       .insert(draftsToInsert)
-      .select('id, content, subject, category, difficulty, answer, explanation, confidence, image_url')
+      .select('*')
 
     if (draftError) {
       console.error('[API] 写入草稿表失败:', draftError)
@@ -194,9 +167,7 @@ export async function POST(request: NextRequest) {
       log.step(`6.1 写入草稿完成: ${insertedDrafts?.length ?? 0} 条`)
     }
 
-    log.step('7. 删除临时图片')
-    // 识别完成后，删除 Storage 中的临时图片
-    await deleteTempImage(imageUrl)
+    // Keep the image because its URL is stored on the draft for later review.
 
     log.done(`识别完成，返回 ${results.length} 条结果`)
     return NextResponse.json({ results, drafts: insertedDrafts })

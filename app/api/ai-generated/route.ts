@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 
 const QuerySchema = z.object({
@@ -14,16 +14,11 @@ const QuerySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const authResult = await getAuthClient(request)
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const { supabase } = authResult
 
     const { searchParams } = new URL(request.url)
     const params = Object.fromEntries(searchParams)
