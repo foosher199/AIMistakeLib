@@ -17,6 +17,7 @@ SQL Editor:
 
 1. `supabase/migrations/20260929_add_invites_credits_and_ai_billing.sql`
 2. `supabase/migrations/20260930_add_private_question_images.sql`
+3. `supabase/migrations/20261001_add_worksheets_and_ai_jobs.sql`
 
 The second migration creates the private `mistake-private-images` bucket and
 the durable question-image relationships. The legacy `mistake-images` bucket
@@ -35,6 +36,8 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ADMIN_USER_IDS=your-supabase-user-id
+APP_URL=https://your-domain.up.railway.app
+CRON_SECRET=replace-with-a-long-random-secret
 ALIBABA_API_KEY=your-alibaba-key
 BAIDU_API_KEY=your-baidu-key
 BAIDU_SECRET_KEY=your-baidu-secret
@@ -44,6 +47,8 @@ DEEPSEEK_API_KEY=your-deepseek-key
 `ADMIN_USER_IDS` is a comma-separated list of Supabase Auth user IDs allowed to use the administrator pages. Add `GEMINI_API_KEY`, `KIMI_API_KEY`, `MINIMAX_API_KEY`, `WECHAT_APP_ID`, and `WECHAT_APP_SECRET` only for enabled integrations. `NEXT_PUBLIC_*` values are intentionally included in the browser bundle; never give `SUPABASE_SERVICE_ROLE_KEY` that prefix.
 
 Variable changes to `NEXT_PUBLIC_*` require a rebuild, not only a restart.
+`APP_URL` must be the public HTTPS origin of this Railway service. Generate
+`CRON_SECRET` as a long random value; it protects the maintenance endpoint.
 
 ## 4. Networking and Health
 
@@ -56,6 +61,16 @@ curl https://your-domain.up.railway.app/api/health
 ```
 
 Then test login, private image upload, `/api/v1/ai/recognize`, saving a recognized draft, and worksheet printing. Point the iOS `API_BASE_URL` to `https://your-domain/api/v1`; the Mini Program base URL should be the origin without `/api/v1` because its request helpers append that path.
+
+## 5. Maintenance Cron
+
+Create a second Railway service from the same repository and Dockerfile. Set
+its start command to `node scripts/run-maintenance.mjs`, copy `APP_URL` and
+`CRON_SECRET` from the web service, and configure the Cron Schedule as
+`*/5 * * * *`. This one-shot process marks stalled recognition jobs as failed,
+marks unreferenced uploads as orphaned, and permanently deletes orphaned
+objects after a 24-hour recovery window. Do not attach a public domain to the
+cron service.
 
 ## Troubleshooting
 

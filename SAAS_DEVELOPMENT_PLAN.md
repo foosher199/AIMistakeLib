@@ -6,18 +6,21 @@ Transform the personal mistake notebook into a student-and-parent SaaS product b
 
 ## Phase 1: Core Learning Workflow
 
-- Store uploaded question images in a private Supabase Storage bucket and keep durable database references instead of public URLs.
-- Associate one source image with multiple recognized questions and allow a question to reference multiple images.
-- Add batch selection to the question library.
-- Provide a worksheet builder with A4 preview, student and answer editions, answer space, one/two-column layouts, browser printing, and PDF saving.
-- Keep exports free of AI charges; only new recognition, analysis, or variation generation consumes credits.
-- Show clear progress, empty states, retry actions, credit balance, and source-image access throughout the workflow.
+- [x] Store uploaded question images in a private Supabase Storage bucket and keep durable database references instead of public URLs.
+- [x] Associate one source image with multiple recognized questions and allow a question to reference, order, and remove multiple images.
+- [x] Add batch selection and paginated browsing to the question library.
+- [x] Provide a worksheet builder with A4 preview, ordering, fixed pagination, student and answer editions, answer space, one/two-column layouts, browser printing, and PDF saving.
+- [x] Save worksheet history so users can reopen, adjust, and print an earlier worksheet.
+- [x] Keep exports free of AI charges; only new recognition, analysis, or variation generation consumes credits.
+- [x] Run Web image recognition as durable jobs with polling and retry actions while retaining the synchronous endpoint for older clients.
+- [x] Clean up abandoned uploads through a protected scheduled maintenance task and a 24-hour recovery window.
+- [x] Show clear progress, empty states, retry actions, credit balance, and source-image access throughout the workflow.
 
 ## Phase 2: Commercial Readiness
 
 - Add trial, paid-plan, entitlement, payment, refund, and invoice flows.
-- Add export history, saved worksheet templates, DOCX export, and more print layouts.
-- Move long AI operations to durable background jobs with progress polling and retry handling.
+- Add DOCX export, reusable worksheet templates, and more print layouts. Saved worksheet history is available in Phase 1.
+- Move mistake analysis and variation generation to durable background jobs. Image recognition already uses durable jobs on Web.
 - Add account deletion, personal-data export, privacy policy, terms, and minor-protection disclosures.
 - Expand the administrator area with users, model cost, task failures, invite campaigns, and conversion metrics.
 

@@ -347,6 +347,97 @@ export interface Database {
         }
         Relationships: []
       }
+      mistake_worksheets: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          settings: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title?: string
+          settings?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          title?: string
+          settings?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mistake_worksheet_questions: {
+        Row: {
+          worksheet_id: string
+          question_id: string
+          position: number
+          created_at: string
+        }
+        Insert: {
+          worksheet_id: string
+          question_id: string
+          position: number
+          created_at?: string
+        }
+        Update: {
+          position?: number
+        }
+        Relationships: []
+      }
+      mistake_ai_jobs: {
+        Row: {
+          id: string
+          user_id: string
+          operation: 'image_recognition'
+          status: 'queued' | 'processing' | 'succeeded' | 'failed' | 'cancelled'
+          progress: number
+          image_id: string | null
+          mode: 'vision' | 'text' | 'baidu_understanding' | 'baidu_paper_cut'
+          idempotency_key: string
+          attempt_count: number
+          max_attempts: number
+          result: Json | null
+          error_message: string | null
+          created_at: string
+          started_at: string | null
+          finished_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          operation?: 'image_recognition'
+          status?: 'queued' | 'processing' | 'succeeded' | 'failed' | 'cancelled'
+          progress?: number
+          image_id?: string | null
+          mode: 'vision' | 'text' | 'baidu_understanding' | 'baidu_paper_cut'
+          idempotency_key: string
+          attempt_count?: number
+          max_attempts?: number
+          result?: Json | null
+          error_message?: string | null
+          created_at?: string
+          started_at?: string | null
+          finished_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          status?: 'queued' | 'processing' | 'succeeded' | 'failed' | 'cancelled'
+          progress?: number
+          attempt_count?: number
+          result?: Json | null
+          error_message?: string | null
+          started_at?: string | null
+          finished_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mistake_invite_campaigns: {
         Row: {
           id: string
@@ -522,6 +613,14 @@ export interface Database {
         Args: { p_usage_id: string; p_error_code?: string | null }
         Returns: Array<{ released_points: number; available_points: number }>
       }
+      release_stale_ai_reservations: {
+        Args: { p_older_than?: string }
+        Returns: number
+      }
+      mark_orphaned_mistake_images: {
+        Args: { p_older_than?: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
@@ -542,7 +641,19 @@ export type ProfileInsert = Database['public']['Tables']['mistake_profiles']['In
 export type ProfileUpdate = Database['public']['Tables']['mistake_profiles']['Update']
 
 // 错题记录类型
-export type Question = Database['public']['Tables']['mistake_questions']['Row']
+export interface QuestionImageAsset {
+  id: string
+  signedUrl: string
+  sortOrder: number
+  mimeType: string
+  fileSize: number
+  width: number | null
+  height: number | null
+}
+
+export type Question = Database['public']['Tables']['mistake_questions']['Row'] & {
+  images?: QuestionImageAsset[]
+}
 export type QuestionInsert = Database['public']['Tables']['mistake_questions']['Insert']
 export type QuestionUpdate = Database['public']['Tables']['mistake_questions']['Update']
 
@@ -559,6 +670,9 @@ export type DraftUpdate = Database['public']['Tables']['mistake_drafts']['Update
 // 私有题目图片类型
 export type MistakeImage = Database['public']['Tables']['mistake_images']['Row']
 export type QuestionImage = Database['public']['Tables']['mistake_question_images']['Row']
+
+export type Worksheet = Database['public']['Tables']['mistake_worksheets']['Row']
+export type AIJob = Database['public']['Tables']['mistake_ai_jobs']['Row']
 
 // 用户反馈类型
 export type Feedback = Database['public']['Tables']['mistake_feedbacks']['Row']

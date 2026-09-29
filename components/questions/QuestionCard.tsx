@@ -37,6 +37,7 @@ import {
 import { useDeleteQuestion, useReviewQuestion, useMasterQuestion, useAnalyzeMistake, useGenerateVariations, useUpdateQuestion } from '@/hooks/useQuestions'
 import { useCollectVariation, useFeedbackVariation, useAIGeneratedQuestions, useDeleteVariation } from '@/hooks/useAIGeneratedQuestions'
 import { formatDistanceToNow } from '@/lib/utils'
+import { QuestionImageManager } from './QuestionImageManager'
 
 interface QuestionCardProps {
   question: Question
@@ -292,16 +293,7 @@ export function QuestionCard({
         <p className="text-[#1f1f1f] whitespace-pre-wrap">{question.content}</p>
       </div>
 
-      {/* 图片（如果有） */}
-      {question.image_url && (
-        <div className="mb-3">
-          <img
-            src={question.image_url}
-            alt="题目图片"
-            className="max-w-full h-auto rounded border border-[#dee5eb]"
-          />
-        </div>
-      )}
+      <QuestionImageManager key={`${question.id}-${question.images?.map((image) => image.id).join('-') || 'legacy'}`} question={question} />
 
       {/* 答案区域 */}
       <div className="border-t border-[#dee5eb] pt-3 mb-3">

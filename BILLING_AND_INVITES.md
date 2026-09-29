@@ -53,3 +53,5 @@ select public.release_stale_ai_reservations(interval '15 minutes');
 ```
 
 清理阈值必须大于最长模型超时时间；当前图片模型最长为 180 秒。
+
+如果已经按照 `RAILWAY_DEPLOYMENT.md` 配置了维护 Cron 服务，则不需要再配置上述 Supabase Cron；Railway 的 `/api/internal/maintenance` 会同时执行超时积分解冻、失败任务标记和孤儿图片清理。

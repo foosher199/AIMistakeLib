@@ -15,6 +15,7 @@ import type { Draft } from '@/types/database'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sparkles, Camera, BookOpen, Check, Loader2, Inbox } from 'lucide-react'
 import { toast } from 'sonner'
+import { RecognitionJobHistory } from '@/components/upload/RecognitionJobHistory'
 
 /**
  * 将 Draft 转换为 AIRecognitionResult
@@ -393,6 +394,8 @@ export default function UploadPage() {
           onRetry={handleRetryItem}
         />
       )}
+
+      <RecognitionJobHistory />
 
       {/* 识别结果 / 草稿列表 */}
       {hasResults && (

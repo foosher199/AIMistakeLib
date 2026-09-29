@@ -32,10 +32,6 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
     setPage(0) // 重置到第一页
   }
 
-  const handleLoadMore = () => {
-    setPage((prev) => prev + 1)
-  }
-
   const hasMore = data ? data.total > (page + 1) * pageSize : false
 
   const handleSelectionChange = (question: Question, selected: boolean) => {
@@ -127,23 +123,11 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
                 ))}
               </div>
 
-              {/* 加载更多 */}
-              {hasMore && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="outline"
-                    onClick={handleLoadMore}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        加载中...
-                      </>
-                    ) : (
-                      '加载更多'
-                    )}
-                  </Button>
+              {(page > 0 || hasMore) && (
+                <div className="flex items-center justify-center gap-3">
+                  <Button variant="outline" onClick={() => setPage((value) => Math.max(0, value - 1))} disabled={page === 0 || isLoading}>上一页</Button>
+                  <span className="text-sm text-[#626a72]">第 {page + 1} 页</span>
+                  <Button variant="outline" onClick={() => setPage((value) => value + 1)} disabled={!hasMore || isLoading}>下一页</Button>
                 </div>
               )}
             </>

@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { uploadImageToSupabase, compressImage } from '@/lib/utils'
-import type { AIRecognitionResult } from '@/contracts/ai'
 import { toast } from 'sonner'
+import { compressImage, uploadImageToSupabase } from '@/lib/utils'
+import type { AIRecognitionResult } from '@/contracts/ai'
 
 export type RecognitionMode = 'text' | 'vision' | 'baidu_understanding' | 'baidu_paper_cut'
-
 export type ImageQueueStatus = 'pending' | 'processing' | 'success' | 'failed'
 
 export interface ImageQueueItem {
@@ -18,12 +17,21 @@ export interface ImageQueueItem {
   result?: AIRecognitionResult[]
   error?: string
   retryCount: number
+  imageId?: string
+  jobId?: string
 }
 
-interface RecognizeOptions {
-  mode?: RecognitionMode
+interface RecognizeOptions { mode?: RecognitionMode }
+interface RecognitionPayload { results: AIRecognitionResult[]; drafts?: Array<{ id: string }> }
+interface JobResponse {
+  job: {
+    id: string
+    status: 'queued' | 'processing' | 'succeeded' | 'failed' | 'cancelled'
+    progress: number
+    result?: RecognitionPayload
+    error_message?: string
+  }
 }
-
 interface BatchRecognizeCallbacks {
   onItemStart?: (item: ImageQueueItem) => void
   onItemProgress?: (item: ImageQueueItem, progress: number) => void
@@ -32,324 +40,183 @@ interface BatchRecognizeCallbacks {
   onComplete?: (items: ImageQueueItem[]) => void
 }
 
-/**
- * AI 识别 Hook
- */
+const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds))
+
 export function useOCR() {
   const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [mode, setMode] = useState<RecognitionMode>('vision')
 
-  /**
-   * 将 Data URL 转换为 File 对象
-   */
-  const dataUrlToFile = (dataUrl: string, fileName: string): File => {
-    const arr = dataUrl.split(',')
-    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
-    const bstr = atob(arr[1])
-    let n = bstr.length
-    const u8arr = new Uint8Array(n)
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n)
-    }
-    return new File([u8arr], fileName, { type: mime })
+  const dataUrlToFile = (dataUrl: string, fileName: string) => {
+    const [header, content] = dataUrl.split(',')
+    const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg'
+    const binary = atob(content)
+    const bytes = new Uint8Array(binary.length)
+    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index)
+    return new File([bytes], fileName, { type: mime })
   }
 
-  const recognize = async (
-    file: File,
-    options?: RecognizeOptions
-  ): Promise<AIRecognitionResult[]> => {
+  const validateAndUpload = async (file: File, onProgress?: (progress: number) => void) => {
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('不支持的图片格式，请上传 JPG、PNG 或 WebP 图片')
+    if (file.size > 10 * 1024 * 1024) throw new Error('图片文件过大，请上传小于 10MB 的图片')
+    onProgress?.(10)
+    const compressed = await compressImage(file, 1200, 0.8)
+    onProgress?.(25)
+    const uploaded = await uploadImageToSupabase(dataUrlToFile(compressed, file.name))
+    onProgress?.(40)
+    return uploaded
+  }
+
+  const waitForJob = async (jobId: string, onProgress?: (progress: number) => void): Promise<RecognitionPayload> => {
+    const deadline = Date.now() + 6 * 60 * 1000
+    while (Date.now() < deadline) {
+      const response = await fetch(`/api/ai/recognition-jobs/${jobId}`, { cache: 'no-store' })
+      const data: JobResponse & { error?: string } = await response.json()
+      if (!response.ok) throw new Error(data.error || '查询识别任务失败')
+      onProgress?.(Math.max(45, Math.min(95, data.job.progress)))
+      if (data.job.status === 'succeeded') {
+        if (!data.job.result?.results?.length) throw new Error('未识别到题目内容')
+        return data.job.result
+      }
+      if (data.job.status === 'failed' || data.job.status === 'cancelled') {
+        throw new Error(data.job.error_message || '识别任务失败')
+      }
+      await delay(2000)
+    }
+    throw new Error('识别任务等待超时，任务仍可稍后重试')
+  }
+
+  const createJob = async (imageId: string, selectedMode: RecognitionMode) => {
+    const response = await fetch('/api/ai/recognition-jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageId, mode: selectedMode, idempotencyKey: crypto.randomUUID() }),
+    })
+    const data: JobResponse & { error?: string } = await response.json()
+    if (!response.ok) throw new Error(data.error || '创建识别任务失败')
+    queryClient.invalidateQueries({ queryKey: ['recognition-jobs'] })
+    return data.job.id
+  }
+
+  const retryJob = async (jobId: string) => {
+    const response = await fetch(`/api/ai/recognition-jobs/${jobId}/retry`, { method: 'POST' })
+    const data: JobResponse & { error?: string } = await response.json()
+    if (!response.ok) throw new Error(data.error || '重试识别任务失败')
+    queryClient.invalidateQueries({ queryKey: ['recognition-jobs'] })
+  }
+
+  const refreshCredits = () => {
+    queryClient.invalidateQueries({ queryKey: ['credits'] })
+    queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
+    queryClient.invalidateQueries({ queryKey: ['drafts'] })
+  }
+
+  const recognize = async (file: File, options?: RecognizeOptions): Promise<AIRecognitionResult[]> => {
     setLoading(true)
     setProgress(0)
-
     try {
-      // 1. 验证文件类型
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-      if (!validTypes.includes(file.type)) {
-        throw new Error('不支持的图片格式，请上传 JPG、PNG 或 WebP 格式的图片')
-      }
-
-      // 2. 验证文件大小（最大 10MB）
-      const maxSize = 10 * 1024 * 1024 // 10MB
-      if (file.size > maxSize) {
-        throw new Error('图片文件过大，请上传小于 10MB 的图片')
-      }
-
-      setProgress(10)
-
-      // 3. 压缩图片（最大 1200px，质量 0.8）
-      const compressedBase64 = await compressImage(file, 1200, 0.8)
-      const compressedFile = dataUrlToFile(compressedBase64, file.name)
-      setProgress(25)
-
-      // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
-      const uploadedImage = await uploadImageToSupabase(compressedFile)
-      setProgress(40)
-
-      // 5. 调用 API
-      const currentMode = options?.mode || mode
-      const response = await fetch('/api/ai/recognize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Idempotency-Key': crypto.randomUUID(),
-        },
-        body: JSON.stringify({
-          imageUrl: uploadedImage.signedUrl,
-          imageId: uploadedImage.imageId,
-          mode: currentMode,
-        }),
-      })
-
-      setProgress(80)
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || '识别失败，请重试')
-      }
-
-      const data = await response.json()
-      queryClient.invalidateQueries({ queryKey: ['credits'] })
-      queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
+      const uploaded = await validateAndUpload(file, setProgress)
+      const jobId = await createJob(uploaded.imageId, options?.mode || mode)
+      const payload = await waitForJob(jobId, setProgress)
       setProgress(100)
-
-      if (!data.results || data.results.length === 0) {
-        throw new Error('未识别到题目内容，请确保图片清晰可读')
-      }
-
-      return data.results
+      refreshCredits()
+      return payload.results
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message)
-        throw error
-      }
-
-      toast.error('识别失败，请稍后重试')
-      throw new Error('识别失败，请稍后重试')
+      const message = error instanceof Error ? error.message : '识别失败，请稍后重试'
+      toast.error(message)
+      throw new Error(message)
     } finally {
       setLoading(false)
       setTimeout(() => setProgress(0), 500)
     }
   }
 
-  /**
-   * 批量识别图片（带并发控制和重试机制）
-   */
-  const recognizeBatch = async (
-    files: File[],
-    callbacks?: BatchRecognizeCallbacks,
-    concurrency: number = 2,
-    maxRetries: number = 1
-  ): Promise<ImageQueueItem[]> => {
-    const items: ImageQueueItem[] = files.map((file, index) => ({
-      id: `${Date.now()}-${index}`,
-      file,
-      status: 'pending' as ImageQueueStatus,
-      progress: 0,
-      retryCount: 0,
-    }))
-
-    const processImage = async (item: ImageQueueItem): Promise<void> => {
+  const recognizeBatch = async (files: File[], callbacks?: BatchRecognizeCallbacks, concurrency = 2, maxRetries = 1) => {
+    const items: ImageQueueItem[] = files.map((file, index) => ({ id: `${Date.now()}-${index}`, file, status: 'pending', progress: 0, retryCount: 0 }))
+    const reportProgress = (item: ImageQueueItem, value: number) => {
+      item.progress = value
+      callbacks?.onItemProgress?.(item, value)
+    }
+    const processImage = async (item: ImageQueueItem) => {
       item.status = 'processing'
       callbacks?.onItemStart?.(item)
-
       try {
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-        if (!validTypes.includes(item.file.type)) {
-          throw new Error('不支持的图片格式')
+        const uploaded = await validateAndUpload(item.file, (value) => reportProgress(item, value))
+        item.imageId = uploaded.imageId
+        item.jobId = await createJob(uploaded.imageId, mode)
+        let payload: RecognitionPayload
+        try {
+          payload = await waitForJob(item.jobId, (value) => reportProgress(item, value))
+        } catch (error) {
+          if (item.retryCount >= maxRetries) throw error
+          item.retryCount++
+          await retryJob(item.jobId)
+          payload = await waitForJob(item.jobId, (value) => reportProgress(item, value))
         }
-
-        const maxSize = 10 * 1024 * 1024
-        if (item.file.size > maxSize) {
-          throw new Error('图片文件过大')
-        }
-
-        item.progress = 15
-        callbacks?.onItemProgress?.(item, 15)
-
-        const compressedBase64 = await compressImage(item.file, 1200, 0.8)
-        const compressedFile = dataUrlToFile(compressedBase64, item.file.name)
-        item.progress = 30
-        callbacks?.onItemProgress?.(item, 30)
-
-        const uploadedImage = await uploadImageToSupabase(compressedFile)
-        item.progress = 45
-        callbacks?.onItemProgress?.(item, 45)
-
-        const response = await fetch('/api/ai/recognize', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Idempotency-Key': crypto.randomUUID(),
-          },
-          body: JSON.stringify({
-            imageUrl: uploadedImage.signedUrl,
-            imageId: uploadedImage.imageId,
-            mode,
-          }),
-        })
-
-        item.progress = 80
-        callbacks?.onItemProgress?.(item, 80)
-
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || '识别失败')
-        }
-
-        const data = await response.json()
-        queryClient.invalidateQueries({ queryKey: ['credits'] })
-        queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
-
-        if (!data.results || data.results.length === 0) {
-          throw new Error('未识别到题目内容')
-        }
-
         item.status = 'success'
         item.progress = 100
-        item.result = data.results
-        const draftIds: string[] = data.drafts?.map((d: { id: string }) => d.id) ?? []
-        callbacks?.onItemSuccess?.(item, data.results, draftIds)
+        item.result = payload.results
+        refreshCredits()
+        callbacks?.onItemSuccess?.(item, payload.results, payload.drafts?.map((draft) => draft.id) || [])
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : '识别失败'
-
-        if (item.retryCount < maxRetries) {
-          item.retryCount++
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          return processImage(item)
-        }
-
         item.status = 'failed'
-        item.error = errorMessage
         item.progress = 0
-        callbacks?.onItemError?.(item, errorMessage)
+        item.error = error instanceof Error ? error.message : '识别失败'
+        callbacks?.onItemError?.(item, item.error)
       }
     }
-
-    const processBatch = async () => {
-      for (let i = 0; i < items.length; i += concurrency) {
-        const batch = items.slice(i, i + concurrency)
-        await Promise.allSettled(batch.map(item => processImage(item)))
-      }
+    for (let index = 0; index < items.length; index += concurrency) {
+      await Promise.allSettled(items.slice(index, index + concurrency).map(processImage))
     }
-
-    await processBatch()
     callbacks?.onComplete?.(items)
-
     return items
   }
 
-  /**
-   * 重试单个失败的图片
-   */
-  const retryImage = async (
-    item: ImageQueueItem,
-    callbacks?: {
-      onStart?: (item: ImageQueueItem) => void
-      onProgress?: (item: ImageQueueItem, progress: number) => void
-      onSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], draftIds?: string[]) => void
-      onError?: (item: ImageQueueItem, error: string) => void
-    }
-  ): Promise<ImageQueueItem> => {
+  const retryImage = async (item: ImageQueueItem, callbacks?: {
+    onStart?: (item: ImageQueueItem) => void
+    onProgress?: (item: ImageQueueItem, progress: number) => void
+    onSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], draftIds?: string[]) => void
+    onError?: (item: ImageQueueItem, error: string) => void
+  }) => {
     item.status = 'processing'
     item.progress = 0
     item.error = undefined
-    item.retryCount = 0
     callbacks?.onStart?.(item)
-
     try {
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-      if (!validTypes.includes(item.file.type)) {
-        throw new Error('不支持的图片格式')
+      if (!item.imageId) {
+        const uploaded = await validateAndUpload(item.file, (value) => callbacks?.onProgress?.(item, value))
+        item.imageId = uploaded.imageId
       }
-
-      const maxSize = 10 * 1024 * 1024
-      if (item.file.size > maxSize) {
-        throw new Error('图片文件过大')
-      }
-
-      item.progress = 15
-      callbacks?.onProgress?.(item, 15)
-
-      const compressedBase64 = await compressImage(item.file, 1200, 0.8)
-      const compressedFile = dataUrlToFile(compressedBase64, item.file.name)
-      item.progress = 30
-      callbacks?.onProgress?.(item, 30)
-
-      const uploadedImage = await uploadImageToSupabase(compressedFile)
-      item.progress = 45
-      callbacks?.onProgress?.(item, 45)
-
-      const response = await fetch('/api/ai/recognize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Idempotency-Key': crypto.randomUUID(),
-        },
-        body: JSON.stringify({
-          imageUrl: uploadedImage.signedUrl,
-          imageId: uploadedImage.imageId,
-          mode,
-        }),
+      if (item.jobId) await retryJob(item.jobId)
+      else item.jobId = await createJob(item.imageId, mode)
+      const payload = await waitForJob(item.jobId, (value) => {
+        item.progress = value
+        callbacks?.onProgress?.(item, value)
       })
-
-      item.progress = 80
-      callbacks?.onProgress?.(item, 80)
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || '识别失败')
-      }
-
-      const data = await response.json()
-      queryClient.invalidateQueries({ queryKey: ['credits'] })
-      queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
-
-      if (!data.results || data.results.length === 0) {
-        throw new Error('未识别到题目内容')
-      }
-
       item.status = 'success'
       item.progress = 100
-      item.result = data.results
-      const draftIds: string[] = data.drafts?.map((d: { id: string }) => d.id) ?? []
-      callbacks?.onSuccess?.(item, data.results, draftIds)
+      item.result = payload.results
+      item.retryCount++
+      refreshCredits()
+      callbacks?.onSuccess?.(item, payload.results, payload.drafts?.map((draft) => draft.id) || [])
       toast.success(`${item.file.name} 重试成功`)
-
       return item
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '识别失败'
       item.status = 'failed'
-      item.error = errorMessage
       item.progress = 0
-      callbacks?.onError?.(item, errorMessage)
-      toast.error(`${item.file.name} 重试失败: ${errorMessage}`)
+      item.error = error instanceof Error ? error.message : '识别失败'
+      callbacks?.onError?.(item, item.error)
+      toast.error(`${item.file.name} 重试失败：${item.error}`)
       throw error
     }
   }
 
-  /**
-   * 切换识别模式
-   */
   const switchMode = (newMode: RecognitionMode) => {
     setMode(newMode)
-    const modeNames = {
-      text: '文本模式 (OCR + DeepSeek)',
-      vision: '阿里模型',
-      baidu_understanding: '百度模型',
-      baidu_paper_cut: '百度试卷切题',
-    }
-    toast.success(`已切换到 ${modeNames[newMode]}`)
+    const names = { text: '文本模式 (OCR + DeepSeek)', vision: '阿里模型', baidu_understanding: '百度模型', baidu_paper_cut: '百度试卷切题' }
+    toast.success(`已切换到 ${names[newMode]}`)
   }
 
-  return {
-    recognize,
-    recognizeBatch,
-    retryImage,
-    loading,
-    progress,
-    mode,
-    switchMode,
-  }
+  return { recognize, recognizeBatch, retryImage, loading, progress, mode, switchMode }
 }
