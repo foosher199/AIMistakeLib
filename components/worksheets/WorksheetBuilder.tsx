@@ -80,7 +80,7 @@ export function WorksheetBuilder({ questionIds, worksheetId, initialTitle, initi
     <div className="worksheet-page space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <Link href="/dashboard/questions"><Button variant="ghost" className="gap-2"><ArrowLeft className="h-4 w-4" />返回错题库</Button></Link>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
           <Link href="/dashboard/worksheets"><Button variant="outline">历史练习卷</Button></Link>
           <Button onClick={save} disabled={saving || selected.length === 0} variant="outline" className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}保存
@@ -114,7 +114,7 @@ export function WorksheetBuilder({ questionIds, worksheetId, initialTitle, initi
       {selected.length === 0 ? (
         <div className="rounded-lg border bg-white p-12 text-center text-gray-500">未找到所选题目，请返回错题库重新选择。</div>
       ) : (
-        <div className="space-y-6 print:space-y-0">
+        <div className="space-y-6 overflow-x-auto pb-2 print:space-y-0 print:overflow-visible print:pb-0">
           {pages.map((pageQuestions, pageIndex) => (
             <WorksheetPage key={pageIndex} title={title} page={pageIndex + 1} totalPages={pages.length} questions={pageQuestions} startIndex={pageIndex * questionsPerPage} columns={columns} includeImages={includeImages} answerLines={answerLines} answerMode={answerMode} />
           ))}

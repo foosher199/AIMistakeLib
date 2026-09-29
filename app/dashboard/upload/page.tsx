@@ -318,8 +318,8 @@ export default function UploadPage() {
 
       {/* AI 识别模式切换 */}
       <div className="bg-white rounded-lg border border-[#dee5eb] p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
             <Sparkles className="w-5 h-5 text-[#0070a0]" />
             <div>
               <p className="text-sm font-medium text-[#1f1f1f]">AI 识别引擎</p>
@@ -336,6 +336,7 @@ export default function UploadPage() {
           <Tabs
             value={mode}
             onValueChange={(v) => switchMode(v as RecognitionMode)}
+            className="shrink-0"
           >
             <TabsList>
               <TabsTrigger value="baidu_understanding">百度模型</TabsTrigger>

@@ -10,6 +10,7 @@ import {
   Coins,
   FileText,
   History,
+  Loader2,
   LogOut,
   Menu,
   MessageSquare,
@@ -131,7 +132,7 @@ function SidebarContent({
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, isAnonymous, signOut } = useAuth()
+  const { user, loading, isAnonymous, signOut } = useAuth()
   const { data: credits } = useCredits(Boolean(user))
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -148,6 +149,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
   }, [mobileMenuOpen])
 
+  useEffect(() => {
+    if (!loading && !user) router.replace('/')
+  }, [loading, router, user])
+
   const handleSignOut = async () => {
     const { error } = await signOut()
     if (error) {
@@ -163,14 +168,25 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     '学习工作台'
   const displayName = isAnonymous ? '游客' : user?.email || '用户'
 
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f9fa]">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#0070a0]" />
+          <p className="mt-3 text-sm text-[#626a72]">正在验证登录状态...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#f7f9fa]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-[#e6ebef] bg-white md:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-[#e6ebef] bg-white xl:flex">
         <SidebarContent pathname={pathname} />
       </aside>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           <button
             type="button"
             aria-label="关闭菜单"
@@ -198,7 +214,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="md:pl-64">
+      <div className="xl:pl-64">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#e6ebef] bg-white/95 px-4 backdrop-blur sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button
@@ -206,7 +222,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               variant="ghost"
               size="icon"
               aria-label="打开菜单"
-              className="shrink-0 md:hidden"
+              className="shrink-0 xl:hidden"
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu className="h-5 w-5" />
