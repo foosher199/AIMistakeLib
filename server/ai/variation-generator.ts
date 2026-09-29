@@ -6,6 +6,7 @@
  */
 
 import type { Subject, Difficulty } from '@/types/database'
+import type { MeteredAIResult, ModelUsage } from '@/contracts/billing'
 import { logger } from '@/server/logger'
 
 export interface QuestionVariation {
@@ -24,6 +25,8 @@ interface DeepSeekResponse {
     }
   }>
   usage?: {
+    prompt_tokens?: number
+    completion_tokens?: number
     total_tokens: number
   }
 }
@@ -154,7 +157,10 @@ function normalizeVariations(raw: unknown): QuestionVariation[] {
     .filter((item): item is QuestionVariation => item !== null)
 }
 
-async function callDeepSeek(system: string, user: string): Promise<string> {
+async function callDeepSeek(
+  system: string,
+  user: string
+): Promise<{ content: string; usage: ModelUsage }> {
   const apiKey = process.env.DEEPSEEK_API_KEY
 
   if (!apiKey) {
@@ -197,7 +203,15 @@ async function callDeepSeek(system: string, user: string): Promise<string> {
       throw new Error('DeepSeek 返回的内容为空')
     }
 
-    return content.trim()
+    return {
+      content: content.trim(),
+      usage: {
+        inputTokens: data.usage?.prompt_tokens,
+        outputTokens: data.usage?.completion_tokens,
+        totalTokens: data.usage?.total_tokens,
+        requestCount: 1,
+      },
+    }
   } catch (error) {
     clearTimeout(timeoutId)
     throw error
@@ -216,13 +230,13 @@ export async function generateQuestionVariations(params: {
   difficulty: Difficulty
   count: number
   targetDifficulty: 'same' | 'easier' | 'harder' | 'mixed'
-}): Promise<QuestionVariation[]> {
+}): Promise<MeteredAIResult<QuestionVariation[]>> {
   const log = logger('VariationGenerator')
 
   try {
     log.step('1. 开始生成变式题')
 
-    const content = await callDeepSeek(
+    const generationResult = await callDeepSeek(
       variationSystemPrompt,
       buildVariationUserPrompt({
         content: params.content,
@@ -236,9 +250,16 @@ export async function generateQuestionVariations(params: {
       })
     )
 
+    const aggregateUsage = {
+      inputTokens: generationResult.usage.inputTokens || 0,
+      outputTokens: generationResult.usage.outputTokens || 0,
+      totalTokens: generationResult.usage.totalTokens || 0,
+      requestCount: 1,
+    }
+
     let parsed: { variations?: unknown }
     try {
-      parsed = JSON.parse(content) as { variations?: unknown }
+      parsed = JSON.parse(generationResult.content) as { variations?: unknown }
     } catch {
       throw new Error('DeepSeek 返回的 JSON 格式无效')
     }
@@ -255,14 +276,18 @@ export async function generateQuestionVariations(params: {
     const validatedVariations: QuestionVariation[] = []
     for (const variation of variations) {
       try {
-        const validationContent = await callDeepSeek(
+        const validationResult = await callDeepSeek(
           validationSystemPrompt,
           buildValidationUserPrompt(variation)
         )
+        aggregateUsage.inputTokens += validationResult.usage.inputTokens || 0
+        aggregateUsage.outputTokens += validationResult.usage.outputTokens || 0
+        aggregateUsage.totalTokens += validationResult.usage.totalTokens || 0
+        aggregateUsage.requestCount += 1
 
         let validation: { is_valid?: boolean; reason?: string }
         try {
-          validation = JSON.parse(validationContent) as {
+          validation = JSON.parse(validationResult.content) as {
             is_valid?: boolean
             reason?: string
           }
@@ -288,7 +313,12 @@ export async function generateQuestionVariations(params: {
     }
 
     log.done(`完成！${validatedVariations.length}/${variations.length} 道变式题通过校验`)
-    return validatedVariations
+    return {
+      data: validatedVariations,
+      provider: 'deepseek',
+      model: 'deepseek-v4-pro',
+      usage: aggregateUsage,
+    }
   } catch (error) {
     log.error('生成变式题失败', error)
 

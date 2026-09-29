@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { uploadImageToSupabase, compressImage } from '@/lib/utils'
 import type { AIRecognitionResult } from '@/contracts/ai'
 import { toast } from 'sonner'
@@ -35,6 +36,7 @@ interface BatchRecognizeCallbacks {
  * AI 识别 Hook
  */
 export function useOCR() {
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [mode, setMode] = useState<RecognitionMode>('vision')
@@ -91,6 +93,7 @@ export function useOCR() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Idempotency-Key': crypto.randomUUID(),
         },
         body: JSON.stringify({
           imageUrl,
@@ -106,6 +109,8 @@ export function useOCR() {
       }
 
       const data = await response.json()
+      queryClient.invalidateQueries({ queryKey: ['credits'] })
+      queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
       setProgress(100)
 
       if (!data.results || data.results.length === 0) {
@@ -173,7 +178,10 @@ export function useOCR() {
 
         const response = await fetch('/api/ai/recognize', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Idempotency-Key': crypto.randomUUID(),
+          },
           body: JSON.stringify({ imageUrl, mode }),
         })
 
@@ -186,6 +194,8 @@ export function useOCR() {
         }
 
         const data = await response.json()
+        queryClient.invalidateQueries({ queryKey: ['credits'] })
+        queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
 
         if (!data.results || data.results.length === 0) {
           throw new Error('未识别到题目内容')
@@ -268,7 +278,10 @@ export function useOCR() {
 
       const response = await fetch('/api/ai/recognize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': crypto.randomUUID(),
+        },
         body: JSON.stringify({ imageUrl, mode }),
       })
 
@@ -281,6 +294,8 @@ export function useOCR() {
       }
 
       const data = await response.json()
+      queryClient.invalidateQueries({ queryKey: ['credits'] })
+      queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
 
       if (!data.results || data.results.length === 0) {
         throw new Error('未识别到题目内容')

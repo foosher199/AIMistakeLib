@@ -9,6 +9,7 @@ import { getAuthClient } from '@/server/supabase'
 import { UUIDSchema, parseAndValidate, AnalyzeMistakeSchema } from '@/contracts/question'
 import { analyzeMistakeReason } from '@/server/ai/mistake-analysis'
 import { aiRateLimiter } from '@/server/rate-limit'
+import { billingErrorResponse, executeMeteredOperation } from '@/server/billing'
 
 export async function POST(
   request: NextRequest,
@@ -61,13 +62,24 @@ export async function POST(
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
-    const analysis = await analyzeMistakeReason({
-      content: question.content,
-      answer: question.answer,
-      userAnswer: question.user_answer,
-      subject: question.subject,
-      category: question.category,
-    })
+    const execution = await executeMeteredOperation(
+      supabase,
+      {
+        operation: 'mistake_analysis',
+        provider: 'deepseek',
+        model: 'deepseek-v4-pro',
+        idempotencyKey: request.headers.get('x-idempotency-key') || undefined,
+      },
+      () =>
+        analyzeMistakeReason({
+          content: question.content,
+          answer: question.answer,
+          userAnswer: question.user_answer,
+          subject: question.subject,
+          category: question.category,
+        })
+    )
+    const analysis = execution.data
 
     const { data: updatedQuestion, error: updateError } = await supabase
       .from('mistake_questions')
@@ -85,14 +97,17 @@ export async function POST(
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ question: updatedQuestion, analysis })
+    return NextResponse.json({
+      question: updatedQuestion,
+      analysis,
+      billing: execution.billing,
+    })
   } catch (error) {
     console.error('POST /api/questions/[id]/analyze-mistake error:', error)
-
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const response = billingErrorResponse(error)
+    return NextResponse.json(
+      { error: response.error, code: response.code },
+      { status: response.status }
+    )
   }
 }

@@ -12,6 +12,13 @@ Connect the `AIMistakeLib` GitHub repository to a new Railway service. Because `
 
 Railway detects the root `Dockerfile` automatically. Do not override the build or start command; the image starts with `node server.js` and listens on Railway's injected `PORT`.
 
+Before the first deployment of the invite/credit release, apply
+`supabase/migrations/20260929_add_invites_credits_and_ai_billing.sql` in the
+Supabase SQL Editor. Railway does not apply Supabase migrations automatically.
+Create the first campaign and code using the examples in
+`BILLING_AND_INVITES.md`; without a redeemed code, AI endpoints intentionally
+return `INVITE_REQUIRED`.
+
 ## 3. Configure Variables
 
 Add these required variables under **Service → Variables**:
@@ -20,13 +27,14 @@ Add these required variables under **Service → Variables**:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+ADMIN_USER_IDS=your-supabase-user-id
 ALIBABA_API_KEY=your-alibaba-key
 BAIDU_API_KEY=your-baidu-key
 BAIDU_SECRET_KEY=your-baidu-secret
 DEEPSEEK_API_KEY=your-deepseek-key
 ```
 
-Add `GEMINI_API_KEY`, `KIMI_API_KEY`, `MINIMAX_API_KEY`, `WECHAT_APP_ID`, and `WECHAT_APP_SECRET` only for enabled integrations. `NEXT_PUBLIC_*` values are intentionally included in the browser bundle; never give `SUPABASE_SERVICE_ROLE_KEY` that prefix.
+`ADMIN_USER_IDS` is a comma-separated list of Supabase Auth user IDs allowed to use the administrator pages. Add `GEMINI_API_KEY`, `KIMI_API_KEY`, `MINIMAX_API_KEY`, `WECHAT_APP_ID`, and `WECHAT_APP_SECRET` only for enabled integrations. `NEXT_PUBLIC_*` values are intentionally included in the browser bundle; never give `SUPABASE_SERVICE_ROLE_KEY` that prefix.
 
 Variable changes to `NEXT_PUBLIC_*` require a rebuild, not only a restart.
 

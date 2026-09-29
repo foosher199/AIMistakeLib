@@ -4,14 +4,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useCredits } from '@/hooks/useCredits'
 import { LoginDialog } from '@/components/auth/LoginDialog'
 import { Button } from '@/components/ui/button'
-import { BookOpen, User, Camera, History, LogIn, BarChart3 } from 'lucide-react'
+import { BookOpen, User, Camera, History, LogIn, BarChart3, Coins } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Navbar() {
   const pathname = usePathname()
   const { user, isAnonymous } = useAuth()
+  const { data: credits } = useCredits(Boolean(user))
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
 
   const navItems = [
@@ -61,14 +63,23 @@ export function Navbar() {
 
           {/* 用户按钮或登录按钮 */}
           {user ? (
-            <Link href="/dashboard/profile">
-              <Button variant="ghost" className="gap-2">
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {isAnonymous ? '游客' : user?.email || '用户'}
-                </span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-1">
+              <Link href="/dashboard/credits">
+                <Button variant="ghost" className="gap-2 text-[#0070a0]">
+                  <Coins className="w-4 h-4" />
+                  <span>{credits?.availablePoints ?? 0}</span>
+                  <span className="hidden lg:inline">积分</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/profile">
+                <Button variant="ghost" className="gap-2">
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {isAnonymous ? '游客' : user?.email || '用户'}
+                  </span>
+                </Button>
+              </Link>
+            </div>
           ) : (
             <Button
               onClick={() => setLoginDialogOpen(true)}

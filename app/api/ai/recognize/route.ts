@@ -18,6 +18,8 @@ import { recognizeWithBaiduPaperCut } from '@/server/ai/baidu-paper-cut'
 import { downloadImageToBase64 } from '@/server/ai/baidu-ocr'
 import type { AIRecognitionResult } from '@/contracts/ai'
 import { logger } from '@/server/logger'
+import { billingErrorResponse, executeMeteredOperation } from '@/server/billing'
+import type { BillingSummary } from '@/contracts/billing'
 import { z } from 'zod'
 
 // 请求体验证 schema
@@ -71,23 +73,35 @@ export async function POST(request: NextRequest) {
     }
 
     const { imageUrl, mode } = validation.data
+    const idempotencyKey = request.headers.get('x-idempotency-key') || undefined
 
     log.step(`4. 开始识别 (mode: ${mode})`)
     let results: AIRecognitionResult[]
+    let billing: BillingSummary
 
     if (mode === 'text') {
       // ===== 文本模式：OCR + DeepSeek =====
       console.log('[API] 使用文本模式 (OCR + DeepSeek)')
 
       try {
-        // 1. OCR 提取纯文本
-        log.step('5.1 [text模式] 开始OCR文字识别')
-        const extractedText = await extractTextFromImage(imageUrl)
-        log.step(`5.1 [text模式] OCR完成, 提取文字长度: ${extractedText.length}`)
-
-        // 2. DeepSeek 分析文本
-        log.step('5.2 [text模式] 开始DeepSeek文本分析')
-        results = await analyzeTextWithDeepSeek(extractedText)
+        const execution = await executeMeteredOperation(
+          supabase,
+          {
+            operation: 'image_recognition_text',
+            provider: 'deepseek',
+            model: 'deepseek-v4-flash',
+            idempotencyKey,
+          },
+          async () => {
+            log.step('5.1 [text模式] 开始OCR文字识别')
+            const extractedText = await extractTextFromImage(imageUrl)
+            log.step(`5.1 [text模式] OCR完成, 提取文字长度: ${extractedText.length}`)
+            log.step('5.2 [text模式] 开始DeepSeek文本分析')
+            return analyzeTextWithDeepSeek(extractedText)
+          }
+        )
+        results = execution.data
+        billing = execution.billing
         log.step(`5.2 [text模式] DeepSeek分析完成, 识别到 ${results.length} 道题目`)
       } catch (textError) {
         log.error('文本模式失败', textError)
@@ -98,8 +112,23 @@ export async function POST(request: NextRequest) {
       console.log('[API] 使用百度图像理解模式')
 
       try {
-        // 百度直接返回 AIRecognitionResult[]
-        results = await recognizeWithBaiduUnderstanding(imageUrl)
+        const execution = await executeMeteredOperation(
+          supabase,
+          {
+            operation: 'image_recognition',
+            provider: 'baidu',
+            model: 'image-understanding',
+            idempotencyKey,
+          },
+          async () => ({
+            data: await recognizeWithBaiduUnderstanding(imageUrl),
+            provider: 'baidu',
+            model: 'image-understanding',
+            usage: { imageCount: 1, requestCount: 1 },
+          })
+        )
+        results = execution.data
+        billing = execution.billing
       } catch (baiduError) {
         log.error('百度图像理解模式失败', baiduError)
         throw baiduError
@@ -112,7 +141,23 @@ export async function POST(request: NextRequest) {
         log.step('5.x [baidu_paper_cut模式] 下载图片并转为base64')
         const imageBase64 = await downloadImageToBase64(imageUrl)
         log.step('5.x [baidu_paper_cut模式] 开始百度试卷切题API调用')
-        results = await recognizeWithBaiduPaperCut(imageBase64)
+        const execution = await executeMeteredOperation(
+          supabase,
+          {
+            operation: 'image_recognition',
+            provider: 'baidu',
+            model: 'paper-cut',
+            idempotencyKey,
+          },
+          async () => ({
+            data: await recognizeWithBaiduPaperCut(imageBase64),
+            provider: 'baidu',
+            model: 'paper-cut',
+            usage: { imageCount: 1, requestCount: 1 },
+          })
+        )
+        results = execution.data
+        billing = execution.billing
         log.step(`5.x [baidu_paper_cut模式] 识别完成, 识别到 ${results.length} 道题目`)
       } catch (paperCutError) {
         log.error('百度试卷切题模式失败', paperCutError)
@@ -124,7 +169,18 @@ export async function POST(request: NextRequest) {
 
       try {
         log.step('5.x [vision模式] 开始阿里云API调用')
-        results = await recognizeWithAlibaba(imageUrl)
+        const execution = await executeMeteredOperation(
+          supabase,
+          {
+            operation: 'image_recognition',
+            provider: 'alibaba',
+            model: 'qwen3.6-plus',
+            idempotencyKey,
+          },
+          () => recognizeWithAlibaba(imageUrl)
+        )
+        results = execution.data
+        billing = execution.billing
         log.step(`5.x [vision模式] 阿里云API调用完成, 识别到 ${results.length} 道题目`)
       } catch (visionError) {
         log.error('视觉模式失败', visionError)
@@ -170,17 +226,13 @@ export async function POST(request: NextRequest) {
     // Keep the image because its URL is stored on the draft for later review.
 
     log.done(`识别完成，返回 ${results.length} 条结果`)
-    return NextResponse.json({ results, drafts: insertedDrafts })
+    return NextResponse.json({ results, drafts: insertedDrafts, billing })
   } catch (error) {
     log.error('识别失败', error)
-
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
+    const response = billingErrorResponse(error)
     return NextResponse.json(
-      { error: '识别失败，请稍后重试' },
-      { status: 500 }
+      { error: response.error, code: response.code },
+      { status: response.status }
     )
   }
 }

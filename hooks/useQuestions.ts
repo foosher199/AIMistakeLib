@@ -361,6 +361,7 @@ export function useAnalyzeMistake() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Idempotency-Key': crypto.randomUUID(),
         },
         body: JSON.stringify({}),
       })
@@ -387,6 +388,8 @@ export function useAnalyzeMistake() {
     onSuccess: (data) => {
       queryClient.setQueryData(['question', data.question.id], data.question)
       queryClient.invalidateQueries({ queryKey: ['questions'] })
+      queryClient.invalidateQueries({ queryKey: ['credits'] })
+      queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
       toast.success('错因分析完成！')
     },
   })
@@ -416,6 +419,7 @@ export function useGenerateVariations() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Idempotency-Key': crypto.randomUUID(),
         },
         body: JSON.stringify({ count, difficulty }),
       })
@@ -433,6 +437,8 @@ export function useGenerateVariations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-generated-questions'] })
+      queryClient.invalidateQueries({ queryKey: ['credits'] })
+      queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
       toast.success('变式题生成成功！')
     },
   })

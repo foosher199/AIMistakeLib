@@ -290,12 +290,181 @@ export interface Database {
           }
         ]
       }
+      mistake_invite_campaigns: {
+        Row: {
+          id: string
+          name: string
+          source: string
+          status: 'draft' | 'active' | 'paused' | 'ended'
+          starts_at: string | null
+          ends_at: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          source?: string
+          status?: 'draft' | 'active' | 'paused' | 'ended'
+          starts_at?: string | null
+          ends_at?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          name?: string
+          source?: string
+          status?: 'draft' | 'active' | 'paused' | 'ended'
+          starts_at?: string | null
+          ends_at?: string | null
+          metadata?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mistake_invite_codes: {
+        Row: {
+          id: string
+          campaign_id: string | null
+          code: string
+          status: 'active' | 'paused' | 'exhausted' | 'expired'
+          grant_points: number
+          max_redemptions: number
+          redemption_count: number
+          expires_at: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          campaign_id?: string | null
+          code: string
+          status?: 'active' | 'paused' | 'exhausted' | 'expired'
+          grant_points: number
+          max_redemptions?: number
+          redemption_count?: number
+          expires_at?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string | null
+          code?: string
+          status?: 'active' | 'paused' | 'exhausted' | 'expired'
+          grant_points?: number
+          max_redemptions?: number
+          redemption_count?: number
+          expires_at?: string | null
+          metadata?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mistake_credit_accounts: {
+        Row: {
+          user_id: string
+          status: 'active' | 'frozen' | 'closed'
+          available_points: number
+          reserved_points: number
+          lifetime_granted: number
+          lifetime_spent: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          status?: 'active' | 'frozen' | 'closed'
+          available_points?: number
+          reserved_points?: number
+          lifetime_granted?: number
+          lifetime_spent?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          status?: 'active' | 'frozen' | 'closed'
+          available_points?: number
+          reserved_points?: number
+          lifetime_granted?: number
+          lifetime_spent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mistake_credit_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          usage_id: string | null
+          invite_redemption_id: string | null
+          transaction_type: 'invite_grant' | 'purchase' | 'admin_grant' | 'reserve' | 'settle' | 'release' | 'refund'
+          available_delta: number
+          reserved_delta: number
+          available_after: number
+          reserved_after: number
+          description: string | null
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          usage_id?: string | null
+          invite_redemption_id?: string | null
+          transaction_type: 'invite_grant' | 'purchase' | 'admin_grant' | 'reserve' | 'settle' | 'release' | 'refund'
+          available_delta?: number
+          reserved_delta?: number
+          available_after: number
+          reserved_after: number
+          description?: string | null
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          description?: string | null
+          metadata?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      redeem_invite_code: {
+        Args: { p_code: string }
+        Returns: Array<{ available_points: number; granted_points: number }>
+      }
+      reserve_ai_credits: {
+        Args: {
+          p_operation: string
+          p_provider: string
+          p_model: string
+          p_idempotency_key: string
+        }
+        Returns: Array<{ usage_id: string; reserved_points: number; available_points: number }>
+      }
+      settle_ai_credits: {
+        Args: {
+          p_usage_id: string
+          p_input_tokens?: number
+          p_output_tokens?: number
+          p_total_tokens?: number
+          p_image_count?: number
+          p_request_count?: number
+          p_provider_request_id?: string | null
+          p_raw_usage?: Json
+        }
+        Returns: Array<{ charged_points: number; available_points: number }>
+      }
+      release_ai_credits: {
+        Args: { p_usage_id: string; p_error_code?: string | null }
+        Returns: Array<{ released_points: number; available_points: number }>
+      }
     }
     Enums: {
       [_ in never]: never
@@ -406,4 +575,3 @@ export const MISTAKE_REASONS: { id: string; label: string; color: string }[] = [
   { id: '方法混淆', label: '方法混淆', color: '#06b6d4' },
   { id: '粗心大意', label: '粗心大意', color: '#10b981' },
 ]
-

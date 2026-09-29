@@ -6,6 +6,7 @@
  */
 
 import { logger } from '@/server/logger'
+import type { MeteredAIResult } from '@/contracts/billing'
 
 export interface MistakeAnalysisResult {
   tags: string[]
@@ -20,6 +21,8 @@ interface DeepSeekResponse {
     }
   }>
   usage?: {
+    prompt_tokens?: number
+    completion_tokens?: number
     total_tokens: number
   }
 }
@@ -80,7 +83,7 @@ export async function analyzeMistakeReason(params: {
   userAnswer?: string | null
   subject: string
   category: string
-}): Promise<MistakeAnalysisResult> {
+}): Promise<MeteredAIResult<MistakeAnalysisResult>> {
   const apiKey = process.env.DEEPSEEK_API_KEY
 
   if (!apiKey) {
@@ -150,7 +153,18 @@ export async function analyzeMistakeReason(params: {
 
     log.done(`错因分析完成: ${tags.join(', ')}`)
 
-    return { tags, detail, advice }
+    return {
+      data: { tags, detail, advice },
+      provider: 'deepseek',
+      model: 'deepseek-v4-pro',
+      usage: {
+        inputTokens: data.usage?.prompt_tokens,
+        outputTokens: data.usage?.completion_tokens,
+        totalTokens: data.usage?.total_tokens,
+        requestCount: 1,
+        raw: data.usage || {},
+      },
+    }
   } catch (error) {
     log.error('错因分析失败', error)
 

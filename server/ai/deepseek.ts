@@ -7,6 +7,7 @@
  */
 
 import type { Subject, Difficulty } from '@/types/database'
+import type { MeteredAIResult } from '@/contracts/billing'
 import { logger } from '@/server/logger'
 
 export interface TextAnalysisResult {
@@ -26,6 +27,8 @@ interface DeepSeekResponse {
     }
   }>
   usage?: {
+    prompt_tokens?: number
+    completion_tokens?: number
     total_tokens: number
   }
 }
@@ -55,7 +58,9 @@ ${text}
 /**
  * 调用 DeepSeek API 分析题目文本
  */
-export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysisResult[]> {
+export async function analyzeTextWithDeepSeek(
+  text: string
+): Promise<MeteredAIResult<TextAnalysisResult[]>> {
   const apiKey = process.env.DEEPSEEK_API_KEY
 
   if (!apiKey) {
@@ -167,7 +172,19 @@ export async function analyzeTextWithDeepSeek(text: string): Promise<TextAnalysi
 
     log.done(`完成! 共 ${results.length} 道题目`)
 
-    return results
+    return {
+      data: results,
+      provider: 'deepseek',
+      model: 'deepseek-v4-flash',
+      usage: {
+        inputTokens: data.usage?.prompt_tokens,
+        outputTokens: data.usage?.completion_tokens,
+        totalTokens: data.usage?.total_tokens,
+        imageCount: 1,
+        requestCount: 1,
+        raw: data.usage || {},
+      },
+    }
   } catch (error) {
     log.error('分析失败', error)
 

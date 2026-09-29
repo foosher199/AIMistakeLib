@@ -14,6 +14,7 @@ import {
 import { generateQuestionVariations } from '@/server/ai/variation-generator'
 import { aiRateLimiter } from '@/server/rate-limit'
 import type { Subject, Difficulty, AIGeneratedQuestionInsert } from '@/types/database'
+import { billingErrorResponse, executeMeteredOperation } from '@/server/billing'
 
 export async function POST(
   request: NextRequest,
@@ -71,16 +72,27 @@ export async function POST(
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
-    const variations = await generateQuestionVariations({
-      content: question.content,
-      answer: question.answer,
-      explanation: question.explanation,
-      subject: question.subject as Subject,
-      category: question.category,
-      difficulty: question.difficulty as Difficulty,
-      count,
-      targetDifficulty,
-    })
+    const execution = await executeMeteredOperation(
+      supabase,
+      {
+        operation: 'variation_generation',
+        provider: 'deepseek',
+        model: 'deepseek-v4-pro',
+        idempotencyKey: request.headers.get('x-idempotency-key') || undefined,
+      },
+      () =>
+        generateQuestionVariations({
+          content: question.content,
+          answer: question.answer,
+          explanation: question.explanation,
+          subject: question.subject as Subject,
+          category: question.category,
+          difficulty: question.difficulty as Difficulty,
+          count,
+          targetDifficulty,
+        })
+    )
+    const variations = execution.data
 
     const inserts: AIGeneratedQuestionInsert[] = variations.map((v) => ({
       user_id: user.id,
@@ -104,14 +116,13 @@ export async function POST(
       return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ variations: savedVariations })
+    return NextResponse.json({ variations: savedVariations, billing: execution.billing })
   } catch (error) {
     console.error('POST /api/questions/[id]/generate-variations error:', error)
-
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const response = billingErrorResponse(error)
+    return NextResponse.json(
+      { error: response.error, code: response.code },
+      { status: response.status }
+    )
   }
 }

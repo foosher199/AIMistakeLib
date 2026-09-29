@@ -5,6 +5,7 @@
  */
 
 import type { AIRecognitionResult } from '@/contracts/ai'
+import type { MeteredAIResult } from '@/contracts/billing'
 import type { Difficulty, Subject } from '@/types/database'
 import { logger } from '@/server/logger'
 
@@ -15,6 +16,8 @@ interface DashScopeResponse {
     }
   }>
   usage?: {
+    prompt_tokens?: number
+    completion_tokens?: number
     total_tokens: number
   }
 }
@@ -24,7 +27,7 @@ interface DashScopeResponse {
  */
 export async function recognizeWithAlibaba(
   imageBase64: string
-): Promise<AIRecognitionResult[]> {
+): Promise<MeteredAIResult<AIRecognitionResult[]>> {
   const apiKey = process.env.ALIBABA_API_KEY
 
   if (!apiKey) {
@@ -188,7 +191,19 @@ export async function recognizeWithAlibaba(
     }
 
     log.done(`完成! 共 ${results.length} 道题目`)
-    return results
+    return {
+      data: results,
+      provider: 'alibaba',
+      model: 'qwen3.6-plus',
+      usage: {
+        inputTokens: data.usage?.prompt_tokens,
+        outputTokens: data.usage?.completion_tokens,
+        totalTokens: data.usage?.total_tokens,
+        imageCount: 1,
+        requestCount: 1,
+        raw: data.usage || {},
+      },
+    }
   } catch (error) {
     log.error('识别失败', error)
 
