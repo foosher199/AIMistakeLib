@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useQuestions } from '@/hooks/useQuestions'
 import { QuestionCard } from './QuestionCard'
 import { QuestionFilters, type FilterValues } from './QuestionFilters'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/database'
-import { Loader2 } from 'lucide-react'
+import { FileText, Loader2, X } from 'lucide-react'
 
 interface QuestionListProps {
   onEdit?: (question: Question) => void
@@ -14,8 +15,10 @@ interface QuestionListProps {
 }
 
 export function QuestionList({ onEdit, onView }: QuestionListProps) {
+  const router = useRouter()
   const [filters, setFilters] = useState<FilterValues>({})
   const [page, setPage] = useState(0)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const pageSize = 20
 
   const { data, isLoading, error } = useQuestions({
@@ -35,10 +38,40 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
 
   const hasMore = data ? data.total > (page + 1) * pageSize : false
 
+  const handleSelectionChange = (question: Question, selected: boolean) => {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      if (selected) next.add(question.id)
+      else next.delete(question.id)
+      return next
+    })
+  }
+
+  const createWorksheet = () => {
+    if (selectedIds.size === 0) return
+    router.push(`/dashboard/worksheets/new?ids=${Array.from(selectedIds).join(',')}`)
+  }
+
   return (
     <div className="space-y-6">
       {/* 筛选器 */}
       <QuestionFilters filters={filters} onChange={handleFilterChange} />
+
+      {selectedIds.size > 0 && (
+        <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#8bc7dd] bg-[#eaf6fa] p-3 shadow-sm">
+          <span className="text-sm font-medium text-[#005580]">
+            已选择 {selectedIds.size} 道题
+          </span>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+              <X className="mr-1 h-4 w-4" />清空
+            </Button>
+            <Button size="sm" onClick={createWorksheet} className="bg-[#0070a0] text-white hover:bg-[#005580]">
+              <FileText className="mr-1 h-4 w-4" />生成复习卷
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* 加载状态 */}
       {isLoading && page === 0 && (
@@ -88,6 +121,8 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
                     question={question}
                     onEdit={onEdit}
                     onView={onView}
+                    selected={selectedIds.has(question.id)}
+                    onSelectionChange={handleSelectionChange}
                   />
                 ))}
               </div>

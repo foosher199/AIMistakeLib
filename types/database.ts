@@ -143,6 +143,7 @@ export interface Database {
           explanation: string | null
           confidence: number | null
           image_url: string | null
+          source_image_id: string | null
           created_at: string
           updated_at: string
         }
@@ -157,6 +158,7 @@ export interface Database {
           explanation?: string | null
           confidence?: number | null
           image_url?: string | null
+          source_image_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -171,6 +173,7 @@ export interface Database {
           explanation?: string | null
           confidence?: number | null
           image_url?: string | null
+          source_image_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -289,6 +292,60 @@ export interface Database {
             referencedColumns: ['id']
           }
         ]
+      }
+      mistake_images: {
+        Row: {
+          id: string
+          user_id: string
+          storage_path: string
+          original_filename: string | null
+          mime_type: 'image/jpeg' | 'image/png' | 'image/webp'
+          file_size: number
+          width: number | null
+          height: number | null
+          status: 'active' | 'orphaned' | 'deleted'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          storage_path: string
+          original_filename?: string | null
+          mime_type: 'image/jpeg' | 'image/png' | 'image/webp'
+          file_size: number
+          width?: number | null
+          height?: number | null
+          status?: 'active' | 'orphaned' | 'deleted'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          original_filename?: string | null
+          width?: number | null
+          height?: number | null
+          status?: 'active' | 'orphaned' | 'deleted'
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mistake_question_images: {
+        Row: {
+          question_id: string
+          image_id: string
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          question_id: string
+          image_id: string
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          sort_order?: number
+        }
+        Relationships: []
       }
       mistake_invite_campaigns: {
         Row: {
@@ -498,6 +555,10 @@ export type AIGeneratedQuestionUpdate = Database['public']['Tables']['ai_generat
 export type Draft = Database['public']['Tables']['mistake_drafts']['Row']
 export type DraftInsert = Database['public']['Tables']['mistake_drafts']['Insert']
 export type DraftUpdate = Database['public']['Tables']['mistake_drafts']['Update']
+
+// 私有题目图片类型
+export type MistakeImage = Database['public']['Tables']['mistake_images']['Row']
+export type QuestionImage = Database['public']['Tables']['mistake_question_images']['Row']
 
 // 用户反馈类型
 export type Feedback = Database['public']['Tables']['mistake_feedbacks']['Row']

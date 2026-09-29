@@ -42,9 +42,17 @@ interface QuestionCardProps {
   question: Question
   onEdit?: (question: Question) => void
   onView?: (question: Question) => void
+  selected?: boolean
+  onSelectionChange?: (question: Question, selected: boolean) => void
 }
 
-export function QuestionCard({ question, onEdit, onView }: QuestionCardProps) {
+export function QuestionCard({
+  question,
+  onEdit,
+  onView,
+  selected = false,
+  onSelectionChange,
+}: QuestionCardProps) {
   const [showAnswer, setShowAnswer] = useState(false)
   const [showVariations, setShowVariations] = useState(false)
   const [localAnalysis, setLocalAnalysis] = useState<{
@@ -207,6 +215,17 @@ export function QuestionCard({ question, onEdit, onView }: QuestionCardProps) {
       {/* 头部：标签和操作 */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-wrap gap-2">
+          {onSelectionChange && (
+            <label className="flex cursor-pointer items-center gap-2 rounded border border-[#dee5eb] px-2 py-1 text-xs text-[#626a72]">
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={(event) => onSelectionChange(question, event.target.checked)}
+                className="h-4 w-4 accent-[#0070a0]"
+              />
+              选入复习卷
+            </label>
+          )}
           <Badge variant="outline" className="bg-[#cce5f3] text-[#0070a0] border-[#0070a0]/30">
             {subjectLabel}
           </Badge>

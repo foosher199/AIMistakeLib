@@ -12,9 +12,16 @@ Connect the `AIMistakeLib` GitHub repository to a new Railway service. Because `
 
 Railway detects the root `Dockerfile` automatically. Do not override the build or start command; the image starts with `node server.js` and listens on Railway's injected `PORT`.
 
-Before the first deployment of the invite/credit release, apply
-`supabase/migrations/20260929_add_invites_credits_and_ai_billing.sql` in the
-Supabase SQL Editor. Railway does not apply Supabase migrations automatically.
+Before the first deployment, apply these migrations in order in the Supabase
+SQL Editor:
+
+1. `supabase/migrations/20260929_add_invites_credits_and_ai_billing.sql`
+2. `supabase/migrations/20260930_add_private_question_images.sql`
+
+The second migration creates the private `mistake-private-images` bucket and
+the durable question-image relationships. The legacy `mistake-images` bucket
+is left unchanged so existing public image URLs continue to work. Railway does
+not apply Supabase migrations automatically.
 Create the first campaign and code using the examples in
 `BILLING_AND_INVITES.md`; without a redeemed code, AI endpoints intentionally
 return `INVITE_REQUIRED`.
@@ -48,7 +55,7 @@ After deployment, verify:
 curl https://your-domain.up.railway.app/api/health
 ```
 
-Then test login, image upload, `/api/v1/ai/recognize`, and saving a recognized draft. Point the iOS `API_BASE_URL` to `https://your-domain/api/v1`; the Mini Program base URL should be the origin without `/api/v1` because its request helpers append that path.
+Then test login, private image upload, `/api/v1/ai/recognize`, saving a recognized draft, and worksheet printing. Point the iOS `API_BASE_URL` to `https://your-domain/api/v1`; the Mini Program base URL should be the origin without `/api/v1` because its request helpers append that path.
 
 ## Troubleshooting
 

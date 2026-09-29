@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthClient } from '@/server/supabase'
+import { attachSignedDraftImages } from '@/server/images'
 
 /**
  * GET /api/drafts/[id]
@@ -38,7 +39,8 @@ export async function GET(
       return NextResponse.json({ error: '草稿不存在' }, { status: 404 })
     }
 
-    return NextResponse.json({ draft })
+    const [draftWithImage] = await attachSignedDraftImages([draft], user.id)
+    return NextResponse.json({ draft: draftWithImage })
   } catch (error) {
     console.error('GET /api/drafts/[id] error:', error)
 

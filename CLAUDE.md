@@ -141,7 +141,7 @@ All mutations use `onMutate` for optimistic updates, `onError` for rollback, `on
 
 **AI recognition flow:**
 1. User uploads image in `/dashboard/upload`
-2. Image compressed (max 1200px, 0.8 quality) and uploaded to Supabase Storage (`mistake-images` bucket), public URL returned
+2. Image compressed (max 1200px, 0.8 quality) and uploaded through `/api/images/upload` to the private Supabase Storage bucket `mistake-private-images`; the API returns a durable image ID and a short-lived signed URL
 3. `useOCR().recognize(imageUrl)` calls `/api/ai/recognize` with `{ imageUrl, provider }`
 4. API route validates auth, checks rate limit (20 requests/hour per user)
 5. Multiple AI providers available (configured via `AI_PROVIDER` env var or `provider` parameter):

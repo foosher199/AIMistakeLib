@@ -68,6 +68,19 @@ export async function POST(
       )
     }
 
+    if (draft.source_image_id) {
+      const { error: linkError } = await supabase
+        .from('mistake_question_images')
+        .insert({
+          question_id: question.id,
+          image_id: draft.source_image_id,
+          sort_order: 0,
+        })
+      if (linkError) {
+        console.error('[API] 关联题目原图失败:', linkError)
+      }
+    }
+
     // 删除草稿
     const { error: deleteError } = await supabase
       .from('mistake_drafts')

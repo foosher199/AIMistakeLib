@@ -65,9 +65,9 @@ export function useOCR() {
 
     try {
       // 1. 验证文件类型
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
       if (!validTypes.includes(file.type)) {
-        throw new Error('不支持的图片格式，请上传 JPG、PNG、GIF 或 WebP 格式的图片')
+        throw new Error('不支持的图片格式，请上传 JPG、PNG 或 WebP 格式的图片')
       }
 
       // 2. 验证文件大小（最大 10MB）
@@ -84,7 +84,7 @@ export function useOCR() {
       setProgress(25)
 
       // 4. 上传压缩后的图片到 Supabase Storage 获取公开 URL
-      const imageUrl = await uploadImageToSupabase(compressedFile)
+      const uploadedImage = await uploadImageToSupabase(compressedFile)
       setProgress(40)
 
       // 5. 调用 API
@@ -96,7 +96,8 @@ export function useOCR() {
           'X-Idempotency-Key': crypto.randomUUID(),
         },
         body: JSON.stringify({
-          imageUrl,
+          imageUrl: uploadedImage.signedUrl,
+          imageId: uploadedImage.imageId,
           mode: currentMode,
         }),
       })
@@ -154,7 +155,7 @@ export function useOCR() {
       callbacks?.onItemStart?.(item)
 
       try {
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
         if (!validTypes.includes(item.file.type)) {
           throw new Error('不支持的图片格式')
         }
@@ -172,7 +173,7 @@ export function useOCR() {
         item.progress = 30
         callbacks?.onItemProgress?.(item, 30)
 
-        const imageUrl = await uploadImageToSupabase(compressedFile)
+        const uploadedImage = await uploadImageToSupabase(compressedFile)
         item.progress = 45
         callbacks?.onItemProgress?.(item, 45)
 
@@ -182,7 +183,11 @@ export function useOCR() {
             'Content-Type': 'application/json',
             'X-Idempotency-Key': crypto.randomUUID(),
           },
-          body: JSON.stringify({ imageUrl, mode }),
+          body: JSON.stringify({
+            imageUrl: uploadedImage.signedUrl,
+            imageId: uploadedImage.imageId,
+            mode,
+          }),
         })
 
         item.progress = 80
@@ -254,7 +259,7 @@ export function useOCR() {
     callbacks?.onStart?.(item)
 
     try {
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
       if (!validTypes.includes(item.file.type)) {
         throw new Error('不支持的图片格式')
       }
@@ -272,7 +277,7 @@ export function useOCR() {
       item.progress = 30
       callbacks?.onProgress?.(item, 30)
 
-      const imageUrl = await uploadImageToSupabase(compressedFile)
+      const uploadedImage = await uploadImageToSupabase(compressedFile)
       item.progress = 45
       callbacks?.onProgress?.(item, 45)
 
@@ -282,7 +287,11 @@ export function useOCR() {
           'Content-Type': 'application/json',
           'X-Idempotency-Key': crypto.randomUUID(),
         },
-        body: JSON.stringify({ imageUrl, mode }),
+        body: JSON.stringify({
+          imageUrl: uploadedImage.signedUrl,
+          imageId: uploadedImage.imageId,
+          mode,
+        }),
       })
 
       item.progress = 80

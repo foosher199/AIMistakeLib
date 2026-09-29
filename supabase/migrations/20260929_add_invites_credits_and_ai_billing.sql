@@ -129,12 +129,16 @@ ALTER TABLE public.mistake_credit_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mistake_ai_model_prices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mistake_ai_usage_records ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own credit account" ON public.mistake_credit_accounts;
 CREATE POLICY "Users can view own credit account" ON public.mistake_credit_accounts
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view own credit transactions" ON public.mistake_credit_transactions;
 CREATE POLICY "Users can view own credit transactions" ON public.mistake_credit_transactions
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view own invite redemption" ON public.mistake_invite_redemptions;
 CREATE POLICY "Users can view own invite redemption" ON public.mistake_invite_redemptions
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view own AI usage" ON public.mistake_ai_usage_records;
 CREATE POLICY "Users can view own AI usage" ON public.mistake_ai_usage_records
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
 

@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthClient } from '@/server/supabase'
+import { attachSignedQuestionImages } from '@/server/images'
 import {
   CreateQuestionSchema,
   QueryQuestionsSchema,
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { supabase } = authResult
+    const { supabase, user } = authResult
 
     // 解析查询参数
     const { searchParams } = new URL(request.url)
@@ -84,8 +85,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    const questionsWithImages = await attachSignedQuestionImages(questions || [], user.id)
     return NextResponse.json({
-      questions: questions || [],
+      questions: questionsWithImages,
       total: count ?? 0,
     })
   } catch (error) {

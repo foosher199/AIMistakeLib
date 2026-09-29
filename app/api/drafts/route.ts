@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthClient } from '@/server/supabase'
+import { attachSignedDraftImages } from '@/server/images'
 
 /**
  * GET /api/drafts
@@ -37,7 +38,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({ drafts: drafts ?? [] })
+    const draftsWithImages = await attachSignedDraftImages(drafts ?? [], user.id)
+    return NextResponse.json({ drafts: draftsWithImages })
   } catch (error) {
     console.error('GET /api/drafts error:', error)
 
@@ -77,10 +79,22 @@ export async function POST(request: NextRequest) {
     const { supabase, user } = authResult
 
     const body = await request.json()
-    const { content, subject, category, difficulty, answer, explanation, confidence, image_url } = body
+    const { content, subject, category, difficulty, answer, explanation, confidence, image_url, source_image_id } = body
 
     if (!content || !subject || !category || !difficulty || !answer) {
       return NextResponse.json({ error: '缺少必填字段' }, { status: 400 })
+    }
+
+    if (source_image_id) {
+      const { data: ownedImage } = await supabase
+        .from('mistake_images')
+        .select('id')
+        .eq('id', source_image_id)
+        .eq('status', 'active')
+        .single()
+      if (!ownedImage) {
+        return NextResponse.json({ error: '图片不存在或无权使用' }, { status: 400 })
+      }
     }
 
     const { data: draft, error } = await supabase
@@ -95,6 +109,7 @@ export async function POST(request: NextRequest) {
         explanation,
         confidence,
         image_url,
+        source_image_id,
       })
       .select()
       .single()

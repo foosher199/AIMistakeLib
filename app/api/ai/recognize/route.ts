@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/server/supabase'
+import { createAdminClient, getAuthClient } from '@/server/supabase'
 import { aiRateLimiter } from '@/server/rate-limit'
 import { recognizeWithAlibaba } from '@/server/ai/alibaba'
 import { extractTextFromImage } from '@/server/ai/ocr'
@@ -24,8 +24,11 @@ import { z } from 'zod'
 
 // 请求体验证 schema
 const RecognizeRequestSchema = z.object({
-  imageUrl: z.string().url('图片URL格式无效'),
+  imageUrl: z.string().url('图片URL格式无效').optional(),
+  imageId: z.string().uuid('图片ID格式无效').optional(),
   mode: z.enum(['vision', 'text', 'baidu_understanding', 'baidu_paper_cut']).default('vision'),
+}).refine((value) => value.imageId || value.imageUrl, {
+  message: '必须提供图片ID或图片URL',
 })
 
 export async function POST(request: NextRequest) {
@@ -72,7 +75,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errors }, { status: 400 })
     }
 
-    const { imageUrl, mode } = validation.data
+    const { imageId, mode } = validation.data
+    let imageUrl = validation.data.imageUrl
+    if (imageId) {
+      const { data: storedImage, error: imageError } = await supabase
+        .from('mistake_images')
+        .select('storage_path')
+        .eq('id', imageId)
+        .eq('status', 'active')
+        .single()
+
+      if (imageError || !storedImage) {
+        return NextResponse.json({ error: '图片不存在或无权访问' }, { status: 404 })
+      }
+      const { data: signed, error: signedError } = await createAdminClient().storage
+        .from('mistake-private-images')
+        .createSignedUrl(storedImage.storage_path, 15 * 60)
+      if (signedError || !signed?.signedUrl) {
+        return NextResponse.json({ error: '生成图片访问地址失败' }, { status: 500 })
+      }
+      imageUrl = signed.signedUrl
+    }
+    if (!imageUrl) {
+      return NextResponse.json({ error: '缺少图片地址' }, { status: 400 })
+    }
     const idempotencyKey = request.headers.get('x-idempotency-key') || undefined
 
     log.step(`4. 开始识别 (mode: ${mode})`)
@@ -208,7 +234,8 @@ export async function POST(request: NextRequest) {
       answer: r.answer,
       explanation: r.explanation ?? null,
       confidence: r.confidence ?? null,
-      image_url: imageUrl,
+      image_url: imageId ? null : imageUrl,
+      source_image_id: imageId || null,
     }))
 
     const { data: insertedDrafts, error: draftError } = await supabase
