@@ -73,7 +73,7 @@ export function Navbar() {
       <LoginDialog
         open={loginDialogOpen}
         onOpenChange={setLoginDialogOpen}
-        onLoginSuccess={() => router.push('/dashboard/upload')}
+        onLoginSuccess={() => router.push('/dashboard/credits')}
       />
     </nav>
   )

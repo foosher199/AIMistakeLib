@@ -52,6 +52,7 @@ const pageTitles: Record<string, string> = {
   '/dashboard/stats': '数据统计',
   '/dashboard/credits': '积分中心',
   '/dashboard/profile': '个人中心',
+  '/dashboard/bind-email': '注册正式账户',
   '/dashboard/feedback': '意见反馈',
   '/dashboard/admin/invites': '邀请码管理',
 }

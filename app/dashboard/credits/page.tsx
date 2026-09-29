@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Coins, Loader2, Ticket, WalletCards } from 'lucide-react'
 import { toast } from 'sonner'
@@ -26,7 +27,7 @@ const transactionNames: Record<string, string> = {
 
 export default function CreditsPage() {
   const router = useRouter()
-  const { user, loading } = useAuth()
+  const { user, loading, isAnonymous } = useAuth()
   const [inviteCode, setInviteCode] = useState('')
   const credits = useCredits(Boolean(user))
   const transactions = useCreditTransactions(Boolean(user))
@@ -88,27 +89,40 @@ export default function CreditsPage() {
             <div>
               <h2 className="font-semibold text-gray-900">兑换试用邀请码</h2>
               <p className="mt-1 text-sm text-gray-600">
-                输入从小红书活动获得的邀请码。每个账户只能兑换一次。
+                每个邀请码和每个注册账户都只能兑换一次。
               </p>
             </div>
           </div>
-          <form onSubmit={handleRedeem} className="flex max-w-lg flex-col gap-3 sm:flex-row">
-            <Input
-              value={inviteCode}
-              onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
-              placeholder="请输入邀请码"
-              maxLength={64}
-              autoComplete="off"
-            />
-            <Button
-              type="submit"
-              disabled={!inviteCode.trim() || redeemInvite.isPending}
-              className="bg-[#0070a0] text-white hover:bg-[#005580]"
-            >
-              {redeemInvite.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              立即兑换
-            </Button>
-          </form>
+          {isAnonymous ? (
+            <div className="max-w-lg rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm text-amber-900">
+                当前是游客账户。请先绑定邮箱并设置密码，完成注册后才能兑换邀请码。
+              </p>
+              <Link href="/dashboard/bind-email">
+                <Button className="mt-4 bg-[#0070a0] text-white hover:bg-[#005580]">
+                  绑定邮箱并注册
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleRedeem} className="flex max-w-lg flex-col gap-3 sm:flex-row">
+              <Input
+                value={inviteCode}
+                onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
+                placeholder="请输入一次性邀请码"
+                maxLength={64}
+                autoComplete="off"
+              />
+              <Button
+                type="submit"
+                disabled={!inviteCode.trim() || redeemInvite.isPending}
+                className="bg-[#0070a0] text-white hover:bg-[#005580]"
+              >
+                {redeemInvite.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                立即兑换
+              </Button>
+            </form>
+          )}
         </section>
       )}
 

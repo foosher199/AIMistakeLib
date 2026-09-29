@@ -7,6 +7,7 @@ const RedeemInviteSchema = z.object({
 })
 
 const inviteMessages: Record<string, string> = {
+  REGISTERED_ACCOUNT_REQUIRED: '请先注册或绑定邮箱后再兑换邀请码',
   INVITE_ALREADY_REDEEMED: '当前账户已经兑换过邀请码',
   INVITE_INVALID: '邀请码不存在',
   INVITE_INACTIVE: '邀请码暂不可用',
@@ -19,6 +20,16 @@ export async function POST(request: NextRequest) {
   const authResult = await getAuthClient(request)
   if (!authResult) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  if (authResult.user.is_anonymous) {
+    return NextResponse.json(
+      {
+        error: inviteMessages.REGISTERED_ACCOUNT_REQUIRED,
+        code: 'REGISTERED_ACCOUNT_REQUIRED',
+      },
+      { status: 403 }
+    )
   }
 
   const validation = RedeemInviteSchema.safeParse(await request.json())

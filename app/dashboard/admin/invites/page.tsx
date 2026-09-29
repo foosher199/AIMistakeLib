@@ -36,7 +36,6 @@ export default function AdminInvitesPage() {
     name: '小红书首轮内测',
     code: '',
     grantPoints: '100',
-    maxRedemptions: '100',
     expiresAt: '',
   })
 
@@ -77,7 +76,6 @@ export default function AdminInvitesPage() {
         source: 'xiaohongshu',
         code: form.code.trim() || undefined,
         grantPoints: Number(form.grantPoints),
-        maxRedemptions: Number(form.maxRedemptions),
         expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
       }),
     })
@@ -155,6 +153,9 @@ export default function AdminInvitesPage() {
           <Plus className="h-5 w-5 text-[#0070a0]" />
           <h2 className="text-xl font-semibold">创建活动邀请码</h2>
         </div>
+        <p className="mb-5 text-sm text-gray-600">
+          每个邀请码仅可由一个正式注册账户兑换一次。
+        </p>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="活动名称">
             <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -164,9 +165,6 @@ export default function AdminInvitesPage() {
           </Field>
           <Field label="每人赠送积分">
             <Input required type="number" min="1" value={form.grantPoints} onChange={(e) => setForm({ ...form, grantPoints: e.target.value })} />
-          </Field>
-          <Field label="最多兑换人数">
-            <Input required type="number" min="1" value={form.maxRedemptions} onChange={(e) => setForm({ ...form, maxRedemptions: e.target.value })} />
           </Field>
           <Field label="过期时间（可选）">
             <Input type="datetime-local" value={form.expiresAt} onChange={(e) => setForm({ ...form, expiresAt: e.target.value })} />
@@ -194,7 +192,7 @@ export default function AdminInvitesPage() {
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-gray-600">
-                    {campaignNames.get(code.campaign_id || '') || '独立活动'} · 每人 {code.grant_points} 积分 · 已兑换 {code.redemption_count}/{code.max_redemptions}
+                    {campaignNames.get(code.campaign_id || '') || '独立活动'} · {code.grant_points} 积分 · {code.redemption_count > 0 ? '已使用' : '未使用'}
                   </p>
                   <p className="mt-1 text-xs text-gray-500">
                     {code.expires_at ? `有效期至 ${new Date(code.expires_at).toLocaleString('zh-CN')}` : '长期有效'}

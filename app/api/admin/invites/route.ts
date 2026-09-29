@@ -8,7 +8,6 @@ const CreateInviteSchema = z.object({
   source: z.string().trim().min(2).max(50).default('xiaohongshu'),
   code: z.string().trim().min(4).max(64).optional(),
   grantPoints: z.number().int().min(1).max(1_000_000),
-  maxRedemptions: z.number().int().min(1).max(1_000_000),
   startsAt: z.string().datetime().nullable().optional(),
   expiresAt: z.string().datetime().nullable().optional(),
 })
@@ -81,7 +80,7 @@ export async function POST(request: NextRequest) {
       code,
       status: 'active',
       grant_points: input.grantPoints,
-      max_redemptions: input.maxRedemptions,
+      max_redemptions: 1,
       expires_at: input.expiresAt || null,
       metadata: {},
     })

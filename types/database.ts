@@ -512,6 +512,29 @@ export interface Database {
         }
         Relationships: []
       }
+      mistake_invite_redemptions: {
+        Row: {
+          id: string
+          invite_code_id: string
+          user_id: string
+          granted_points: number
+          redeemed_at: string
+        }
+        Insert: {
+          id?: string
+          invite_code_id: string
+          user_id: string
+          granted_points: number
+          redeemed_at?: string
+        }
+        Update: {
+          invite_code_id?: string
+          user_id?: string
+          granted_points?: number
+          redeemed_at?: string
+        }
+        Relationships: []
+      }
       mistake_credit_accounts: {
         Row: {
           user_id: string
