@@ -1,53 +1,47 @@
-# Render deployment with Tesseract OCR support
-FROM node:20-slim
-
-# Install Tesseract OCR + Chinese language pack
-RUN apt-get update && \
-    apt-get install -y \
-    tesseract-ocr \
-    tesseract-ocr-chi-sim \
-    && rm -rf /var/lib/apt/lists/*
-
-# Verify installation
-RUN tesseract --version && tesseract --list-langs | grep chi_sim
+FROM node:20-slim AS dependencies
 
 WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy source code
+FROM node:20-slim AS builder
+
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-# 接收 Render Dashboard 的环境变量作为构建参数
-# Render 会自动将同名环境变量作为 --build-arg 传入
+# These values are public and must be embedded in the browser bundle. Railway
+# exposes service variables as build arguments when the ARG is declared.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-ARG SUPABASE_SERVICE_ROLE_KEY
-ARG ALIBABA_API_KEY
-ARG BAIDU_API_KEY
-ARG BAIDU_SECRET_KEY
-ARG DEEPSEEK_API_KEY
-ARG DEEPSEEK_API_URL
-ARG DEEPSEEK_MODEL
-
-# 转为环境变量，让 next build 能读到
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
-ENV SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
-ENV ALIBABA_API_KEY=$ALIBABA_API_KEY
-ENV BAIDU_API_KEY=$BAIDU_API_KEY
-ENV BAIDU_SECRET_KEY=$BAIDU_SECRET_KEY
-ENV DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY
-ENV DEEPSEEK_API_URL=$DEEPSEEK_API_URL
-ENV DEEPSEEK_MODEL=$DEEPSEEK_MODEL
 
-# Build Next.js app
 RUN npm run build
 
-# Expose port
+FROM node:20-slim AS runner
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      tesseract-ocr \
+      tesseract-ocr-chi-sim && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
+
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 EXPOSE 3000
 
-# Start app
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
