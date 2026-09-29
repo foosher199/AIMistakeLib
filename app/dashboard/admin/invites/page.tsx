@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Loader2, Pause, Play, Plus, RefreshCw, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -30,11 +31,7 @@ interface InviteCode {
 }
 
 export default function AdminInvitesPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [codes, setCodes] = useState<InviteCode[]>([])
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [forbidden, setForbidden] = useState(false)
   const [form, setForm] = useState({
     name: '小红书首轮内测',
     code: '',
@@ -43,32 +40,31 @@ export default function AdminInvitesPage() {
     expiresAt: '',
   })
 
-  const campaignNames = useMemo(
-    () => new Map(campaigns.map((campaign) => [campaign.id, campaign.name])),
-    [campaigns]
+  const invitesQuery = useQuery({
+    queryKey: ['admin-invites'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/invites')
+      if (response.status === 403) {
+        return { campaigns: [], codes: [], forbidden: true }
+      }
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || '加载邀请码失败')
+      return {
+        campaigns: result.campaigns as Campaign[],
+        codes: result.codes as InviteCode[],
+        forbidden: false,
+      }
+    },
+    retry: false,
+  })
+
+  const campaigns = invitesQuery.data?.campaigns || []
+  const codes = invitesQuery.data?.codes || []
+  const forbidden = invitesQuery.data?.forbidden || false
+
+  const campaignNames = new Map(
+    campaigns.map((campaign) => [campaign.id, campaign.name])
   )
-
-  const loadData = useCallback(async () => {
-    const response = await fetch('/api/admin/invites')
-    if (response.status === 403) {
-      setForbidden(true)
-      setLoading(false)
-      return
-    }
-    const result = await response.json()
-    if (!response.ok) {
-      toast.error(result.error || '加载邀请码失败')
-    } else {
-      setCampaigns(result.campaigns)
-      setCodes(result.codes)
-      setForbidden(false)
-    }
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    loadData()
-  }, [loadData])
 
   const createInvite = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -94,7 +90,7 @@ export default function AdminInvitesPage() {
     }
     toast.success(`邀请码 ${result.code.code} 创建成功`)
     setForm((current) => ({ ...current, code: '' }))
-    await loadData()
+    await invitesQuery.refetch()
   }
 
   const toggleStatus = async (code: InviteCode) => {
@@ -110,10 +106,10 @@ export default function AdminInvitesPage() {
       return
     }
     toast.success(status === 'active' ? '邀请码已启用' : '邀请码已暂停')
-    await loadData()
+    await invitesQuery.refetch()
   }
 
-  if (loading) {
+  if (invitesQuery.isLoading) {
     return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#0070a0]" />
   }
 
@@ -129,6 +125,14 @@ export default function AdminInvitesPage() {
     )
   }
 
+  if (invitesQuery.isError) {
+    return (
+      <div className="mx-auto max-w-xl rounded-lg border border-red-200 bg-red-50 p-8 text-center text-red-700">
+        {invitesQuery.error.message}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -136,8 +140,13 @@ export default function AdminInvitesPage() {
           <h1 className="text-3xl font-bold text-gray-900">邀请码管理</h1>
           <p className="mt-2 text-gray-600">创建小红书活动邀请码并查看兑换进度。</p>
         </div>
-        <Button variant="outline" onClick={loadData} className="gap-2">
-          <RefreshCw className="h-4 w-4" />刷新
+        <Button
+          variant="outline"
+          onClick={() => invitesQuery.refetch()}
+          disabled={invitesQuery.isFetching}
+          className="gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${invitesQuery.isFetching ? 'animate-spin' : ''}`} />刷新
         </Button>
       </div>
 
