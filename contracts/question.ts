@@ -1,5 +1,5 @@
 /**
- * Question Validation Schemas
+ * Public question API contracts
  *
  * 说明：使用 Zod 定义错题数据的验证规则
  * 用途：API 路由中验证请求数据，确保数据安全和完整性
@@ -212,7 +212,7 @@ export type BatchOperationInput = z.infer<typeof BatchOperationSchema>
  *
  * 使用示例：
  * ```typescript
- * import { parseAndValidate, CreateQuestionSchema } from '@/lib/validations/question'
+ * import { parseAndValidate, CreateQuestionSchema } from '@/contracts/question'
  *
  * export async function POST(request: Request) {
  *   const body = await request.json()
@@ -247,7 +247,7 @@ export function parseAndValidate<T extends z.ZodType>(
  *
  * 使用示例：
  * ```typescript
- * import { formatValidationError } from '@/lib/validations/question'
+ * import { formatValidationError } from '@/contracts/question'
  *
  * const result = schema.safeParse(data)
  * if (!result.success) {

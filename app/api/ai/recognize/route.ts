@@ -8,16 +8,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
-import { aiRateLimiter } from '@/lib/rate-limit'
-import { recognizeWithAlibaba } from '@/lib/ai/alibaba'
-import { extractTextFromImage } from '@/lib/ai/ocr'
-import { analyzeTextWithDeepSeek } from '@/lib/ai/deepseek'
-import { recognizeWithBaiduUnderstanding } from '@/lib/ai/baidu-understanding'
-import { recognizeWithBaiduPaperCut } from '@/lib/ai/baidu-paper-cut'
-import { downloadImageToBase64 } from '@/lib/ai/baidu-ocr'
-import type { AIRecognitionResult } from '@/lib/ai/alibaba'
-import { logger } from '@/lib/logger'
+import { getAuthClient } from '@/server/supabase'
+import { aiRateLimiter } from '@/server/rate-limit'
+import { recognizeWithAlibaba } from '@/server/ai/alibaba'
+import { extractTextFromImage } from '@/server/ai/ocr'
+import { analyzeTextWithDeepSeek } from '@/server/ai/deepseek'
+import { recognizeWithBaiduUnderstanding } from '@/server/ai/baidu-understanding'
+import { recognizeWithBaiduPaperCut } from '@/server/ai/baidu-paper-cut'
+import { downloadImageToBase64 } from '@/server/ai/baidu-ocr'
+import type { AIRecognitionResult } from '@/contracts/ai'
+import { logger } from '@/server/logger'
 import { z } from 'zod'
 
 // 请求体验证 schema

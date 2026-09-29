@@ -5,10 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
-import { UUIDSchema, parseAndValidate, AnalyzeMistakeSchema } from '@/lib/validations/question'
-import { analyzeMistakeReason } from '@/lib/ai/mistake-analysis'
-import { aiRateLimiter } from '@/lib/rate-limit'
+import { getAuthClient } from '@/server/supabase'
+import { UUIDSchema, parseAndValidate, AnalyzeMistakeSchema } from '@/contracts/question'
+import { analyzeMistakeReason } from '@/server/ai/mistake-analysis'
+import { aiRateLimiter } from '@/server/rate-limit'
 
 export async function POST(
   request: NextRequest,

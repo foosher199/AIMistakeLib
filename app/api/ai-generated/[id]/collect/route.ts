@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
-import { UUIDSchema } from '@/lib/validations/question'
+import { getAuthClient } from '@/server/supabase'
+import { UUIDSchema } from '@/contracts/question'
 
 export async function POST(
   request: NextRequest,

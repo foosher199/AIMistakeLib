@@ -11,7 +11,7 @@
  */
 
 import { getAccessToken } from './baidu-ocr'
-import type { AIRecognitionResult } from './alibaba'
+import type { AIRecognitionResult } from '@/contracts/ai'
 import type { Subject, Difficulty } from '@/types/database'
 
 interface SubmitResponse {

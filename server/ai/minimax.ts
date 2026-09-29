@@ -1,42 +1,81 @@
 /**
- * Kimi (Moonshot AI) Service
- * 使用 kimi-k2-0711-preview 模型进行图像识别和题目解析
- * 支持多模态输入（图片+文本）
+ * MiniMax AI Service
+ * 使用 MiniMax-M2.7 模型进行图像识别和题目解析
+ * 基于 Anthropic 兼容 API 格式 (api.minimaxi.com/anthropic)
+ *
+ * 注意：MiniMax 服务器对 header 名大小写敏感，必须使用原生 https 模块
+ * 而不是 fetch（undici 会规范化 header 为小写）
  */
 
 import type { Subject, Difficulty } from '@/types/database'
-import type { AIRecognitionResult } from './alibaba'
+import type { AIRecognitionResult } from '@/contracts/ai'
+import https from 'https'
 
-interface KimiResponse {
+interface MiniMaxResponse {
   id: string
-  object: string
-  created: number
+  type: string
+  role: string
   model: string
-  choices: Array<{
-    index: number
-    message: {
-      role: string
-      content: string
-    }
-    finish_reason: string
+  content: Array<{
+    type: string
+    text: string
   }>
+  stop_reason: string | null
   usage?: {
-    prompt_tokens: number
-    completion_tokens: number
-    total_tokens: number
+    input_tokens: number
+    output_tokens: number
   }
 }
 
 /**
- * 调用 Kimi (Moonshot AI) API 识别题目
+ * 使用原生 https 模块发送 POST 请求（保留 header 大小写）
  */
-export async function recognizeWithKimi(
-  imageBase64: string
+function httpsPost(
+  url: string,
+  headers: Record<string, string>,
+  body: string,
+  timeoutMs: number
+): Promise<{ statusCode: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      url,
+      {
+        method: 'POST',
+        headers,
+        timeout: timeoutMs,
+      },
+      (res) => {
+        let data = ''
+        res.on('data', (chunk) => {
+          data += chunk
+        })
+        res.on('end', () => {
+          resolve({ statusCode: res.statusCode || 0, body: data })
+        })
+      }
+    )
+
+    req.on('error', (err) => reject(err))
+    req.on('timeout', () => {
+      req.destroy()
+      reject(new Error('timeout'))
+    })
+
+    req.write(body)
+    req.end()
+  })
+}
+
+/**
+ * 调用 MiniMax API 识别题目
+ */
+export async function recognizeWithMiniMax(
+  imageInput: string
 ): Promise<AIRecognitionResult[]> {
-  const apiKey = process.env.KIMI_API_KEY
+  const apiKey = process.env.MINIMAX_API_KEY
 
   if (!apiKey) {
-    throw new Error('KIMI_API_KEY 未配置')
+    throw new Error('MINIMAX_API_KEY 未配置')
   }
 
   const systemPrompt = `你是一个专业的题目识别助手。请仔细分析图片中的题目，并按照指定的JSON格式返回结果。
@@ -69,68 +108,65 @@ export async function recognizeWithKimi(
 请直接返回JSON数组，不要有其他内容。`
 
   try {
-    // 支持三种输入：HTTP URL、data URI、纯 base64 字符串
-    const imageUrl = imageBase64.startsWith('http://') || imageBase64.startsWith('https://')
-      ? imageBase64
-      : imageBase64.startsWith('data:')
-        ? imageBase64
-        : `data:image/jpeg;base64,${imageBase64}`
+    // 判断输入类型：HTTP URL 直接使用，base64 则提取纯数据
+    const isHttpUrl = imageInput.startsWith('http://') || imageInput.startsWith('https://')
 
-    // 使用 AbortController 设置 25 秒超时
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 25000)
+    const imageContent = isHttpUrl
+      ? {
+          type: 'image',
+          source: {
+            type: 'url',
+            url: imageInput,
+          },
+        }
+      : {
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: 'image/jpeg',
+            data: imageInput.startsWith('data:') ? imageInput.split(',')[1] : imageInput,
+          },
+        }
 
-    const response = await fetch(
-      'https://api.kimi.com/coding/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: 'kimi-k2-0711-preview',
-          messages: [
+    const requestBody = JSON.stringify({
+      model: 'MiniMax-M2.7',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            imageContent,
             {
-              role: 'system',
-              content: systemPrompt,
-            },
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: imageUrl,
-                  },
-                },
-                {
-                  type: 'text',
-                  text: userPrompt,
-                },
-              ],
+              type: 'text',
+              text: userPrompt,
             },
           ],
-          temperature: 0.1,
-          top_p: 0.9,
-          max_tokens: 4096,
-        }),
-      }
+        },
+      ],
+    })
+
+    // 使用原生 https 模块，保留 header 大小写
+    const { statusCode, body } = await httpsPost(
+      'https://api.minimaxi.com/anthropic/v1/messages',
+      {
+        'Content-Type': 'application/json',
+        'X-Api-Key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      requestBody,
+      25000
     )
 
-    clearTimeout(timeoutId)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Kimi API 请求失败: ${response.status} ${errorText}`)
+    if (statusCode !== 200) {
+      throw new Error(`MiniMax API 请求失败: ${statusCode} ${body}`)
     }
 
-    const data: KimiResponse = await response.json()
-    const text = data.choices?.[0]?.message?.content
+    const data = JSON.parse(body) as MiniMaxResponse
+    const text = data.content?.[0]?.text
 
     if (!text || text.trim().length === 0) {
-      throw new Error('Kimi AI 返回的内容为空')
+      throw new Error('MiniMax AI 返回的内容为空')
     }
 
     // 解析 JSON（移除可能的 markdown 代码块标记）
@@ -145,7 +181,7 @@ export async function recognizeWithKimi(
 
     // 验证结果格式
     if (!Array.isArray(results) || results.length === 0) {
-      throw new Error('Kimi AI 返回的数据格式不正确')
+      throw new Error('MiniMax AI 返回的数据格式不正确')
     }
 
     // 验证每个结果的必填字段
@@ -157,7 +193,7 @@ export async function recognizeWithKimi(
         !result.difficulty ||
         !result.answer
       ) {
-        throw new Error('Kimi AI 返回的题目信息不完整')
+        throw new Error('MiniMax AI 返回的题目信息不完整')
       }
 
       // 验证学科是否合法
@@ -195,27 +231,27 @@ export async function recognizeWithKimi(
     return results
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new Error('Kimi AI 返回的 JSON 格式无效，请重试')
+      throw new Error('MiniMax AI 返回的 JSON 格式无效，请重试')
     }
 
     if (error instanceof Error) {
       // 处理超时
       if (error.name === 'AbortError' || error.message.includes('timeout')) {
-        throw new Error('Kimi API 连接超时，请检查网络或稍后重试')
+        throw new Error('MiniMax API 连接超时，请检查网络或稍后重试')
       }
-      // 处理常见的 Kimi API 错误
+      // 处理常见的 MiniMax API 错误
       if (error.message.includes('API key') || error.message.includes('Unauthorized')) {
-        throw new Error('Kimi API Key 无效或未配置')
+        throw new Error('MiniMax API Key 无效或未配置')
       }
       if (error.message.includes('quota') || error.message.includes('rate limit')) {
-        throw new Error('Kimi API 配额已用完或请求过于频繁')
+        throw new Error('MiniMax API 配额已用完或请求过于频繁')
       }
       if (error.message.includes('content filter') || error.message.includes('safety')) {
-        throw new Error('图片内容被 Kimi 安全过滤器拦截')
+        throw new Error('图片内容被 MiniMax 安全过滤器拦截')
       }
       throw error
     }
 
-    throw new Error('Kimi 识别失败，请重试')
+    throw new Error('MiniMax 识别失败，请重试')
   }
 }

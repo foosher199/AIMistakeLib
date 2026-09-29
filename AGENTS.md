@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Next.js 15 App Router application in TypeScript. Pages and route handlers live in `app/`; dashboard screens are under `app/dashboard/` and server endpoints under `app/api/`. Reusable components are grouped by feature in `components/`, hooks in `hooks/`, and services and utilities in `lib/`. AI adapters belong in `lib/ai/`, validation schemas in `lib/validations/`, and database types in `types/`. Supabase changes live in `supabase/migrations/`; keep one dated SQL file per change. `cloud-functions/` contains deployable functions, while `z_publish/test-scripts/` contains manual provider checks.
+This is a Next.js 15 App Router application in TypeScript. Web pages live in `app/`, reusable UI in `components/`, and hooks in `hooks/`. HTTP handlers stay thin in `app/api/`; server-only authentication and AI providers belong in `server/`. Shared request schemas and response types live in `contracts/`. Browser-safe utilities stay in `lib/`, database types in `types/`, and Supabase changes in `supabase/migrations/`. See `ARCHITECTURE.md` before changing these boundaries.
 
 ## Build, Test, and Development Commands
 
@@ -17,7 +17,7 @@ Provider scripts are manual checks, for example `node z_publish/test-scripts/tes
 
 ## Coding Style & Naming Conventions
 
-Use two-space indentation, single quotes in TypeScript, and functional components. Name components in PascalCase (`QuestionCard.tsx`), hooks with a `use` prefix (`useQuestions.ts`), and helpers in kebab-case or descriptive lowercase modules. Follow App Router filenames such as `page.tsx`, `layout.tsx`, and `route.ts`. Prefer the `@/` alias over long relative imports. Mark client-only code with `'use client'`, and validate request data with Zod where applicable.
+Use two-space indentation, single quotes in TypeScript, and functional components. Name components in PascalCase (`QuestionCard.tsx`), hooks with a `use` prefix (`useQuestions.ts`), and helpers in kebab-case or descriptive lowercase modules. Follow App Router filenames such as `page.tsx`, `layout.tsx`, and `route.ts`. Prefer the `@/` alias over long relative imports. Mark client-only code with `'use client'`, validate input with schemas from `contracts/`, and never import `@/server/*` from UI code.
 
 ## Testing Guidelines
 

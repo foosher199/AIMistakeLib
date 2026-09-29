@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { AIRecognitionResult } from '@/lib/ai/alibaba'
+import type { AIRecognitionResult } from '@/contracts/ai'
 import { SUBJECTS, DIFFICULTIES } from '@/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

@@ -223,7 +223,7 @@ export function useAuth() {
     async (attributes: {
       email?: string
       password?: string
-      data?: Record<string, any>
+      data?: object
     }) => {
       const { data, error } = await supabase.auth.updateUser(attributes)
       return { data, error }

@@ -13,7 +13,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 import { extractTextWithBaidu } from './baidu-ocr'
-import { logger } from '@/lib/logger'
+import { logger } from '@/server/logger'
 
 /**
  * 下载图片到临时文件

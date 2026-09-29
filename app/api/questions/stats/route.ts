@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/server/supabase'
 
 /**
  * GET /api/questions/stats

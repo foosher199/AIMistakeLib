@@ -136,8 +136,8 @@ All mutations use `onMutate` for optimistic updates, `onError` for rollback, `on
 
 **Supabase client pattern:** Three clients based on context:
 1. `createBrowserClient()` - Client components (`'use client'`), auto session management. Import from `@/lib/supabase-client`
-2. `createServerClient()` - Server components, API routes, reads from cookies. Import from `@/lib/supabase-server`
-3. `createAdminClient()` - API routes only, bypasses RLS, requires `SUPABASE_SERVICE_ROLE_KEY`. Import from `@/lib/supabase-server`
+2. `createServerClient()` - Server components, API routes, reads from cookies. Import from `@/server/supabase`
+3. `createAdminClient()` - API routes only, bypasses RLS, requires `SUPABASE_SERVICE_ROLE_KEY`. Import from `@/server/supabase`
 
 **AI recognition flow:**
 1. User uploads image in `/dashboard/upload`
@@ -157,22 +157,22 @@ All mutations use `onMutate` for optimistic updates, `onError` for rollback, `on
 6. Recognition results saved to `mistake_drafts` table, user reviews and saves via `useSaveDraft()`
 7. After saving, draft deleted and question created in `mistake_questions`
 
-**AI mistake analysis:** `POST /api/questions/[id]/analyze-mistake` uses `lib/ai/mistake-analysis.ts` to generate mistake reasons, details, and advice.
+**AI mistake analysis:** `POST /api/questions/[id]/analyze-mistake` uses `server/ai/mistake-analysis.ts` to generate mistake reasons, details, and advice.
 
-**AI question variations:** `POST /api/questions/[id]/generate-variations` uses `lib/ai/variation-generator.ts` to generate "举一反三" (infer similar questions) via DeepSeek.
+**AI question variations:** `POST /api/questions/[id]/generate-variations` uses `server/ai/variation-generator.ts` to generate "举一反三" (infer similar questions) via DeepSeek.
 
 **Rate limiting:** In-memory LRU cache (`lib/rate-limit.ts`), 20 requests/hour per user for AI recognition.
 
 ## Key Patterns & Conventions
 
-- **Path alias:** All imports use `@/` alias (e.g., `@/hooks/useAuth`, `@/lib/supabase-server`). Configured in tsconfig.json.
+- **Path alias:** All imports use `@/` alias (e.g., `@/hooks/useAuth`, `@/server/supabase`). Configured in tsconfig.json.
 - **TypeScript strictness:** `noUnusedLocals` and `noUnusedParameters` are enabled. Unused variables will cause build errors.
 - **Client vs Server components:** Components with state, hooks, or browser APIs must have `'use client'` directive. Server components (default) can use async/await for data fetching.
 - **UI components:** All primitives from `components/ui/` (Shadcn wrappers around Radix UI + `class-variance-authority`). Do not add new third-party component libraries.
 - **Toast notifications:** Use `sonner`'s `toast` for all user feedback. `<Toaster />` rendered globally in root layout at `app/layout.tsx:34`.
 - **Styling:** Tailwind CSS with custom HSL color tokens in `globals.css`. Animations via `tailwindcss-animate`.
-- **Form validation:** Zod schemas in `lib/validations/` with `parseAndValidate()` and `formatValidationError()` helpers.
-- **Data fetching:** Prefer React Query hooks over raw fetch in components. API routes handle auth via `createServerClient()` from `@/lib/supabase-server`.
+- **Form validation:** Zod schemas in `contracts/` with `parseAndValidate()` and `formatValidationError()` helpers.
+- **Data fetching:** Prefer React Query hooks over raw fetch in components. API routes handle auth via `createServerClient()` from `@/server/supabase`.
 - **Optimistic updates:** All mutation hooks use `onMutate` for immediate UI feedback, `onError` for rollback, `onSuccess` for cache invalidation.
 
 ## Environment Variables

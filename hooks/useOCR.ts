@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { uploadImageToSupabase, compressImage } from '@/lib/utils'
-import type { AIRecognitionResult } from '@/lib/ai/alibaba'
+import type { AIRecognitionResult } from '@/contracts/ai'
 import { toast } from 'sonner'
 
 export type RecognitionMode = 'text' | 'vision' | 'baidu_understanding' | 'baidu_paper_cut'

@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/server/supabase'
 import { z } from 'zod'
 
 const QuerySchema = z.object({

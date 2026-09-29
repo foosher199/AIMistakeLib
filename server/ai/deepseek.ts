@@ -7,7 +7,7 @@
  */
 
 import type { Subject, Difficulty } from '@/types/database'
-import { logger } from '@/lib/logger'
+import { logger } from '@/server/logger'
 
 export interface TextAnalysisResult {
   content: string

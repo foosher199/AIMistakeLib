@@ -5,14 +5,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/server/supabase'
 import {
   UUIDSchema,
   parseAndValidate,
   GenerateVariationsSchema,
-} from '@/lib/validations/question'
-import { generateQuestionVariations } from '@/lib/ai/variation-generator'
-import { aiRateLimiter } from '@/lib/rate-limit'
+} from '@/contracts/question'
+import { generateQuestionVariations } from '@/server/ai/variation-generator'
+import { aiRateLimiter } from '@/server/rate-limit'
 import type { Subject, Difficulty, AIGeneratedQuestionInsert } from '@/types/database'
 
 export async function POST(

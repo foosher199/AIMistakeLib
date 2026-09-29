@@ -110,7 +110,7 @@ A: 检查 API Key 是否正确，以及是否在 Google AI Studio 中启用了 A
 A: Gemini 2.0 Flash 是优化过速度的模型，如果仍然慢，可能是网络问题。考虑添加超时配置。
 
 ### Q: 如何调整识别准确度
-A: 可以在 `lib/ai/gemini.ts` 中调整 `temperature` 参数（当前为 0.1，降低值可提高稳定性）。
+A: 可以在 `server/ai/gemini.ts` 中调整 `temperature` 参数（当前为 0.1，降低值可提高稳定性）。
 
 ### Q: 支持哪些 Gemini 模型
 A: 当前使用 `gemini-2.0-flash-exp`，可以改为：
@@ -118,7 +118,7 @@ A: 当前使用 `gemini-2.0-flash-exp`，可以改为：
 - `gemini-1.5-pro` - Pro 版本，能力更强但速度较慢
 - `gemini-1.5-flash` - Flash 版本，平衡速度和能力
 
-修改模型：在 `lib/ai/gemini.ts` 第 25 行修改 `model` 参数。
+修改模型：在 `server/ai/gemini.ts` 中修改 `model` 参数。
 
 ## 8. 费用说明
 
@@ -134,7 +134,7 @@ Gemini API 免费额度（截至 2024）：
 启用详细日志：
 
 ```typescript
-// 在 lib/ai/gemini.ts 中添加
+// 在 server/ai/gemini.ts 中添加
 console.log('Gemini 请求:', { imageSize: imageData.length })
 console.log('Gemini 响应:', text)
 ```

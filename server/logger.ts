@@ -3,7 +3,7 @@
  *
  * 使用方式：
  * ```ts
- * import { logger } from '@/lib/logger'
+ * import { logger } from '@/server/logger'
  *
  * // 在函数开头初始化
  * const log = logger.start('myFunction')

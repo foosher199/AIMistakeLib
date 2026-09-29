@@ -6,13 +6,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/lib/supabase-server'
+import { getAuthClient } from '@/server/supabase'
 import {
   CreateQuestionSchema,
   QueryQuestionsSchema,
   parseAndValidate,
   formatValidationError,
-} from '@/lib/validations/question'
+} from '@/contracts/question'
 
 /**
  * GET /api/questions

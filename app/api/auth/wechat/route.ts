@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '微信登录失败' }, { status: 400 })
     }
 
-    const { openid, session_key } = wechatSession
+    const { openid } = wechatSession
 
     // 2. 使用 Supabase Admin API 创建或获取用户
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -55,11 +55,12 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // 查找或创建用户（使用 openid 作为唯一标识）
-    let { data: user, error: userError } = await supabase
+    const { data: foundUser, error: userError } = await supabase
       .from('mistake_profiles')
       .select('*')
       .eq('id', openid)
       .single()
+    let user = foundUser
 
     if (userError && userError.code !== 'PGRST116') {
       console.error('查询用户失败:', userError)

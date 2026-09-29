@@ -5,7 +5,7 @@
  */
 
 import type { Subject, Difficulty } from '@/types/database'
-import type { AIRecognitionResult } from './alibaba'
+import type { AIRecognitionResult } from '@/contracts/ai'
 
 interface BaiduTokenResponse {
   access_token: string

@@ -4,18 +4,9 @@
  * 基于 OpenAI 兼容模式 (/compatible-mode/v1/chat/completions)
  */
 
-import type { Subject, Difficulty } from '@/types/database'
-import { logger } from '@/lib/logger'
-
-export interface AIRecognitionResult {
-  content: string
-  subject: Subject
-  category: string
-  difficulty: Difficulty
-  answer: string
-  explanation?: string
-  confidence?: number
-}
+import type { AIRecognitionResult } from '@/contracts/ai'
+import type { Difficulty, Subject } from '@/types/database'
+import { logger } from '@/server/logger'
 
 interface DashScopeResponse {
   choices: Array<{

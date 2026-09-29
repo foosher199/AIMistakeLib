@@ -1,5 +1,5 @@
 /**
- * Supabase Server Client
+ * Supabase server clients
  * 仅用于服务端（Server Components, API Routes）
  */
 

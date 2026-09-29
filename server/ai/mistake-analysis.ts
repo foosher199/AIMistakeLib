@@ -5,7 +5,7 @@
  * 调用 DeepSeek 文本模型（复用现有 provider 模式）。
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from '@/server/logger'
 
 export interface MistakeAnalysisResult {
   tags: string[]
