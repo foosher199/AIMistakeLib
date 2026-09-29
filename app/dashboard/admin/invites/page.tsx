@@ -49,7 +49,6 @@ export default function AdminInvitesPage() {
   )
 
   const loadData = useCallback(async () => {
-    setLoading(true)
     const response = await fetch('/api/admin/invites')
     if (response.status === 403) {
       setForbidden(true)
