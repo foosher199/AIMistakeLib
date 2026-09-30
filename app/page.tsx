@@ -101,7 +101,7 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     variant="jelly"
-                    className="h-14 rounded-[18px] px-8 text-lg font-bold"
+                    className="h-[52px] rounded-2xl px-7 text-base font-bold"
                   >
                     <Camera className="w-5 h-5 mr-2" />
                     拍照识题

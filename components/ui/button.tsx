@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         jelly:
-          "border border-white/50 bg-gradient-to-b from-[#756ff0] to-[#5b55d6] text-white shadow-[inset_0_2px_1px_rgba(255,255,255,0.38),0_5px_0_#403a9f,0_9px_20px_rgba(91,85,214,0.25)] transition-[transform,box-shadow,filter] duration-150 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[inset_0_2px_1px_rgba(255,255,255,0.42),0_6px_0_#403a9f,0_11px_24px_rgba(91,85,214,0.28)] active:translate-y-[3px] active:shadow-[inset_0_2px_3px_rgba(42,35,126,0.18),0_2px_0_#403a9f,0_4px_10px_rgba(91,85,214,0.2)]",
+          "border border-white/60 bg-gradient-to-b from-[#706ae9] to-[#5b55d6] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),inset_0_-3px_6px_rgba(55,48,150,0.18),0_6px_16px_rgba(91,85,214,0.24)] transition-[transform,box-shadow,filter] duration-150 ease-out hover:-translate-y-px hover:brightness-[1.04] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.55),inset_0_-3px_6px_rgba(55,48,150,0.16),0_9px_20px_rgba(91,85,214,0.27)] active:translate-y-px active:scale-[0.98] active:brightness-[0.98] active:shadow-[inset_0_2px_5px_rgba(55,48,150,0.2),0_3px_8px_rgba(91,85,214,0.2)] motion-reduce:transform-none motion-reduce:transition-none",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
