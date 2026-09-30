@@ -35,7 +35,10 @@ interface StatsResponse {
 /**
  * 获取题目列表
  */
-export function useQuestions(params: QuestionsQueryParams = {}) {
+export function useQuestions(
+  params: QuestionsQueryParams = {},
+  options: { enabled?: boolean } = {}
+) {
   return useQuery({
     queryKey: ['questions', params],
     queryFn: async () => {
@@ -60,6 +63,7 @@ export function useQuestions(params: QuestionsQueryParams = {}) {
       const data: QuestionsResponse = await response.json()
       return data
     },
+    enabled: options.enabled ?? true,
     staleTime: 1000 * 60 * 5, // 5分钟内数据保持新鲜
   })
 }

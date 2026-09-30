@@ -20,12 +20,13 @@ export interface WorksheetSettings {
 
 interface WorksheetBuilderProps {
   questionIds: string[]
+  initialQuestions?: Question[]
   worksheetId?: string
   initialTitle?: string
   initialSettings?: Partial<WorksheetSettings>
 }
 
-export function WorksheetBuilder({ questionIds, worksheetId, initialTitle, initialSettings }: WorksheetBuilderProps) {
+export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, initialTitle, initialSettings }: WorksheetBuilderProps) {
   const router = useRouter()
   const [title, setTitle] = useState(initialTitle || '错题复习卷')
   const [orderedIds, setOrderedIds] = useState(questionIds)
@@ -35,9 +36,11 @@ export function WorksheetBuilder({ questionIds, worksheetId, initialTitle, initi
   const [answerLines, setAnswerLines] = useState(initialSettings?.answerLines ?? 3)
   const [questionsPerPage, setQuestionsPerPage] = useState(initialSettings?.questionsPerPage ?? 6)
   const [saving, setSaving] = useState(false)
-  const questionsQuery = useQuestions({ limit: 1000 })
-  const questionMap = new Map((questionsQuery.data?.questions || []).map((question) => [question.id, question]))
+  const questionsQuery = useQuestions({ limit: 1000 }, { enabled: !initialQuestions })
+  const availableQuestions = initialQuestions || questionsQuery.data?.questions || []
+  const questionMap = new Map(availableQuestions.map((question) => [question.id, question]))
   const selected = orderedIds.map((id) => questionMap.get(id)).filter((question): question is Question => Boolean(question))
+  const missingCount = orderedIds.length - selected.length
 
   const move = (index: number, direction: -1 | 1) => {
     const target = index + direction
@@ -74,6 +77,9 @@ export function WorksheetBuilder({ questionIds, worksheetId, initialTitle, initi
   }
 
   if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#0070a0]" />
+  if (questionsQuery.error) {
+    return <div className="rounded border border-red-200 bg-red-50 p-5 text-red-600">加载练习卷题目失败：{questionsQuery.error.message}</div>
+  }
   const pages = chunk(selected, questionsPerPage)
 
   return (
@@ -91,6 +97,11 @@ export function WorksheetBuilder({ questionIds, worksheetId, initialTitle, initi
 
       <section className="no-print rounded-lg border border-gray-200 bg-white p-5">
         <h1 className="mb-4 text-xl font-semibold">复习卷设置</h1>
+        {missingCount > 0 && (
+          <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            有 {missingCount} 道题已删除或当前无法访问，本练习卷仅显示其余 {selected.length} 道题。
+          </div>
+        )}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
           <label className="space-y-2 text-sm lg:col-span-2"><span>标题</span><Input value={title} onChange={(event) => setTitle(event.target.value)} /></label>
           <Select label="排版" value={columns} onChange={(value) => setColumns(Number(value) as 1 | 2)} options={[['1', '单栏'], ['2', '双栏']]} />

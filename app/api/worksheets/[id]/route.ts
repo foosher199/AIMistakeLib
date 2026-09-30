@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { attachSignedQuestionImages } from '@/server/images'
 import { getAuthClient } from '@/server/supabase'
 
 const UpdateSchema = z.object({
@@ -33,7 +34,30 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     .eq('worksheet_id', id)
     .order('position')
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ worksheet: { ...result.worksheet, questionIds: (links || []).map((link) => link.question_id) } })
+  const questionIds = (links || []).map((link) => link.question_id)
+  if (questionIds.length === 0) {
+    return NextResponse.json({ worksheet: { ...result.worksheet, questionIds, questions: [] } })
+  }
+
+  const { data: questions, error: questionsError } = await result.auth.supabase
+    .from('mistake_questions')
+    .select('*')
+    .in('id', questionIds)
+  if (questionsError) return NextResponse.json({ error: questionsError.message }, { status: 500 })
+
+  const questionsWithImages = await attachSignedQuestionImages(questions || [], result.auth.user.id)
+  const questionById = new Map(questionsWithImages.map((question) => [question.id, question]))
+  const orderedQuestions = questionIds
+    .map((questionId) => questionById.get(questionId))
+    .filter((question): question is NonNullable<typeof question> => Boolean(question))
+
+  return NextResponse.json({
+    worksheet: {
+      ...result.worksheet,
+      questionIds,
+      questions: orderedQuestions,
+    },
+  })
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
