@@ -22,7 +22,7 @@ export interface ImageQueueItem {
 }
 
 interface RecognizeOptions { mode?: RecognitionMode }
-interface RecognitionPayload { results: AIRecognitionResult[]; drafts?: Array<{ id: string }> }
+interface RecognitionPayload { results: AIRecognitionResult[]; questions?: Array<{ id: string }> }
 interface JobResponse {
   job: {
     id: string
@@ -35,7 +35,7 @@ interface JobResponse {
 interface BatchRecognizeCallbacks {
   onItemStart?: (item: ImageQueueItem) => void
   onItemProgress?: (item: ImageQueueItem, progress: number) => void
-  onItemSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], draftIds?: string[]) => void
+  onItemSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], questionIds?: string[]) => void
   onItemError?: (item: ImageQueueItem, error: string) => void
   onComplete?: (items: ImageQueueItem[]) => void
 }
@@ -109,7 +109,8 @@ export function useOCR() {
   const refreshCredits = () => {
     queryClient.invalidateQueries({ queryKey: ['credits'] })
     queryClient.invalidateQueries({ queryKey: ['credit-transactions'] })
-    queryClient.invalidateQueries({ queryKey: ['drafts'] })
+    queryClient.invalidateQueries({ queryKey: ['questions'] })
+    queryClient.invalidateQueries({ queryKey: ['question-stats'] })
   }
 
   const recognize = async (file: File, options?: RecognizeOptions): Promise<AIRecognitionResult[]> => {
@@ -158,7 +159,7 @@ export function useOCR() {
         item.progress = 100
         item.result = payload.results
         refreshCredits()
-        callbacks?.onItemSuccess?.(item, payload.results, payload.drafts?.map((draft) => draft.id) || [])
+        callbacks?.onItemSuccess?.(item, payload.results, payload.questions?.map((question) => question.id) || [])
       } catch (error) {
         item.status = 'failed'
         item.progress = 0
@@ -176,7 +177,7 @@ export function useOCR() {
   const retryImage = async (item: ImageQueueItem, callbacks?: {
     onStart?: (item: ImageQueueItem) => void
     onProgress?: (item: ImageQueueItem, progress: number) => void
-    onSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], draftIds?: string[]) => void
+    onSuccess?: (item: ImageQueueItem, results: AIRecognitionResult[], questionIds?: string[]) => void
     onError?: (item: ImageQueueItem, error: string) => void
   }) => {
     item.status = 'processing'
@@ -199,7 +200,7 @@ export function useOCR() {
       item.result = payload.results
       item.retryCount++
       refreshCredits()
-      callbacks?.onSuccess?.(item, payload.results, payload.drafts?.map((draft) => draft.id) || [])
+      callbacks?.onSuccess?.(item, payload.results, payload.questions?.map((question) => question.id) || [])
       toast.success(`${item.file.name} 重试成功`)
       return item
     } catch (error) {

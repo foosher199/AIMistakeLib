@@ -13,85 +13,57 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { CheckCircle, Edit, Trash2, AlertCircle, Copy, Check } from 'lucide-react'
-import { useCreateQuestion } from '@/hooks/useQuestions'
 import { toast } from 'sonner'
 
 interface RecognitionResultsProps {
   results: AIRecognitionResult[]
-  draftIds?: string[] // 与 results 一一对应的草稿ID，空字符串表示无草稿
+  questionIds: string[]
   onEdit?: (result: AIRecognitionResult, index: number) => void
-  onDelete?: (index: number) => void
-  onClear?: () => void
-  onSaveDraft?: (draftId: string) => void
-  onDeleteDraft?: (draftId: string) => void
-  savingDraftId?: string | null
-  deletingDraftId?: string | null
+  onDelete?: (index: number) => Promise<void> | void
+  onDeleteSelected?: (indices: number[]) => Promise<void> | void
+  deleting?: boolean
 }
 
 export function RecognitionResults({
   results,
-  draftIds,
+  questionIds,
   onEdit,
   onDelete,
-  onClear,
-  onSaveDraft,
-  onDeleteDraft,
-  savingDraftId,
-  deletingDraftId,
+  onDeleteSelected,
+  deleting = false,
 }: RecognitionResultsProps) {
-  const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set())
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
-  const [showClearConfirm, setShowClearConfirm] = useState(false)
-  const createQuestion = useCreateQuestion()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const getDraftId = (index: number): string | undefined => {
-    return draftIds?.[index]
+  const selectableIds = questionIds.filter(Boolean)
+  const selectedCount = selectableIds.filter((id) => selectedIds.has(id)).length
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selectedIds.has(id))
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? new Set() : new Set(selectableIds))
   }
 
-  const handleSave = async (result: AIRecognitionResult, index: number) => {
-    const draftId = getDraftId(index)
+  const toggleSelected = (questionId: string) => {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      if (next.has(questionId)) next.delete(questionId)
+      else next.add(questionId)
+      return next
+    })
+  }
 
-    if (draftId) {
-      // 有草稿ID，走草稿保存流程
-      onSaveDraft?.(draftId)
-      return
-    }
-
-    // 无草稿ID，直接创建题目（兼容旧逻辑）
-    const questionData = {
-      content: result.content,
-      subject: result.subject,
-      category: result.category,
-      difficulty: result.difficulty,
-      answer: result.answer,
-      explanation: result.explanation,
-      user_answer: undefined,
-      image_url: undefined,
-    }
-
+  const handleDeleteSelected = async () => {
+    const indices = questionIds
+      .map((questionId, index) => selectedIds.has(questionId) ? index : -1)
+      .filter((index) => index >= 0)
     try {
-      await createQuestion.mutateAsync(questionData as unknown as import('@/types/database').QuestionInsert)
-      setSavedIndices((prev) => new Set(prev).add(index))
-    } catch (error) {
-      console.error('Save question error:', error)
+      await onDeleteSelected?.(indices)
+      setSelectedIds(new Set())
+      setShowDeleteConfirm(false)
+    } catch {
+      // 删除错误由 mutation 统一提示，保留选择方便重试。
     }
-  }
-
-  const handleSaveAll = async () => {
-    for (let i = 0; i < results.length; i++) {
-      if (!savedIndices.has(i)) {
-        await handleSave(results[i], i)
-      }
-    }
-  }
-
-  const handleDelete = (index: number) => {
-    const draftId = getDraftId(index)
-    if (draftId) {
-      onDeleteDraft?.(draftId)
-      return
-    }
-    onDelete?.(index)
   }
 
   const handleCopy = async (result: AIRecognitionResult, index: number) => {
@@ -122,9 +94,6 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
     return null
   }
 
-  const allSaved = savedIndices.size === results.length
-  const isSaving = savingDraftId != null
-
   return (
     <div className="space-y-4">
       {/* 头部操作栏 */}
@@ -132,31 +101,22 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
         <h3 className="text-lg font-semibold text-gray-900">
           识别结果 ({results.length} 道题目)
         </h3>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSaveAll}
-            disabled={allSaved || isSaving}
-          >
-            {isSaving ? '待确认...' : '全部保存'}
+        <div className="flex items-center gap-3">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+            <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-4 w-4 accent-[#0070a0]" />
+            全选
+          </label>
+          <Button variant="destructive" size="sm" disabled={selectedCount === 0 || deleting} onClick={() => setShowDeleteConfirm(true)}>
+            <Trash2 className="mr-1 h-4 w-4" />
+            删除所选 ({selectedCount})
           </Button>
-          {onClear && (
-            <Button variant="ghost" size="sm" onClick={() => setShowClearConfirm(true)}>
-              <Trash2 className="w-4 h-4 mr-1" />
-              清空
-            </Button>
-          )}
         </div>
       </div>
 
       {/* 结果列表 */}
       <div className="space-y-4">
         {results.map((result, index) => {
-          const draftId = getDraftId(index)
-          const isSaved = savedIndices.has(index)
-          const isCurrentSaving = savingDraftId === draftId
-          const isCurrentDeleting = deletingDraftId === draftId
+          const questionId = questionIds[index]
           const subjectLabel = SUBJECTS.find((s) => s.id === result.subject)?.label || result.subject
           const difficultyLabel = DIFFICULTIES.find((d) => d.id === result.difficulty)?.label || result.difficulty
           const difficultyColor = {
@@ -167,14 +127,21 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
 
           return (
             <div
-              key={index}
-              className={`bg-white rounded-lg border ${
-                isSaved ? 'border-green-300 bg-green-50' : 'border-gray-200'
-              } p-4 space-y-3`}
+              key={questionId || index}
+              className="space-y-3 rounded-lg border border-gray-200 bg-white p-4"
             >
               {/* 头部标签 */}
               <div className="flex items-start justify-between">
                 <div className="flex flex-wrap gap-2">
+                  {questionId && (
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(questionId)}
+                      onChange={() => toggleSelected(questionId)}
+                      className="h-4 w-4 accent-[#0070a0]"
+                      aria-label={`选择第 ${index + 1} 道题`}
+                    />
+                  )}
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
                     {subjectLabel}
                   </Badge>
@@ -198,12 +165,10 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
                       置信度: {(result.confidence * 100).toFixed(0)}%
                     </Badge>
                   )}
-                  {isSaved && (
-                    <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      已保存
-                    </Badge>
-                  )}
+                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    已自动保存
+                  </Badge>
                 </div>
 
                 <div className="flex gap-1">
@@ -220,23 +185,7 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
                       <Copy className="w-4 h-4" />
                     )}
                   </Button>
-                  {!isSaved && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleSave(result, index)}
-                      className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                      title="保存"
-                      disabled={isCurrentSaving}
-                    >
-                      {isCurrentSaving ? (
-                        <Check className="w-4 h-4 animate-pulse" />
-                      ) : (
-                        <CheckCircle className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
-                  {!isSaved && onEdit && (
+                  {onEdit && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -250,10 +199,10 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(index)}
+                    onClick={() => onDelete?.(index)}
                     className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                     title="删除"
-                    disabled={isCurrentDeleting}
+                    disabled={deleting || !questionId}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -297,27 +246,24 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
         })}
       </div>
 
-      {/* 确认清空对话框 */}
-      <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>确认清空</DialogTitle>
+            <DialogTitle>确认批量删除</DialogTitle>
           </DialogHeader>
           <p className="text-gray-600">
-            确定要清空所有识别结果吗？此操作不可撤销。
+            确定要删除选中的 {selectedCount} 道题目吗？删除后将同时从错题库移除，且无法撤销。
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowClearConfirm(false)}>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
               取消
             </Button>
             <Button
               variant="destructive"
-              onClick={() => {
-                setShowClearConfirm(false)
-                onClear?.()
-              }}
+              onClick={handleDeleteSelected}
+              disabled={deleting}
             >
-              确认清空
+              {deleting ? '删除中...' : '确认删除'}
             </Button>
           </DialogFooter>
         </DialogContent>

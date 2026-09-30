@@ -224,7 +224,7 @@ export function QuestionCard({
                 onChange={(event) => onSelectionChange(question, event.target.checked)}
                 className="h-4 w-4 accent-[#0070a0]"
               />
-              选入复习卷
+              选择
             </label>
           )}
           <Badge variant="outline" className="bg-[#cce5f3] text-[#0070a0] border-[#0070a0]/30">

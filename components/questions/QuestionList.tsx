@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useQuestions } from '@/hooks/useQuestions'
+import { useDeleteQuestions, useQuestions } from '@/hooks/useQuestions'
 import { QuestionCard } from './QuestionCard'
 import { QuestionFilters, type FilterValues } from './QuestionFilters'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/database'
-import { FileText, Loader2, X } from 'lucide-react'
+import { FileText, Loader2, Trash2, X } from 'lucide-react'
 
 interface QuestionListProps {
   onEdit?: (question: Question) => void
@@ -19,6 +19,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
   const [filters, setFilters] = useState<FilterValues>({})
   const [page, setPage] = useState(0)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const deleteQuestions = useDeleteQuestions()
   const pageSize = 20
 
   const { data, isLoading, error } = useQuestions({
@@ -48,6 +49,16 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
     router.push(`/dashboard/worksheets/new?ids=${Array.from(selectedIds).join(',')}`)
   }
 
+  const deleteSelected = async () => {
+    if (selectedIds.size === 0 || !confirm(`确定删除选中的 ${selectedIds.size} 道题目吗？此操作不可撤销。`)) return
+    try {
+      await deleteQuestions.mutateAsync(Array.from(selectedIds))
+      setSelectedIds(new Set())
+    } catch {
+      // mutation 已显示错误提示。
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* 筛选器 */}
@@ -61,6 +72,9 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
               <X className="mr-1 h-4 w-4" />清空
+            </Button>
+            <Button variant="destructive" size="sm" onClick={deleteSelected} disabled={deleteQuestions.isPending}>
+              <Trash2 className="mr-1 h-4 w-4" />{deleteQuestions.isPending ? '删除中...' : '删除所选'}
             </Button>
             <Button size="sm" onClick={createWorksheet} className="bg-[#0070a0] text-white hover:bg-[#005580]">
               <FileText className="mr-1 h-4 w-4" />生成复习卷

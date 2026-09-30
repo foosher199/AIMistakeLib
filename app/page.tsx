@@ -177,9 +177,9 @@ export default function HomePage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <button className="flex-1 py-3 bg-[#0070a0] text-white font-medium rounded-xl hover:bg-[#004968] transition-colors">
-                    保存到错题本
-                  </button>
+                  <div className="flex-1 py-3 bg-[#d1fae5] text-[#047857] text-center font-medium rounded-xl">
+                    已自动保存
+                  </div>
                   <button className="px-4 py-3 border border-[#c2cdd8] text-[#626a72] rounded-xl hover:bg-[#f7f9fa] transition-colors">
                     编辑
                   </button>
@@ -226,7 +226,7 @@ export default function HomePage() {
             <div>
               <p className="text-[#1f1f1f] font-medium">保存到错题本</p>
               <p className="text-sm text-[#626a72] mt-0.5">
-                确认识别结果，保存到个人错题库
+                识别完成后自动保存到个人错题库
               </p>
             </div>
           </div>

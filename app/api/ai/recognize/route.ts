@@ -223,9 +223,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    log.step('6. 写入草稿表')
-    // 将识别结果写入草稿表
-    const draftsToInsert = results.map((r) => ({
+    log.step('6. 写入错题表')
+    const questionsToInsert = results.map((r) => ({
       user_id: user.id,
       content: r.content,
       subject: r.subject,
@@ -233,27 +232,41 @@ export async function POST(request: NextRequest) {
       difficulty: r.difficulty,
       answer: r.answer,
       explanation: r.explanation ?? null,
-      confidence: r.confidence ?? null,
       image_url: imageId ? null : imageUrl,
-      source_image_id: imageId || null,
     }))
 
-    const { data: insertedDrafts, error: draftError } = await supabase
-      .from('mistake_drafts')
-      .insert(draftsToInsert)
+    const { data: insertedQuestions, error: questionError } = await supabase
+      .from('mistake_questions')
+      .insert(questionsToInsert)
       .select('*')
 
-    if (draftError) {
-      console.error('[API] 写入草稿表失败:', draftError)
-      // 草稿写入失败不影响返回识别结果，只记录日志
-    } else {
-      log.step(`6.1 写入草稿完成: ${insertedDrafts?.length ?? 0} 条`)
+    if (questionError || !insertedQuestions || insertedQuestions.length !== results.length) {
+      console.error('[API] 写入错题表失败:', questionError)
+      throw new Error('识别成功，但自动保存题目失败')
     }
 
-    // Keep the image because its URL is stored on the draft for later review.
+    if (imageId) {
+      const { error: linkError } = await supabase.from('mistake_question_images').insert(
+        insertedQuestions.map((question) => ({
+          question_id: question.id,
+          image_id: imageId,
+          sort_order: 0,
+        }))
+      )
+      if (linkError) {
+        await supabase
+          .from('mistake_questions')
+          .delete()
+          .in('id', insertedQuestions.map((question) => question.id))
+        console.error('[API] 关联题目原图失败:', linkError)
+        throw new Error('识别成功，但保存题目原图失败')
+      }
+    }
+
+    log.step(`6.1 自动保存完成: ${insertedQuestions.length} 条`)
 
     log.done(`识别完成，返回 ${results.length} 条结果`)
-    return NextResponse.json({ results, drafts: insertedDrafts, billing })
+    return NextResponse.json({ results, questions: insertedQuestions, billing })
   } catch (error) {
     log.error('识别失败', error)
     const response = billingErrorResponse(error)

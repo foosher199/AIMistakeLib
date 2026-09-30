@@ -6,14 +6,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthClient } from '@/server/supabase'
+import { z } from 'zod'
+import { createAdminClient, getAuthClient } from '@/server/supabase'
 import { attachSignedQuestionImages } from '@/server/images'
 import {
   CreateQuestionSchema,
   QueryQuestionsSchema,
   parseAndValidate,
   formatValidationError,
+  UUIDSchema,
 } from '@/contracts/question'
+
+const DeleteQuestionsSchema = z.object({
+  ids: z.array(UUIDSchema).min(1).max(1000),
+})
 
 /**
  * GET /api/questions
@@ -159,5 +165,60 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('POST /api/questions error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+/**
+ * DELETE /api/questions
+ *
+ * 批量删除当前用户的错题，并在图片不再被引用时标记为待清理。
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const authResult = await getAuthClient(request)
+    if (!authResult) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const validation = DeleteQuestionsSchema.safeParse(await request.json())
+    if (!validation.success) {
+      return NextResponse.json({ error: '批量删除参数无效' }, { status: 400 })
+    }
+
+    const ids = [...new Set(validation.data.ids)]
+    const { data: ownedQuestions, error: ownedError } = await authResult.supabase
+      .from('mistake_questions')
+      .select('id')
+      .in('id', ids)
+    if (ownedError) return NextResponse.json({ error: ownedError.message }, { status: 500 })
+    if ((ownedQuestions || []).length !== ids.length) {
+      return NextResponse.json({ error: '部分题目不存在或无权删除' }, { status: 404 })
+    }
+
+    const admin = createAdminClient()
+    const { data: links } = await admin
+      .from('mistake_question_images')
+      .select('image_id')
+      .in('question_id', ids)
+    const { error: deleteError } = await authResult.supabase
+      .from('mistake_questions')
+      .delete()
+      .in('id', ids)
+    if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 500 })
+
+    for (const imageId of new Set((links || []).map((link) => link.image_id))) {
+      const [{ count: linkCount }, { count: draftCount }] = await Promise.all([
+        admin.from('mistake_question_images').select('*', { count: 'exact', head: true }).eq('image_id', imageId),
+        admin.from('mistake_drafts').select('*', { count: 'exact', head: true }).eq('source_image_id', imageId),
+      ])
+      if ((linkCount || 0) === 0 && (draftCount || 0) === 0) {
+        await admin
+          .from('mistake_images')
+          .update({ status: 'orphaned', updated_at: new Date().toISOString() })
+          .eq('id', imageId)
+      }
+    }
+
+    return NextResponse.json({ success: true, deletedCount: ids.length })
+  } catch (error) {
+    console.error('DELETE /api/questions error:', error)
+    return NextResponse.json({ error: '批量删除题目失败' }, { status: 500 })
   }
 }

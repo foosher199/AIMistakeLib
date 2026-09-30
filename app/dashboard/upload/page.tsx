@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { MultiImageUpload } from '@/components/upload/MultiImageUpload'
@@ -9,66 +9,29 @@ import { RecognitionResults } from '@/components/upload/RecognitionResults'
 import { QuestionForm } from '@/components/upload/QuestionForm'
 import { LoginDialog } from '@/components/auth/LoginDialog'
 import { useOCR, type RecognitionMode, type ImageQueueItem } from '@/hooks/useOCR'
-import { useDrafts, useSaveDraft, useDeleteDraft, useDeleteDrafts } from '@/hooks/useDrafts'
+import { useDeleteQuestions } from '@/hooks/useQuestions'
 import type { AIRecognitionResult } from '@/contracts/ai'
-import type { Draft } from '@/types/database'
+import type { Question } from '@/types/database'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sparkles, Camera, BookOpen, Check, Loader2, Inbox } from 'lucide-react'
 import { toast } from 'sonner'
 import { RecognitionJobHistory } from '@/components/upload/RecognitionJobHistory'
-
-/**
- * 将 Draft 转换为 AIRecognitionResult
- */
-function draftToResult(draft: Draft): AIRecognitionResult {
-  return {
-    content: draft.content,
-    subject: draft.subject as AIRecognitionResult['subject'],
-    category: draft.category,
-    difficulty: draft.difficulty as AIRecognitionResult['difficulty'],
-    answer: draft.answer,
-    explanation: draft.explanation ?? undefined,
-    confidence: draft.confidence ?? undefined,
-  }
-}
 
 export default function UploadPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
   const { recognizeBatch, retryImage, mode, switchMode } = useOCR()
 
-  // 草稿相关 hooks
-  const { data: serverDrafts, isLoading: draftsLoading } = useDrafts()
-  const saveDraftMutation = useSaveDraft()
-  const deleteDraftMutation = useDeleteDraft()
-  const deleteDraftsMutation = useDeleteDrafts()
+  const deleteQuestions = useDeleteQuestions()
 
   const [queueItems, setQueueItems] = useState<ImageQueueItem[]>([])
-  // 新上传的识别结果（尚未在草稿表中的）
   const [uploadedResults, setUploadedResults] = useState<AIRecognitionResult[]>([])
-  const [uploadedDraftIds, setUploadedDraftIds] = useState<string[]>([])
-  // 已从显示列表中移除的草稿ID（保存或删除后）
-  const [removedDraftIds, setRemovedDraftIds] = useState<Set<string>>(new Set())
+  const [uploadedQuestionIds, setUploadedQuestionIds] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [editingResult, setEditingResult] = useState<AIRecognitionResult | undefined>()
+  const [editingQuestion, setEditingQuestion] = useState<Question | undefined>()
   const [formOpen, setFormOpen] = useState(false)
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
-
-  // 计算要显示的完整结果列表（服务器草稿 + 新上传结果）
-  const displayResults = useMemo(() => {
-    const draftResults = (serverDrafts ?? [])
-      .filter((d) => !removedDraftIds.has(d.id))
-      .map(draftToResult)
-    return [...draftResults, ...uploadedResults]
-  }, [serverDrafts, uploadedResults, removedDraftIds])
-
-  const displayDraftIds = useMemo(() => {
-    const draftIds = (serverDrafts ?? [])
-      .filter((d) => !removedDraftIds.has(d.id))
-      .map((d) => d.id)
-    return [...draftIds, ...uploadedDraftIds]
-  }, [serverDrafts, uploadedDraftIds, removedDraftIds])
 
   // 检查登录状态
   useEffect(() => {
@@ -129,7 +92,7 @@ export default function UploadPage() {
               return prev
             })
           },
-          onItemSuccess: (_item, results, draftIds) => {
+          onItemSuccess: (_item, results, questionIds) => {
             setQueueItems((prev) => {
               const index = prev.findIndex((i) => i.id === _item.id)
               if (index >= 0) {
@@ -139,9 +102,8 @@ export default function UploadPage() {
               }
               return prev
             })
-            // 追加到上传结果列表
             setUploadedResults((prev) => [...prev, ...results])
-            setUploadedDraftIds((prev) => [...prev, ...(draftIds ?? [])])
+            setUploadedQuestionIds((prev) => [...prev, ...(questionIds ?? [])])
           },
           onItemError: (item, error) => {
             setQueueItems((prev) => {
@@ -158,9 +120,10 @@ export default function UploadPage() {
             setIsProcessing(false)
             const successCount = items.filter((i) => i.status === 'success').length
             const failedCount = items.filter((i) => i.status === 'failed').length
+            const questionCount = items.reduce((total, item) => total + (item.result?.length || 0), 0)
 
             if (successCount > 0) {
-              toast.success(`成功识别 ${successCount} 张图片`)
+              toast.success(`成功识别并保存 ${questionCount} 道题目`)
             }
             if (failedCount > 0) {
               toast.error(`${failedCount} 张图片识别失败`)
@@ -201,14 +164,14 @@ export default function UploadPage() {
             )
           )
         },
-        onSuccess: (_item, results, draftIds) => {
+        onSuccess: (_item, results, questionIds) => {
           setQueueItems((prev) =>
             prev.map((i) =>
               i.id === _item.id ? { ..._item, result: results } : i
             )
           )
           setUploadedResults((prev) => [...prev, ...results])
-          setUploadedDraftIds((prev) => [...prev, ...(draftIds ?? [])])
+          setUploadedQuestionIds((prev) => [...prev, ...(questionIds ?? [])])
         },
         onError: (item, error) => {
           setQueueItems((prev) =>
@@ -223,78 +186,48 @@ export default function UploadPage() {
     }
   }
 
-  const handleEdit = (result: AIRecognitionResult) => {
-    setEditingResult(result)
-    setFormOpen(true)
+  const handleEdit = async (_result: AIRecognitionResult, index: number) => {
+    const questionId = uploadedQuestionIds[index]
+    if (!questionId) return
+    try {
+      const response = await fetch(`/api/questions/${questionId}`)
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || '加载题目失败')
+      setEditingQuestion(data.question)
+      setFormOpen(true)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '加载题目失败')
+    }
   }
 
-  const handleClearResults = async () => {
-    // 删除所有服务器草稿（批量删除）
-    const allServerIds = (serverDrafts ?? []).map((d) => d.id)
-    if (allServerIds.length > 0) {
-      try {
-        await deleteDraftsMutation.mutateAsync(allServerIds)
-      } catch {
-        // 删除失败不影响后续清理
-      }
-    }
-
-    // 清空本地状态
-    setUploadedResults([])
-    setUploadedDraftIds([])
-    setRemovedDraftIds(new Set())
-    setQueueItems([])
+  const removeResultIndices = (indices: number[]) => {
+    const removed = new Set(indices)
+    setUploadedResults((current) => current.filter((_, index) => !removed.has(index)))
+    setUploadedQuestionIds((current) => current.filter((_, index) => !removed.has(index)))
   }
 
   const handleDeleteResult = async (index: number) => {
-    const draftId = displayDraftIds[index]
-    if (draftId) {
-      // 检查是服务器草稿还是新上传的
-      const isUploaded = index >= (serverDrafts?.length ?? 0) - [...removedDraftIds].filter((id) =>
-        serverDrafts?.some((d) => d.id === id)
-      ).length
-      if (isUploaded) {
-        // 新上传的，直接从 uploaded 中移除
-        const uploadIndex = index - (displayDraftIds.length - uploadedResults.length)
-        setUploadedResults((prev) => prev.filter((_, i) => i !== uploadIndex))
-        setUploadedDraftIds((prev) => prev.filter((_, i) => i !== uploadIndex))
-      } else {
-        // 服务器草稿，删除数据库记录并从 UI 移除
-        try {
-          await deleteDraftMutation.mutateAsync(draftId)
-        } catch {
-          // 删除失败不影响 UI 更新
-        }
-        setRemovedDraftIds((prev) => new Set(prev).add(draftId))
-      }
-    }
-    toast.success('已删除该题目')
-  }
-
-  const handleSaveDraft = async (draftId: string) => {
+    const questionId = uploadedQuestionIds[index]
+    if (!questionId || !confirm('确定要删除这道题目吗？删除后将同时从错题库移除。')) return
     try {
-      await saveDraftMutation.mutateAsync(draftId)
-      // 标记为已移除，useMemo 会自动过滤掉
-      setRemovedDraftIds((prev) => new Set(prev).add(draftId))
+      await deleteQuestions.mutateAsync([questionId])
+      removeResultIndices([index])
     } catch {
-      // 错误已在 hook 中处理
+      // mutation 已显示错误提示。
     }
   }
 
-  const handleDeleteDraft = async (draftId: string) => {
-    try {
-      await deleteDraftMutation.mutateAsync(draftId)
-      // 标记为已移除，useMemo 会自动过滤掉
-      setRemovedDraftIds((prev) => new Set(prev).add(draftId))
-    } catch {
-      // 错误已在 hook 中处理
-    }
+  const handleDeleteSelected = async (indices: number[]) => {
+    const questionIds = indices.map((index) => uploadedQuestionIds[index]).filter(Boolean)
+    if (questionIds.length === 0) return
+    await deleteQuestions.mutateAsync(questionIds)
+    removeResultIndices(indices)
   }
 
   const handleFormClose = (open: boolean) => {
     setFormOpen(open)
     if (!open) {
-      setEditingResult(undefined)
+      setEditingQuestion(undefined)
     }
   }
 
@@ -306,7 +239,7 @@ export default function UploadPage() {
     }
   }
 
-  const hasResults = displayResults.length > 0
+  const hasResults = uploadedResults.length > 0
 
   return (
     <div className="space-y-6">
@@ -366,7 +299,7 @@ export default function UploadPage() {
           {[
             { icon: Sparkles, title: '自动识别', desc: 'AI 智能识别题目内容' },
             { icon: BookOpen, title: '批量提取', desc: '一张图识别多道题目' },
-            { icon: Check, title: '自动暂存', desc: '识别结果自动保存，随时处理' },
+            { icon: Check, title: '自动保存', desc: '识别结果直接存入错题库' },
           ].map((tip, index) => {
             const Icon = tip.icon
             return (
@@ -398,35 +331,22 @@ export default function UploadPage() {
 
       <RecognitionJobHistory />
 
-      {/* 识别结果 / 草稿列表 */}
+      {/* 本次识别结果 */}
       {hasResults && (
         <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
           <RecognitionResults
-            results={displayResults}
-            draftIds={displayDraftIds}
+            results={uploadedResults}
+            questionIds={uploadedQuestionIds}
             onEdit={handleEdit}
             onDelete={handleDeleteResult}
-            onClear={handleClearResults}
-            onSaveDraft={handleSaveDraft}
-            onDeleteDraft={handleDeleteDraft}
-            savingDraftId={saveDraftMutation.isPending ? saveDraftMutation.variables : undefined}
-            deletingDraftId={deleteDraftMutation.isPending ? deleteDraftMutation.variables : undefined}
+            onDeleteSelected={handleDeleteSelected}
+            deleting={deleteQuestions.isPending}
           />
         </div>
       )}
 
-      {/* 加载草稿中 */}
-      {draftsLoading && !hasResults && (
-        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-2" />
-            <span className="text-gray-600">加载草稿...</span>
-          </div>
-        </div>
-      )}
-
       {/* 空状态提示 */}
-      {!hasResults && !draftsLoading && queueItems.length === 0 && !isProcessing && (
+      {!hasResults && queueItems.length === 0 && !isProcessing && (
         <div className="bg-[#cce5f3]/30 border border-[#0070a0]/20 rounded-lg p-6">
           <div className="flex items-center gap-3 mb-3">
             <Inbox className="w-6 h-6 text-[#0070a0]" />
@@ -437,15 +357,15 @@ export default function UploadPage() {
           <ul className="space-y-2 text-sm text-[#626a72]">
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>上传图片后，AI 会自动识别题目并<strong>暂存到草稿箱</strong></span>
+              <span>上传图片后，AI 会自动识别题目并<strong>保存到错题库</strong></span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>您可以随时关闭页面，识别结果不会丢失</span>
+              <span>识别完成后无需逐题保存，可直接在错题库查看</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
-              <span>确认无误后点击保存，题目才会进入您的错题库</span>
+              <span>可勾选多道识别结果后批量删除</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#0070a0]">•</span>
@@ -464,18 +384,11 @@ export default function UploadPage() {
       )}
 
       {/* 编辑表单 */}
-      {editingResult && (
+      {editingQuestion && (
         <QuestionForm
           open={formOpen}
           onOpenChange={handleFormClose}
-          initialData={{
-            content: editingResult.content,
-            subject: editingResult.subject,
-            category: editingResult.category,
-            difficulty: editingResult.difficulty,
-            answer: editingResult.answer,
-            explanation: editingResult.explanation,
-          }}
+          question={editingQuestion}
         />
       )}
 

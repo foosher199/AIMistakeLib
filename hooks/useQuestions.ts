@@ -245,6 +245,34 @@ export function useDeleteQuestion() {
 }
 
 /**
+ * 批量删除题目
+ */
+export function useDeleteQuestions() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await fetch('/api/questions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || '批量删除题目失败')
+      return data as { success: true; deletedCount: number }
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['questions'] })
+      queryClient.invalidateQueries({ queryKey: ['question-stats'] })
+      toast.success(`已删除 ${data.deletedCount} 道题目`)
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+  })
+}
+
+/**
  * 记录复习
  */
 export function useReviewQuestion() {

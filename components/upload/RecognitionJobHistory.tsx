@@ -36,7 +36,8 @@ export function RecognitionJobHistory() {
     const completed = (query.data || []).filter((job) => job.status === 'succeeded').map((job) => job.id).join(',')
     if (completed && completed !== completedRef.current) {
       completedRef.current = completed
-      queryClient.invalidateQueries({ queryKey: ['drafts'] })
+      queryClient.invalidateQueries({ queryKey: ['questions'] })
+      queryClient.invalidateQueries({ queryKey: ['question-stats'] })
       queryClient.invalidateQueries({ queryKey: ['credits'] })
     }
   }, [query.data, queryClient])
