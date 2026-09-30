@@ -119,7 +119,7 @@ export function QuestionImageManager({ question }: { question: Question }) {
       {visibleImages.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {visibleImages.map((image, index) => (
-            <img key={image.id} src={image.signedUrl} alt={`题目图片 ${index + 1}`} className="h-36 w-full rounded border border-[#dee5eb] object-contain" />
+            <img key={image.id} src={image.signedUrl} alt={`题目图片 ${index + 1}`} className="h-36 w-full rounded border border-[#e4def5] object-contain" />
           ))}
         </div>
       )}
@@ -138,12 +138,12 @@ export function QuestionImageManager({ question }: { question: Question }) {
             className="hidden"
             onChange={(event) => addFiles(Array.from(event.target.files || []))}
           />
-          <Button onClick={() => inputRef.current?.click()} disabled={busy || images.length >= 10} className="gap-2 bg-[#0070a0] text-white hover:bg-[#005580]">
+          <Button onClick={() => inputRef.current?.click()} disabled={busy || images.length >= 10} className="gap-2">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
             添加图片
           </Button>
           {images.length === 0 ? (
-            <p className="py-8 text-center text-sm text-[#626a72]">暂无新存储图片；旧图片仍会继续显示。</p>
+            <p className="py-8 text-center text-sm text-[#625f77]">暂无新存储图片；旧图片仍会继续显示。</p>
           ) : (
             <div className="space-y-3">
               {images.map((image, index) => (

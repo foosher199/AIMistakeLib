@@ -108,15 +108,15 @@ export default function AdminInvitesPage() {
   }
 
   if (invitesQuery.isLoading) {
-    return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#0070a0]" />
+    return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#5b55d6]" />
   }
 
   if (forbidden) {
     return (
-      <div className="mx-auto max-w-xl rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+      <div className="mx-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
         <ShieldCheck className="mx-auto mb-3 h-10 w-10 text-red-600" />
-        <h1 className="text-xl font-semibold text-gray-900">无管理员权限</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-xl font-semibold text-[#29264a]">无管理员权限</h1>
+        <p className="mt-2 text-sm text-[#625f77]">
           请将当前账户的 Supabase User ID 加入 Railway 的 ADMIN_USER_IDS。
         </p>
       </div>
@@ -125,7 +125,7 @@ export default function AdminInvitesPage() {
 
   if (invitesQuery.isError) {
     return (
-      <div className="mx-auto max-w-xl rounded-lg border border-red-200 bg-red-50 p-8 text-center text-red-700">
+      <div className="mx-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-700">
         {invitesQuery.error.message}
       </div>
     )
@@ -135,8 +135,8 @@ export default function AdminInvitesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">邀请码管理</h1>
-          <p className="mt-2 text-gray-600">创建小红书活动邀请码并查看兑换进度。</p>
+          <h1 className="text-3xl font-bold text-[#29264a]">邀请码管理</h1>
+          <p className="mt-2 text-[#625f77]">创建小红书活动邀请码并查看兑换进度。</p>
         </div>
         <Button
           variant="outline"
@@ -148,12 +148,12 @@ export default function AdminInvitesPage() {
         </Button>
       </div>
 
-      <form onSubmit={createInvite} className="rounded-lg border border-gray-200 bg-white p-6">
+      <form onSubmit={createInvite} className="rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
         <div className="mb-5 flex items-center gap-2">
-          <Plus className="h-5 w-5 text-[#0070a0]" />
+          <Plus className="h-5 w-5 text-[#5b55d6]" />
           <h2 className="text-xl font-semibold">创建活动邀请码</h2>
         </div>
-        <p className="mb-5 text-sm text-gray-600">
+        <p className="mb-5 text-sm text-[#625f77]">
           每个邀请码仅可由一个正式注册账户兑换一次。
         </p>
         <div className="grid gap-4 md:grid-cols-2">
@@ -170,31 +170,31 @@ export default function AdminInvitesPage() {
             <Input type="datetime-local" value={form.expiresAt} onChange={(e) => setForm({ ...form, expiresAt: e.target.value })} />
           </Field>
         </div>
-        <Button disabled={saving} className="mt-5 bg-[#0070a0] text-white hover:bg-[#005580]">
+        <Button disabled={saving} className="mt-5">
           {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           创建邀请码
         </Button>
       </form>
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
+      <section className="rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
         <h2 className="mb-4 text-xl font-semibold">邀请码列表</h2>
         {codes.length === 0 ? (
-          <p className="text-sm text-gray-500">尚未创建邀请码</p>
+          <p className="text-sm text-[#716d86]">尚未创建邀请码</p>
         ) : (
           <div className="space-y-3">
             {codes.map((code) => (
-              <div key={code.id} className="flex flex-col justify-between gap-3 rounded-lg border border-gray-100 p-4 sm:flex-row sm:items-center">
+              <div key={code.id} className="flex flex-col justify-between gap-3 rounded-2xl border border-[#f1edff] p-4 sm:flex-row sm:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-lg font-bold text-[#0070a0]">{code.code}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${code.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                    <span className="font-mono text-lg font-bold text-[#5b55d6]">{code.code}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${code.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-[#f3efff] text-[#625f77]'}`}>
                       {code.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-[#625f77]">
                     {campaignNames.get(code.campaign_id || '') || '独立活动'} · {code.grant_points} 积分 · {code.redemption_count > 0 ? '已使用' : '未使用'}
                   </p>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-[#716d86]">
                     {code.expires_at ? `有效期至 ${new Date(code.expires_at).toLocaleString('zh-CN')}` : '长期有效'}
                   </p>
                 </div>
@@ -213,7 +213,7 @@ export default function AdminInvitesPage() {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="space-y-2 text-sm font-medium text-gray-700">
+    <label className="space-y-2 text-sm font-medium text-[#514f64]">
       <span>{label}</span>
       {children}
     </label>

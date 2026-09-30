@@ -67,20 +67,20 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
         return {
           icon: Clock,
           label: '等待中',
-          color: 'text-[#626a72] bg-[#f7f9fa]',
+          color: 'text-[#625f77] bg-[#fff9f1]',
         }
       case 'processing':
         return {
           icon: Loader2,
           label: '识别中',
-          color: 'text-[#0070a0] bg-[#cce5f3]',
+          color: 'text-[#5b55d6] bg-[#eeeafd]',
           animate: true,
         }
       case 'success':
         return {
           icon: CheckCircle2,
           label: '已完成',
-          color: 'text-[#10b981] bg-[#d1fae5]',
+          color: 'text-[#248b77] bg-[#e5f8f3]',
         }
       case 'failed':
         return {
@@ -103,20 +103,20 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
   return (
     <div className="space-y-4">
       {/* 整体进度 */}
-      <div className="bg-white rounded-lg border border-[#dee5eb] p-4">
+      <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-[#1f1f1f]">
+            <h3 className="font-semibold text-[#29264a]">
               识别进度 {successCount + failedCount}/{totalCount}
             </h3>
             {processingCount > 0 && (
-              <Badge variant="outline" className="border-[#0070a0] text-[#0070a0]">
+              <Badge variant="outline" className="border-[#5b55d6] text-[#5b55d6]">
                 进行中
               </Badge>
             )}
           </div>
           <div className="flex gap-2 text-sm">
-            <span className="text-[#10b981]">成功 {successCount}</span>
+            <span className="text-[#248b77]">成功 {successCount}</span>
             {failedCount > 0 && (
               <span className="text-[#f43f5e]">失败 {failedCount}</span>
             )}
@@ -138,7 +138,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
           return (
             <div
               key={item.id}
-              className="bg-white rounded-lg border border-[#dee5eb] p-4 hover:border-[#0070a0] transition-colors"
+              className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-4 hover:border-[#5b55d6] transition-colors"
             >
               <div className="flex gap-4">
                 {/* 缩略图 */}
@@ -147,11 +147,11 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                     <img
                       src={preview}
                       alt={item.file.name}
-                      className="w-20 h-20 object-cover rounded border border-[#dee5eb]"
+                      className="w-20 h-20 object-cover rounded border border-[#e4def5]"
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-[#f7f9fa] rounded border border-[#dee5eb] flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-[#626a72]" />
+                    <div className="w-20 h-20 bg-[#fff9f1] rounded border border-[#e4def5] flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-[#625f77]" />
                     </div>
                   )}
                 </div>
@@ -160,10 +160,10 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-[#1f1f1f] truncate">
+                      <h4 className="font-medium text-[#29264a] truncate">
                         {item.file.name}
                       </h4>
-                      <p className="text-sm text-[#626a72]">
+                      <p className="text-sm text-[#625f77]">
                         {formatFileSize(item.file.size)}
                       </p>
                     </div>
@@ -181,7 +181,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                   {item.status === 'processing' && (
                     <div className="mb-2">
                       <Progress value={item.progress} className="h-1.5" />
-                      <p className="text-xs text-[#626a72] mt-1">
+                      <p className="text-xs text-[#625f77] mt-1">
                         {item.progress}%
                       </p>
                     </div>
@@ -189,7 +189,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
 
                   {/* 成功信息 */}
                   {item.status === 'success' && item.result && (
-                    <div className="flex items-center gap-2 text-sm text-[#10b981]">
+                    <div className="flex items-center gap-2 text-sm text-[#248b77]">
                       <CheckCircle2 className="w-4 h-4" />
                       <span>识别出 {item.result.length} 道题目</span>
                     </div>
@@ -207,7 +207,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                           size="sm"
                           variant="outline"
                           onClick={() => onRetry(item.id)}
-                          className="gap-1 text-[#0070a0] border-[#0070a0] hover:bg-[#cce5f3]"
+                          className="gap-1 text-[#5b55d6] border-[#5b55d6] hover:bg-[#eeeafd]"
                         >
                           <RefreshCw className="w-3 h-3" />
                           重试
@@ -223,7 +223,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                     variant="ghost"
                     size="sm"
                     onClick={() => onRemove(item.id)}
-                    className="text-[#626a72] hover:text-[#f43f5e] hover:bg-[#ffe4e6]"
+                    className="text-[#625f77] hover:text-[#f43f5e] hover:bg-[#ffe4e6]"
                   >
                     <X className="w-4 h-4" />
                   </Button>

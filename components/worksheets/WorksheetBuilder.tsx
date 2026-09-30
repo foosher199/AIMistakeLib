@@ -76,7 +76,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
     }
   }
 
-  if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#0070a0]" />
+  if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#5b55d6]" />
   if (questionsQuery.error) {
     return <div className="rounded border border-red-200 bg-red-50 p-5 text-red-600">加载练习卷题目失败：{questionsQuery.error.message}</div>
   }
@@ -91,11 +91,11 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
           <Button onClick={save} disabled={saving || selected.length === 0} variant="outline" className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}保存
           </Button>
-          <Button onClick={() => window.print()} className="gap-2 bg-[#0070a0] text-white hover:bg-[#005580]"><Printer className="h-4 w-4" />打印 / 保存 PDF</Button>
+          <Button onClick={() => window.print()} className="gap-2"><Printer className="h-4 w-4" />打印 / 保存 PDF</Button>
         </div>
       </div>
 
-      <section className="no-print rounded-lg border border-gray-200 bg-white p-5">
+      <section className="no-print rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-5">
         <h1 className="mb-4 text-xl font-semibold">复习卷设置</h1>
         {missingCount > 0 && (
           <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
@@ -108,13 +108,13 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
           <Select label="答案" value={answerMode} onChange={(value) => setAnswerMode(value as typeof answerMode)} options={[['none', '不显示'], ['end', '卷尾答案'], ['inline', '题后答案']]} />
           <label className="space-y-2 text-sm"><span>答题空行</span><Input type="number" min="0" max="10" value={answerLines} onChange={(event) => setAnswerLines(Math.min(10, Math.max(0, Number(event.target.value))))} /></label>
           <Select label="每页题数" value={questionsPerPage} onChange={(value) => setQuestionsPerPage(Number(value))} options={[['4', '4 题'], ['6', '6 题'], ['8', '8 题'], ['10', '10 题']]} />
-          <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeImages} onChange={(event) => setIncludeImages(event.target.checked)} className="h-4 w-4 accent-[#0070a0]" />包含原题图片</label>
+          <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeImages} onChange={(event) => setIncludeImages(event.target.checked)} className="h-4 w-4 accent-[#5b55d6]" />包含原题图片</label>
         </div>
         <div className="mt-5 space-y-2 border-t pt-4">
           <p className="text-sm font-medium">题目顺序</p>
           {selected.map((question, index) => (
             <div key={question.id} className="flex items-center gap-2 rounded border px-3 py-2 text-sm">
-              <span className="w-8 text-gray-500">{index + 1}.</span><span className="flex-1 truncate">{question.content}</span>
+              <span className="w-8 text-[#716d86]">{index + 1}.</span><span className="flex-1 truncate">{question.content}</span>
               <Button variant="ghost" size="sm" disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp className="h-4 w-4" /></Button>
               <Button variant="ghost" size="sm" disabled={index === selected.length - 1} onClick={() => move(index, 1)}><ArrowDown className="h-4 w-4" /></Button>
             </div>
@@ -123,7 +123,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       </section>
 
       {selected.length === 0 ? (
-        <div className="rounded-lg border bg-white p-12 text-center text-gray-500">未找到所选题目，请返回错题库重新选择。</div>
+        <div className="rounded-2xl border border-[#e4def5] bg-white p-12 text-center text-[#716d86] shadow-[0_8px_24px_rgba(76,65,147,0.10)]">未找到所选题目，请返回错题库重新选择。</div>
       ) : (
         <div className="space-y-6 overflow-x-auto pb-2 print:space-y-0 print:overflow-visible print:pb-0">
           {pages.map((pageQuestions, pageIndex) => (
@@ -163,12 +163,12 @@ function WorksheetPage({ title, page, totalPages, questions, startIndex, columns
     <article className="worksheet-sheet worksheet-physical-page mx-auto bg-white p-10 shadow-sm">
       <header className="mb-8 text-center">
         <h1 className="text-2xl font-bold">{title || '错题复习卷'}</h1>
-        <div className="mt-5 flex justify-between border-b border-gray-400 pb-2 text-sm"><span>姓名：____________</span><span>日期：____________</span><span>第 {page}/{totalPages} 页</span></div>
+        <div className="mt-5 flex justify-between border-b border-[#b7afcc] pb-2 text-sm"><span>姓名：____________</span><span>日期：____________</span><span>第 {page}/{totalPages} 页</span></div>
       </header>
       <div className={columns === 2 ? 'worksheet-columns-2' : ''}>
         {questions.map((question, index) => (
           <section key={question.id} className="worksheet-question mb-7 break-inside-avoid">
-            <div className="mb-2 flex gap-2 text-xs text-gray-500">
+            <div className="mb-2 flex gap-2 text-xs text-[#716d86]">
               <span>{SUBJECTS.find((item) => item.id === question.subject)?.label || question.subject}</span><span>·</span><span>{question.category}</span><span>·</span><span>{DIFFICULTIES.find((item) => item.id === question.difficulty)?.label || question.difficulty}</span>
             </div>
             <p className="whitespace-pre-wrap leading-7"><strong>{startIndex + index + 1}.</strong> {question.content}</p>
@@ -185,11 +185,11 @@ function WorksheetPage({ title, page, totalPages, questions, startIndex, columns
 }
 
 function Select({ label, value, onChange, options }: { label: string; value: string | number; onChange: (value: string) => void; options: string[][] }) {
-  return <label className="space-y-2 text-sm"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 w-full rounded-md border bg-white px-3">{options.map(([optionValue, text]) => <option key={optionValue} value={optionValue}>{text}</option>)}</select></label>
+  return <label className="space-y-2 text-sm"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 w-full rounded-xl border bg-white px-3">{options.map(([optionValue, text]) => <option key={optionValue} value={optionValue}>{text}</option>)}</select></label>
 }
 
 function Answer({ question, index }: { question: Pick<Question, 'answer' | 'explanation'>; index?: number }) {
-  return <div className="mt-4 break-inside-avoid rounded border border-gray-200 bg-gray-50 p-3 text-sm"><p><strong>{index ? `${index}. ` : ''}答案：</strong>{question.answer}</p>{question.explanation && <p className="mt-2 whitespace-pre-wrap text-gray-700"><strong>解析：</strong>{question.explanation}</p>}</div>
+  return <div className="mt-4 break-inside-avoid rounded border border-[#e4def5] bg-[#faf8ff] p-3 text-sm"><p><strong>{index ? `${index}. ` : ''}答案：</strong>{question.answer}</p>{question.explanation && <p className="mt-2 whitespace-pre-wrap text-[#514f64]"><strong>解析：</strong>{question.explanation}</p>}</div>
 }
 
 function chunk<T>(items: T[], size: number) {

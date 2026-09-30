@@ -12,10 +12,10 @@ export function QuestionStats() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-lg border border-[#dee5eb] p-6 animate-pulse"
+            className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6 animate-pulse"
           >
-            <div className="h-4 bg-[#f7f9fa] rounded w-20 mb-2" />
-            <div className="h-8 bg-[#f7f9fa] rounded w-16" />
+            <div className="h-4 bg-[#fff9f1] rounded w-20 mb-2" />
+            <div className="h-8 bg-[#fff9f1] rounded w-16" />
           </div>
         ))}
       </div>
@@ -24,7 +24,7 @@ export function QuestionStats() {
 
   if (error) {
     return (
-      <div className="bg-[#ffe4e6] border border-[#f43f5e]/20 rounded-lg p-4 text-[#f43f5e] text-sm">
+      <div className="bg-[#ffe4e6] border border-[#f43f5e]/20 rounded-2xl p-4 text-[#f43f5e] text-sm">
         加载统计信息失败
       </div>
     )
@@ -39,39 +39,39 @@ export function QuestionStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* 总题数 */}
-      <div className="bg-white rounded-lg border border-[#dee5eb] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-[#626a72] mb-1">总题数</p>
-            <p className="text-3xl font-bold text-[#1f1f1f]">{stats.total}</p>
+            <p className="text-sm text-[#625f77] mb-1">总题数</p>
+            <p className="text-3xl font-bold text-[#29264a]">{stats.total}</p>
           </div>
-          <div className="w-12 h-12 bg-[#cce5f3] rounded-full flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-[#0070a0]" />
+          <div className="w-12 h-12 bg-[#eeeafd] rounded-full flex items-center justify-center">
+            <BookOpen className="w-6 h-6 text-[#5b55d6]" />
           </div>
         </div>
       </div>
 
       {/* 已掌握 */}
-      <div className="bg-white rounded-lg border border-[#dee5eb] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-[#626a72] mb-1">已掌握</p>
+            <p className="text-sm text-[#625f77] mb-1">已掌握</p>
             <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-bold text-[#10b981]">{stats.mastered}</p>
-              <p className="text-sm text-[#626a72]">({masteryRate}%)</p>
+              <p className="text-3xl font-bold text-[#248b77]">{stats.mastered}</p>
+              <p className="text-sm text-[#625f77]">({masteryRate}%)</p>
             </div>
           </div>
-          <div className="w-12 h-12 bg-[#d1fae5] rounded-full flex items-center justify-center">
-            <CheckCircle className="w-6 h-6 text-[#10b981]" />
+          <div className="w-12 h-12 bg-[#e5f8f3] rounded-full flex items-center justify-center">
+            <CheckCircle className="w-6 h-6 text-[#248b77]" />
           </div>
         </div>
       </div>
 
       {/* 待复习 */}
-      <div className="bg-white rounded-lg border border-[#dee5eb] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-[#626a72] mb-1">待复习</p>
+            <p className="text-sm text-[#625f77] mb-1">待复习</p>
             <p className="text-3xl font-bold text-[#f59e0b]">{stats.pending}</p>
           </div>
           <div className="w-12 h-12 bg-[#fef3c7] rounded-full flex items-center justify-center">

@@ -179,15 +179,15 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 题目内容 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-[#514f64]">
               题目内容 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="请输入题目内容..."
-              className={`w-full min-h-[120px] px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.content ? 'border-red-500' : 'border-gray-300'
+              className={`w-full min-h-[120px] px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5b55d6] ${
+                errors.content ? 'border-red-500' : 'border-[#d7d1eb]'
               }`}
             />
             {errors.content && (
@@ -198,7 +198,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
           {/* 学科和难度 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-[#514f64]">
                 学科 <span className="text-red-500">*</span>
               </label>
               <DropdownMenu>
@@ -222,7 +222,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-[#514f64]">
                 难度 <span className="text-red-500">*</span>
               </label>
               <DropdownMenu>
@@ -248,7 +248,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
 
           {/* 知识点分类 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-[#514f64]">
               知识点分类 <span className="text-red-500">*</span>
             </label>
             {availableCategories.length > 0 ? (
@@ -290,15 +290,15 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
 
           {/* 答案 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-[#514f64]">
               正确答案 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="请输入正确答案..."
-              className={`w-full min-h-[80px] px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.answer ? 'border-red-500' : 'border-gray-300'
+              className={`w-full min-h-[80px] px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5b55d6] ${
+                errors.answer ? 'border-red-500' : 'border-[#d7d1eb]'
               }`}
             />
             {errors.answer && (
@@ -308,33 +308,33 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
 
           {/* 我的答案 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-[#514f64]">
               我的答案（可选）
             </label>
             <textarea
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
               placeholder="请输入您的错误答案..."
-              className="w-full min-h-[80px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full min-h-[80px] px-3 py-2 border border-[#d7d1eb] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5b55d6]"
             />
           </div>
 
           {/* 答案解析 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-[#514f64]">
               答案解析（可选）
             </label>
             <textarea
               value={explanation}
               onChange={(e) => setExplanation(e.target.value)}
               placeholder="请输入答案解析..."
-              className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full min-h-[100px] px-3 py-2 border border-[#d7d1eb] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5b55d6]"
             />
           </div>
 
           {/* 图片 URL */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-[#514f64]">
               图片 URL（可选）
             </label>
             <Input
@@ -351,7 +351,6 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
             </Button>
             <Button
               type="submit"
-              className="bg-[#0070a0] hover:bg-[#005580]"
               disabled={createQuestion.isPending || updateQuestion.isPending}
             >
               {createQuestion.isPending || updateQuestion.isPending

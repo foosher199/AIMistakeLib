@@ -96,7 +96,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="reg-email" className="text-sm font-medium text-gray-700">
+        <label htmlFor="reg-email" className="text-sm font-medium text-[#514f64]">
           邮箱
         </label>
         <Input
@@ -114,7 +114,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="reg-password" className="text-sm font-medium text-gray-700">
+        <label htmlFor="reg-password" className="text-sm font-medium text-[#514f64]">
           密码
         </label>
         <Input
@@ -134,7 +134,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       <div className="space-y-2">
         <label
           htmlFor="reg-confirm-password"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-[#514f64]"
         >
           确认密码
         </label>
@@ -154,13 +154,13 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
       <Button
         type="submit"
-        className="w-full bg-[#0070a0] hover:bg-[#005580]"
+        className="w-full"
         disabled={loading}
       >
         {loading ? '注册中...' : '注册'}
       </Button>
 
-      <p className="text-xs text-gray-500 text-center">
+      <p className="text-xs text-[#716d86] text-center">
         注册即表示您同意我们的服务条款和隐私政策
       </p>
     </form>

@@ -3,13 +3,13 @@ import { Camera, Heart } from 'lucide-react'
 
 export function Footer() {
   return (
-    <footer className="bg-[#004968] text-white py-12">
+    <footer className="bg-gradient-to-br from-[#403a9f] via-[#4b46b8] to-[#237b69] py-12 text-white">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 shadow-lg shadow-black/10">
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <div>

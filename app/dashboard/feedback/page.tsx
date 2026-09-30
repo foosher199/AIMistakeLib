@@ -92,8 +92,8 @@ export default function FeedbackPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">加载中...</p>
+          <Loader2 className="w-12 h-12 text-[#5b55d6] animate-spin mx-auto mb-4" />
+          <p className="text-[#625f77]">加载中...</p>
         </div>
       </div>
     )
@@ -105,19 +105,19 @@ export default function FeedbackPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* 头部 */}
       <div>
-        <h1 className="text-3xl font-bold text-[#1f1f1f] mb-2">意见反馈</h1>
-        <p className="text-[#626a72]">
+        <h1 className="text-3xl font-bold text-[#29264a] mb-2">意见反馈</h1>
+        <p className="text-[#625f77]">
           您的反馈对我们非常重要，帮助我们改进产品
         </p>
       </div>
 
       {/* 提示卡片 */}
-      <div className="bg-[#cce5f3]/30 border border-[#0070a0]/20 rounded-lg p-4">
+      <div className="bg-[#eeeafd]/30 border border-[#5b55d6]/20 rounded-2xl p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-[#0070a0] flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-[#1f1f1f]">
+          <AlertCircle className="w-5 h-5 text-[#5b55d6] flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-[#29264a]">
             <p className="font-medium mb-1">反馈提示</p>
-            <ul className="space-y-1 text-[#626a72]">
+            <ul className="space-y-1 text-[#625f77]">
               <li>• 请尽可能详细地描述您遇到的问题或建议</li>
               <li>• 如果是问题反馈，请提供复现步骤和截图（如有）</li>
               <li>• 我们会认真对待每一条反馈</li>
@@ -129,8 +129,8 @@ export default function FeedbackPage() {
       {/* 反馈表单 */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 反馈类型选择 */}
-        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
-          <h2 className="text-lg font-semibold text-[#1f1f1f] mb-4">
+        <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
+          <h2 className="text-lg font-semibold text-[#29264a] mb-4">
             反馈类型
           </h2>
           <div className="grid sm:grid-cols-2 gap-3">
@@ -142,24 +142,24 @@ export default function FeedbackPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(cat.id)}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-2xl border-2 transition-all text-left ${
                     isSelected
-                      ? 'border-[#0070a0] bg-[#cce5f3]/20'
-                      : 'border-[#dee5eb] hover:border-[#c2cdd8]'
+                      ? 'border-[#5b55d6] bg-[#eeeafd]/20'
+                      : 'border-[#e4def5] hover:border-[#d7d1eb]'
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      className="w-10 h-10 rounded-2xl flex items-center justify-center"
                       style={{ backgroundColor: cat.bgColor }}
                     >
                       <Icon className="w-5 h-5" style={{ color: cat.color }} />
                     </div>
-                    <span className="font-medium text-[#1f1f1f]">
+                    <span className="font-medium text-[#29264a]">
                       {cat.label}
                     </span>
                   </div>
-                  <p className="text-sm text-[#626a72]">{cat.description}</p>
+                  <p className="text-sm text-[#625f77]">{cat.description}</p>
                 </button>
               )
             })}
@@ -167,48 +167,48 @@ export default function FeedbackPage() {
         </div>
 
         {/* 反馈内容 */}
-        <div className="bg-white rounded-lg border border-[#dee5eb] p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-[#1f1f1f]">反馈内容</h2>
+        <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-[#29264a]">反馈内容</h2>
 
           {/* 主题 */}
           <div>
-            <label className="block text-sm font-medium text-[#1f1f1f] mb-2">
+            <label className="block text-sm font-medium text-[#29264a] mb-2">
               主题 <span className="text-red-500">*</span>
             </label>
             <Input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="简要描述您的问题或建议"
-              className="h-12 border-[#c2cdd8] focus:border-[#0070a0]"
+              className="h-12 border-[#d7d1eb] focus:border-[#5b55d6]"
               required
               maxLength={100}
             />
-            <p className="text-xs text-[#626a72] mt-1">
+            <p className="text-xs text-[#625f77] mt-1">
               {subject.length}/100 字符
             </p>
           </div>
 
           {/* 详细描述 */}
           <div>
-            <label className="block text-sm font-medium text-[#1f1f1f] mb-2">
+            <label className="block text-sm font-medium text-[#29264a] mb-2">
               详细描述 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="请详细描述您遇到的问题或建议的内容..."
-              className="w-full min-h-[200px] p-3 border border-[#c2cdd8] rounded-lg focus:outline-none focus:border-[#0070a0] resize-y"
+              className="w-full min-h-[200px] p-3 border border-[#d7d1eb] rounded-2xl focus:outline-none focus:border-[#5b55d6] resize-y"
               required
               maxLength={1000}
             />
-            <p className="text-xs text-[#626a72] mt-1">
+            <p className="text-xs text-[#625f77] mt-1">
               {content.length}/1000 字符
             </p>
           </div>
 
           {/* 联系邮箱 */}
           <div>
-            <label className="block text-sm font-medium text-[#1f1f1f] mb-2">
+            <label className="block text-sm font-medium text-[#29264a] mb-2">
               联系邮箱
             </label>
             <Input
@@ -216,9 +216,9 @@ export default function FeedbackPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="用于接收反馈处理结果（可选）"
-              className="h-12 border-[#c2cdd8] focus:border-[#0070a0]"
+              className="h-12 border-[#d7d1eb] focus:border-[#5b55d6]"
             />
-            <p className="text-xs text-[#626a72] mt-1">
+            <p className="text-xs text-[#625f77] mt-1">
               {user?.email
                 ? '已自动填充您的账号邮箱'
                 : '提供邮箱后我们可以及时回复您'}
@@ -230,7 +230,7 @@ export default function FeedbackPage() {
         <div className="flex gap-3">
           <Button
             type="submit"
-            className="flex-1 bg-[#0070a0] hover:bg-[#005580] h-12"
+            className="flex-1 h-12"
             disabled={
               !subject.trim() ||
               !content.trim() ||
@@ -254,8 +254,8 @@ export default function FeedbackPage() {
 
       {/* 预览卡片 */}
       {(subject || content) && (
-        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
-          <h3 className="text-lg font-semibold text-[#1f1f1f] mb-4">
+        <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
+          <h3 className="text-lg font-semibold text-[#29264a] mb-4">
             反馈预览
           </h3>
           <div className="space-y-3">
@@ -263,7 +263,7 @@ export default function FeedbackPage() {
               {selectedCategory && (
                 <>
                   <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    className="w-8 h-8 rounded-2xl flex items-center justify-center"
                     style={{ backgroundColor: selectedCategory.bgColor }}
                   >
                     <selectedCategory.icon
@@ -271,7 +271,7 @@ export default function FeedbackPage() {
                       style={{ color: selectedCategory.color }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-[#1f1f1f]">
+                  <span className="text-sm font-medium text-[#29264a]">
                     {selectedCategory.label}
                   </span>
                 </>
@@ -279,14 +279,14 @@ export default function FeedbackPage() {
             </div>
             {subject && (
               <div>
-                <p className="text-sm text-[#626a72] mb-1">主题：</p>
-                <p className="font-medium text-[#1f1f1f]">{subject}</p>
+                <p className="text-sm text-[#625f77] mb-1">主题：</p>
+                <p className="font-medium text-[#29264a]">{subject}</p>
               </div>
             )}
             {content && (
               <div>
-                <p className="text-sm text-[#626a72] mb-1">内容：</p>
-                <p className="text-[#1f1f1f] whitespace-pre-wrap">{content}</p>
+                <p className="text-sm text-[#625f77] mb-1">内容：</p>
+                <p className="text-[#29264a] whitespace-pre-wrap">{content}</p>
               </div>
             )}
           </div>

@@ -57,16 +57,16 @@ export function RecognitionJobHistory() {
 
   if (!query.data?.length) return null
   return (
-    <section className="rounded-lg border bg-white p-5">
+    <section className="rounded-2xl border border-[#e4def5] bg-white p-5 shadow-[0_8px_24px_rgba(76,65,147,0.10)]">
       <h2 className="mb-4 text-lg font-semibold">最近识别任务</h2>
       <div className="space-y-3">
         {query.data.map((job) => {
           const active = job.status === 'queued' || job.status === 'processing'
-          const icon = active ? <Loader2 className="h-4 w-4 animate-spin text-[#0070a0]" /> : job.status === 'succeeded' ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : job.status === 'failed' ? <XCircle className="h-4 w-4 text-red-500" /> : <Clock className="h-4 w-4 text-gray-500" />
+          const icon = active ? <Loader2 className="h-4 w-4 animate-spin text-[#5b55d6]" /> : job.status === 'succeeded' ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : job.status === 'failed' ? <XCircle className="h-4 w-4 text-red-500" /> : <Clock className="h-4 w-4 text-[#716d86]" />
           return (
             <div key={job.id} className="rounded border p-3">
               <div className="flex items-center gap-2 text-sm">
-                {icon}<span className="font-medium">{modeLabel(job.mode)}</span><span className="text-gray-500">{statusLabel(job.status)}</span><span className="ml-auto text-xs text-gray-500">{formatDistanceToNow(job.created_at)}</span>
+                {icon}<span className="font-medium">{modeLabel(job.mode)}</span><span className="text-[#716d86]">{statusLabel(job.status)}</span><span className="ml-auto text-xs text-[#716d86]">{formatDistanceToNow(job.created_at)}</span>
                 {job.status === 'failed' && job.attempt_count < job.max_attempts && <Button size="sm" variant="outline" disabled={retry.isPending} onClick={() => retry.mutate(job.id)} className="gap-1"><RefreshCw className="h-3 w-3" />重试</Button>}
               </div>
               {active && <Progress value={Math.max(5, job.progress)} className="mt-2 h-1.5" />}

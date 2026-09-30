@@ -19,7 +19,7 @@ export default function BindEmailPage() {
   if (loading || !user || !isAnonymous) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-9 w-9 animate-spin text-[#0070a0]" />
+        <Loader2 className="h-9 w-9 animate-spin text-[#5b55d6]" />
       </div>
     )
   }
@@ -27,16 +27,16 @@ export default function BindEmailPage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-[#e5f3f8] text-[#0070a0]">
+        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-[#eeeafd] text-[#5b55d6]">
           <Mail className="h-5 w-5" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">注册正式账户</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-[#29264a]">注册正式账户</h1>
+        <p className="mt-2 text-[#625f77]">
           绑定邮箱并设置密码后，即可兑换一次性邀请码，同时保留当前游客账户的数据。
         </p>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
         <BindEmailForm onSuccess={() => router.replace('/dashboard/credits')} />
       </div>
     </div>

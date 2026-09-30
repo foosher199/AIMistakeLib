@@ -21,7 +21,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href={user ? '/dashboard/upload' : '/'} className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-gradient-to-br from-[#756ff0] to-[#5b55d6] shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_3px_0_#403a9f]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-gradient-to-br from-[#756ff0] to-[#5b55d6] shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_5px_12px_rgba(91,85,214,0.24)]">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-[#29264a]">AI 错题本</span>

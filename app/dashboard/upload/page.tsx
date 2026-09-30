@@ -45,8 +45,8 @@ export default function UploadPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">加载中...</p>
+          <Loader2 className="w-12 h-12 text-[#5b55d6] animate-spin mx-auto mb-4" />
+          <p className="text-[#625f77]">加载中...</p>
         </div>
       </div>
     )
@@ -245,18 +245,18 @@ export default function UploadPage() {
     <div className="space-y-6">
       {/* 头部 */}
       <div>
-        <h1 className="text-3xl font-bold text-[#1f1f1f] mb-2">上传错题</h1>
-        <p className="text-[#626a72]">使用 AI 自动识别图片中的错题内容</p>
+        <h1 className="text-3xl font-bold text-[#29264a] mb-2">上传错题</h1>
+        <p className="text-[#625f77]">使用 AI 自动识别图片中的错题内容</p>
       </div>
 
       {/* AI 识别模式切换 */}
-      <div className="bg-white rounded-lg border border-[#dee5eb] p-4">
+      <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <Sparkles className="w-5 h-5 text-[#0070a0]" />
+            <Sparkles className="w-5 h-5 text-[#5b55d6]" />
             <div>
-              <p className="text-sm font-medium text-[#1f1f1f]">AI 识别引擎</p>
-              <p className="text-xs text-[#626a72] mt-0.5">
+              <p className="text-sm font-medium text-[#29264a]">AI 识别引擎</p>
+              <p className="text-xs text-[#625f77] mt-0.5">
                 {mode === 'text'
                   ? '文本模式：OCR + DeepSeek，速度快、成本低，适合纯文字题目'
                   : mode === 'baidu_understanding'
@@ -280,10 +280,10 @@ export default function UploadPage() {
       </div>
 
       {/* 上传区域 */}
-      <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
+      <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Camera className="w-5 h-5 text-[#626a72]" />
-          <h2 className="text-lg font-semibold text-[#1f1f1f]">
+          <Camera className="w-5 h-5 text-[#625f77]" />
+          <h2 className="text-lg font-semibold text-[#29264a]">
             上传图片
           </h2>
         </div>
@@ -305,14 +305,14 @@ export default function UploadPage() {
             return (
               <div
                 key={index}
-                className="flex items-start gap-3 p-4 bg-[#f7f9fa] rounded-xl"
+                className="flex items-start gap-3 p-4 bg-[#fff9f1] rounded-xl"
               >
-                <div className="w-10 h-10 bg-[#cce5f3] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-5 h-5 text-[#0070a0]" />
+                <div className="w-10 h-10 bg-[#eeeafd] rounded-2xl flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-5 h-5 text-[#5b55d6]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#1f1f1f] text-sm">{tip.title}</h4>
-                  <p className="text-xs text-[#626a72] mt-1">{tip.desc}</p>
+                  <h4 className="font-bold text-[#29264a] text-sm">{tip.title}</h4>
+                  <p className="text-xs text-[#625f77] mt-1">{tip.desc}</p>
                 </div>
               </div>
             )
@@ -333,7 +333,7 @@ export default function UploadPage() {
 
       {/* 本次识别结果 */}
       {hasResults && (
-        <div className="bg-white rounded-lg border border-[#dee5eb] p-6">
+        <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
           <RecognitionResults
             results={uploadedResults}
             questionIds={uploadedQuestionIds}
@@ -347,36 +347,36 @@ export default function UploadPage() {
 
       {/* 空状态提示 */}
       {!hasResults && queueItems.length === 0 && !isProcessing && (
-        <div className="bg-[#cce5f3]/30 border border-[#0070a0]/20 rounded-lg p-6">
+        <div className="bg-[#eeeafd]/30 border border-[#5b55d6]/20 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-3">
-            <Inbox className="w-6 h-6 text-[#0070a0]" />
-            <h3 className="text-lg font-semibold text-[#1f1f1f]">
+            <Inbox className="w-6 h-6 text-[#5b55d6]" />
+            <h3 className="text-lg font-semibold text-[#29264a]">
               使用提示
             </h3>
           </div>
-          <ul className="space-y-2 text-sm text-[#626a72]">
+          <ul className="space-y-2 text-sm text-[#625f77]">
             <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
+              <span className="text-[#5b55d6]">•</span>
               <span>上传图片后，AI 会自动识别题目并<strong>保存到错题库</strong></span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
+              <span className="text-[#5b55d6]">•</span>
               <span>识别完成后无需逐题保存，可直接在错题库查看</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
+              <span className="text-[#5b55d6]">•</span>
               <span>可勾选多道识别结果后批量删除</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
+              <span className="text-[#5b55d6]">•</span>
               <span>确保图片清晰，光线充足，避免遮挡</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
+              <span className="text-[#5b55d6]">•</span>
               <span>支持 JPG、PNG、GIF、WebP 格式，单张最大 10MB</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#0070a0]">•</span>
+              <span className="text-[#5b55d6]">•</span>
               <span>支持一次上传多张图片（最多 10 张）</span>
             </li>
           </ul>

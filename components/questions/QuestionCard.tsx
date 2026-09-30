@@ -92,7 +92,7 @@ export function QuestionCard({
   const subjectLabel = SUBJECTS.find((s) => s.id === question.subject)?.label || question.subject
   const difficultyLabel = DIFFICULTIES.find((d) => d.id === question.difficulty)?.label || question.difficulty
   const difficultyColor = {
-    easy: 'bg-[#d1fae5] text-[#10b981] border-[#10b981]/30',
+    easy: 'bg-[#e5f8f3] text-[#248b77] border-[#248b77]/30',
     medium: 'bg-[#fef3c7] text-[#f59e0b] border-[#f59e0b]/30',
     hard: 'bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30',
   }[question.difficulty]
@@ -212,29 +212,29 @@ export function QuestionCard({
   const hasAnalysis = existingAnalysis.tags.length > 0
 
   return (
-    <div className="bg-white rounded-lg border border-[#dee5eb] shadow-sm hover:shadow-md transition-shadow p-4">
+    <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] shadow-sm hover:shadow-md transition-shadow p-4">
       {/* 头部：标签和操作 */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-wrap gap-2">
           {onSelectionChange && (
-            <label className="flex cursor-pointer items-center gap-2 rounded border border-[#dee5eb] px-2 py-1 text-xs text-[#626a72]">
+            <label className="flex cursor-pointer items-center gap-2 rounded border border-[#e4def5] px-2 py-1 text-xs text-[#625f77]">
               <input
                 type="checkbox"
                 checked={selected}
                 onChange={(event) => onSelectionChange(question, event.target.checked)}
-                className="h-4 w-4 accent-[#0070a0]"
+                className="h-4 w-4 accent-[#5b55d6]"
               />
               选择
             </label>
           )}
-          <Badge variant="outline" className="bg-[#cce5f3] text-[#0070a0] border-[#0070a0]/30">
+          <Badge variant="outline" className="bg-[#eeeafd] text-[#5b55d6] border-[#5b55d6]/30">
             {subjectLabel}
           </Badge>
           <Badge variant="outline" className={difficultyColor}>
             {difficultyLabel}
           </Badge>
           {question.is_mastered && (
-            <Badge variant="outline" className="bg-[#d1fae5] text-[#10b981] border-[#10b981]/30">
+            <Badge variant="outline" className="bg-[#e5f8f3] text-[#248b77] border-[#248b77]/30">
               <CheckCircle className="w-3 h-3 mr-1" />
               已掌握
             </Badge>
@@ -289,20 +289,20 @@ export function QuestionCard({
 
       {/* 题目内容 */}
       <div className="mb-3">
-        <p className="text-sm text-[#626a72] mb-1">{question.category}</p>
-        <p className="text-[#1f1f1f] whitespace-pre-wrap">{question.content}</p>
+        <p className="text-sm text-[#625f77] mb-1">{question.category}</p>
+        <p className="text-[#29264a] whitespace-pre-wrap">{question.content}</p>
       </div>
 
       <QuestionImageManager key={`${question.id}-${question.images?.map((image) => image.id).join('-') || 'legacy'}`} question={question} />
 
       {/* 答案区域 */}
-      <div className="border-t border-[#dee5eb] pt-3 mb-3">
+      <div className="border-t border-[#e4def5] pt-3 mb-3">
         <div className="flex flex-wrap gap-2 mb-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowAnswer(!showAnswer)}
-            className="text-[#0070a0] hover:text-[#004968]"
+            className="text-[#5b55d6] hover:text-[#403a9f]"
           >
             {showAnswer ? '隐藏答案' : '显示答案'}
           </Button>
@@ -311,7 +311,7 @@ export function QuestionCard({
             size="sm"
             onClick={handleAnalyze}
             disabled={analyzeMistake.isPending}
-            className="text-[#0070a0] hover:text-[#004968]"
+            className="text-[#5b55d6] hover:text-[#403a9f]"
           >
             {analyzeMistake.isPending ? (
               <>
@@ -330,7 +330,7 @@ export function QuestionCard({
             size="sm"
             onClick={handleGenerateVariations}
             disabled={generateVariations.isPending}
-            className="text-[#0070a0] hover:text-[#004968]"
+            className="text-[#5b55d6] hover:text-[#403a9f]"
           >
             {generateVariations.isPending ? (
               <>
@@ -349,16 +349,16 @@ export function QuestionCard({
         {showAnswer && (
           <div className="mt-2 space-y-2">
             <div>
-              <p className="text-sm font-medium text-[#626a72]">正确答案：</p>
-              <p className="text-[#1f1f1f] bg-[#d1fae5]/30 p-2 rounded">
+              <p className="text-sm font-medium text-[#625f77]">正确答案：</p>
+              <p className="text-[#29264a] bg-[#e5f8f3]/30 p-2 rounded">
                 {question.answer}
               </p>
             </div>
 
             {question.user_answer && (
               <div>
-                <p className="text-sm font-medium text-[#626a72]">我的答案：</p>
-                <p className="text-[#1f1f1f] bg-[#ffe4e6]/30 p-2 rounded">
+                <p className="text-sm font-medium text-[#625f77]">我的答案：</p>
+                <p className="text-[#29264a] bg-[#ffe4e6]/30 p-2 rounded">
                   {question.user_answer}
                 </p>
               </div>
@@ -366,8 +366,8 @@ export function QuestionCard({
 
             {question.explanation && (
               <div>
-                <p className="text-sm font-medium text-[#626a72]">答案解析：</p>
-                <p className="text-[#626a72] bg-[#cce5f3]/30 p-2 rounded whitespace-pre-wrap">
+                <p className="text-sm font-medium text-[#625f77]">答案解析：</p>
+                <p className="text-[#625f77] bg-[#eeeafd]/30 p-2 rounded whitespace-pre-wrap">
                   {question.explanation}
                 </p>
               </div>
@@ -377,18 +377,18 @@ export function QuestionCard({
 
         {/* 错因分析结果 */}
         {hasAnalysis && (
-          <div className="mt-3 bg-[#f7f9fa] border border-[#dee5eb] rounded-lg p-3">
+          <div className="mt-3 bg-[#fff9f1] border border-[#e4def5] rounded-2xl p-3">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-[#0070a0]" />
-                <p className="text-sm font-medium text-[#1f1f1f]">AI 错因分析</p>
+                <Brain className="w-4 h-4 text-[#5b55d6]" />
+                <p className="text-sm font-medium text-[#29264a]">AI 错因分析</p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleOpenAnalysisEdit}
                 disabled={updateQuestion.isPending}
-                className="h-7 px-2 text-[#626a72] hover:text-[#0070a0]"
+                className="h-7 px-2 text-[#625f77] hover:text-[#5b55d6]"
               >
                 <Edit className="w-3.5 h-3.5 mr-1" />
                 编辑
@@ -401,8 +401,8 @@ export function QuestionCard({
                 </Badge>
               ))}
             </div>
-            <p className="text-sm text-[#1f1f1f] mb-1">{existingAnalysis.detail}</p>
-            <p className="text-sm text-[#626a72]">
+            <p className="text-sm text-[#29264a] mb-1">{existingAnalysis.detail}</p>
+            <p className="text-sm text-[#625f77]">
               <span className="font-medium">建议：</span> {existingAnalysis.advice}
             </p>
           </div>
@@ -414,10 +414,10 @@ export function QuestionCard({
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Copy className="w-5 h-5 text-[#0070a0]" />
+              <Copy className="w-5 h-5 text-[#5b55d6]" />
               举一反三
               {hasHistoricalVariations && historicalVariations && (
-                <Badge variant="outline" className="text-xs bg-[#d1fae5] text-[#10b981] border-[#10b981]/30">
+                <Badge variant="outline" className="text-xs bg-[#e5f8f3] text-[#248b77] border-[#248b77]/30">
                   历史 {historicalVariations.length} 道
                 </Badge>
               )}
@@ -426,7 +426,7 @@ export function QuestionCard({
 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-[#626a72]">目标难度：</span>
+              <span className="text-sm text-[#625f77]">目标难度：</span>
               <div className="flex gap-1">
                 {[
                   { id: 'same', label: '相同' },
@@ -441,8 +441,8 @@ export function QuestionCard({
                     onClick={() => setVariationDifficulty(option.id as typeof variationDifficulty)}
                     className={
                       variationDifficulty === option.id
-                        ? 'bg-[#0070a0] hover:bg-[#005580] text-white'
-                        : 'text-[#626a72]'
+                        ? ''
+                        : 'text-[#625f77]'
                     }
                   >
                     {option.label}
@@ -472,18 +472,17 @@ export function QuestionCard({
 
           {isLoadingVariations || generateVariations.isPending ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-[#0070a0] animate-spin mr-2" />
-              <span className="text-[#626a72]">
+              <Loader2 className="w-8 h-8 text-[#5b55d6] animate-spin mr-2" />
+              <span className="text-[#625f77]">
                 {isLoadingVariations ? '加载历史变式题...' : 'AI 生成中...'}
               </span>
             </div>
           ) : displayedVariations.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-[#626a72] mb-4">暂无变式题</p>
+              <p className="text-[#625f77] mb-4">暂无变式题</p>
               <Button
                 onClick={handleRegenerateVariations}
                 disabled={generateVariations.isPending}
-                className="bg-[#0070a0] hover:bg-[#005580]"
               >
                 {generateVariations.isPending ? (
                   <>
@@ -498,15 +497,15 @@ export function QuestionCard({
           ) : (
             <div className="space-y-4">
               {displayedVariations.map((variation, index) => (
-                <div key={variation.id} className="bg-[#f7f9fa] border border-[#dee5eb] rounded-lg p-4">
+                <div key={variation.id} className="bg-[#fff9f1] border border-[#e4def5] rounded-2xl p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium text-[#626a72]">变式题 {index + 1}</p>
+                        <p className="text-sm font-medium text-[#625f77]">变式题 {index + 1}</p>
                         <Badge
                           variant="outline"
                           className={{
-                            easy: 'bg-[#d1fae5] text-[#10b981] border-[#10b981]/30',
+                            easy: 'bg-[#e5f8f3] text-[#248b77] border-[#248b77]/30',
                             medium: 'bg-[#fef3c7] text-[#f59e0b] border-[#f59e0b]/30',
                             hard: 'bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30',
                           }[variation.difficulty]}
@@ -514,7 +513,7 @@ export function QuestionCard({
                           {DIFFICULTIES.find((d) => d.id === variation.difficulty)?.label || variation.difficulty}
                         </Badge>
                       </div>
-                      <p className="text-[#1f1f1f] whitespace-pre-wrap mb-2">{variation.content}</p>
+                      <p className="text-[#29264a] whitespace-pre-wrap mb-2">{variation.content}</p>
                     </div>
                     <div className="flex gap-1">
                       <Button
@@ -567,7 +566,7 @@ export function QuestionCard({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-[#0070a0] hover:text-[#004968]"
+                    className="text-[#5b55d6] hover:text-[#403a9f]"
                     onClick={() =>
                       setExpandedVariationId(
                         expandedVariationId === variation.id ? null : variation.id
@@ -580,13 +579,13 @@ export function QuestionCard({
                   {expandedVariationId === variation.id && (
                     <div className="mt-2 space-y-2">
                       <div>
-                        <p className="text-sm font-medium text-[#626a72]">答案：</p>
-                        <p className="text-[#1f1f1f] bg-[#d1fae5]/30 p-2 rounded">{variation.answer}</p>
+                        <p className="text-sm font-medium text-[#625f77]">答案：</p>
+                        <p className="text-[#29264a] bg-[#e5f8f3]/30 p-2 rounded">{variation.answer}</p>
                       </div>
                       {variation.explanation && (
                         <div>
-                          <p className="text-sm font-medium text-[#626a72]">解析：</p>
-                          <p className="text-[#626a72] bg-[#cce5f3]/30 p-2 rounded whitespace-pre-wrap">
+                          <p className="text-sm font-medium text-[#625f77]">解析：</p>
+                          <p className="text-[#625f77] bg-[#eeeafd]/30 p-2 rounded whitespace-pre-wrap">
                             {variation.explanation}
                           </p>
                         </div>
@@ -605,14 +604,14 @@ export function QuestionCard({
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-[#0070a0]" />
+              <Brain className="w-5 h-5 text-[#5b55d6]" />
               编辑错因分析
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-[#1f1f1f] mb-2">错因标签</p>
+              <p className="text-sm font-medium text-[#29264a] mb-2">错因标签</p>
               <div className="flex flex-wrap gap-2 mb-2">
                 {MISTAKE_REASONS.map((reason) => {
                   const selected = editingTags.includes(reason.id)
@@ -622,7 +621,7 @@ export function QuestionCard({
                       variant={selected ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => toggleEditingTag(reason.id)}
-                      className={selected ? 'text-white' : 'text-[#626a72]'}
+                      className={selected ? 'text-white' : 'text-[#625f77]'}
                       style={
                         selected
                           ? { backgroundColor: reason.color, borderColor: reason.color }
@@ -675,24 +674,24 @@ export function QuestionCard({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-[#1f1f1f] mb-2">详细分析</p>
+              <p className="text-sm font-medium text-[#29264a] mb-2">详细分析</p>
               <textarea
                 value={editingDetail}
                 onChange={(e) => setEditingDetail(e.target.value)}
                 placeholder="描述错因详情..."
                 rows={3}
-                className="w-full px-3 py-2 text-sm rounded-md border border-[#dee5eb] bg-white text-[#1f1f1f] placeholder:text-[#626a72] focus:outline-none focus:ring-2 focus:ring-[#0070a0] focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-[#e4def5] bg-white text-[#29264a] placeholder:text-[#625f77] focus:outline-none focus:ring-2 focus:ring-[#5b55d6] focus:border-transparent resize-none"
               />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-[#1f1f1f] mb-2">改进建议</p>
+              <p className="text-sm font-medium text-[#29264a] mb-2">改进建议</p>
               <textarea
                 value={editingAdvice}
                 onChange={(e) => setEditingAdvice(e.target.value)}
                 placeholder="输入改进建议..."
                 rows={3}
-                className="w-full px-3 py-2 text-sm rounded-md border border-[#dee5eb] bg-white text-[#1f1f1f] placeholder:text-[#626a72] focus:outline-none focus:ring-2 focus:ring-[#0070a0] focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-[#e4def5] bg-white text-[#29264a] placeholder:text-[#625f77] focus:outline-none focus:ring-2 focus:ring-[#5b55d6] focus:border-transparent resize-none"
               />
             </div>
 
@@ -703,7 +702,6 @@ export function QuestionCard({
               <Button
                 onClick={handleSaveAnalysis}
                 disabled={updateQuestion.isPending}
-                className="bg-[#0070a0] hover:bg-[#005580] text-white"
               >
                 {updateQuestion.isPending ? (
                   <>
@@ -720,7 +718,7 @@ export function QuestionCard({
       </Dialog>
 
       {/* 底部信息 */}
-      <div className="flex items-center justify-between text-xs text-[#626a72]">
+      <div className="flex items-center justify-between text-xs text-[#625f77]">
         <div className="flex items-center gap-4">
           <span>复习 {question.review_count} 次</span>
           {question.last_reviewed && (

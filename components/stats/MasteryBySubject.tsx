@@ -18,7 +18,7 @@ const subjectColors: Record<Subject, string> = {
   english: '#8b5cf6',
   physics: '#06b6d4',
   chemistry: '#f59e0b',
-  biology: '#10b981',
+  biology: '#248b77',
   history: '#f97316',
   geography: '#84cc16',
   politics: '#ec4899',
@@ -26,7 +26,7 @@ const subjectColors: Record<Subject, string> = {
 
 export function MasteryBySubject({ subjects }: MasteryBySubjectProps) {
   if (subjects.length === 0) {
-    return <p className="text-sm text-[#626a72]">暂无学科数据</p>
+    return <p className="text-sm text-[#625f77]">暂无学科数据</p>
   }
 
   const maxTotal = Math.max(...subjects.map((s) => s.total), 1)
@@ -41,12 +41,12 @@ export function MasteryBySubject({ subjects }: MasteryBySubjectProps) {
         return (
           <div key={subject.id}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-[#1f1f1f]">{subject.name}</span>
-              <span className="text-xs text-[#626a72]">
+              <span className="text-sm font-medium text-[#29264a]">{subject.name}</span>
+              <span className="text-xs text-[#625f77]">
                 {subject.mastered}/{subject.total} 掌握 {subject.rate}%
               </span>
             </div>
-            <div className="h-2 bg-[#f7f9fa] rounded-full overflow-hidden relative">
+            <div className="h-2 bg-[#fff9f1] rounded-full overflow-hidden relative">
               <div
                 className="h-full rounded-full transition-all duration-500 absolute left-0 top-0 opacity-30"
                 style={{ width: `${totalWidth}%`, backgroundColor: color }}

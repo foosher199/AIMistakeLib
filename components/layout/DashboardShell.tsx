@@ -74,10 +74,8 @@ function SidebarContent({
       href={href}
       onClick={onNavigate}
       className={cn(
-        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-        isCurrentPath(pathname, href)
-          ? 'bg-[#e5f3f8] text-[#0070a0]'
-          : 'text-[#626a72] hover:bg-[#f3f6f8] hover:text-[#1f1f1f]'
+        'dashboard-nav-item flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+        isCurrentPath(pathname, href) && 'is-active'
       )}
     >
       <Icon className="h-5 w-5 shrink-0" />
@@ -90,36 +88,34 @@ function SidebarContent({
       <Link
         href="/dashboard/upload"
         onClick={onNavigate}
-        className="flex h-16 items-center gap-3 border-b border-[#e6ebef] px-5"
+        className="flex h-16 items-center gap-3 border-b border-white/10 px-5"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0070a0]">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-gradient-to-br from-[#756ff0] to-[#5b55d6] shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_5px_12px_rgba(91,85,214,0.24)]">
           <BookOpen className="h-5 w-5 text-white" />
         </span>
-        <span className="text-lg font-bold text-[#1f1f1f]">AI 错题本</span>
+        <span className="text-lg font-bold text-white">AI 错题本</span>
       </Link>
 
       <nav className="flex flex-1 flex-col overflow-y-auto px-3 py-5" aria-label="工作区导航">
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#929aa2]">
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/45">
           学习工具
         </p>
         <div className="space-y-1">{navigation.map(renderLink)}</div>
 
-        <div className="my-5 border-t border-[#e6ebef]" />
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#929aa2]">
+        <div className="my-5 border-t border-white/10" />
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/45">
           账户与支持
         </p>
         <div className="space-y-1">{secondaryNavigation.map(renderLink)}</div>
       </nav>
 
-      <div className="border-t border-[#e6ebef] p-3">
+      <div className="border-t border-white/10 p-3">
         <Link
           href="/dashboard/profile"
           onClick={onNavigate}
           className={cn(
-            'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-            isCurrentPath(pathname, '/dashboard/profile')
-              ? 'bg-[#e5f3f8] text-[#0070a0]'
-              : 'text-[#626a72] hover:bg-[#f3f6f8] hover:text-[#1f1f1f]'
+            'dashboard-nav-item flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+            isCurrentPath(pathname, '/dashboard/profile') && 'is-active'
           )}
         >
           <User className="h-5 w-5" />
@@ -171,18 +167,21 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f9fa]">
+      <div className="flex min-h-screen items-center justify-center bg-[#fff9f1]">
         <div className="text-center">
-          <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#0070a0]" />
-          <p className="mt-3 text-sm text-[#626a72]">正在验证登录状态...</p>
+          <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#5b55d6]" />
+          <p className="mt-3 text-sm text-[#625f77]">正在验证登录状态...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f9fa]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-[#e6ebef] bg-white xl:flex">
+    <div className="relative min-h-screen bg-[#fff9f1]">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(91,85,214,0.13),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(53,169,145,0.12),transparent_32%)]" />
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-[#4b46b8] bg-gradient-to-b from-[#5b55d6] via-[#514bb8] to-[#403a9f] shadow-[10px_0_30px_rgba(64,58,159,0.12)] xl:flex">
+        <div className="pointer-events-none absolute -left-16 top-24 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-[#35a991]/20 blur-3xl" />
         <SidebarContent pathname={pathname} />
       </aside>
 
@@ -198,14 +197,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             role="dialog"
             aria-modal="true"
             aria-label="导航菜单"
-            className="relative flex h-full w-[min(18rem,85vw)] flex-col bg-white shadow-2xl"
+            className="relative flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden bg-gradient-to-b from-[#5b55d6] via-[#514bb8] to-[#403a9f] shadow-2xl"
           >
             <Button
               type="button"
               variant="ghost"
               size="icon"
               aria-label="关闭菜单"
-              className="absolute right-2 top-2 z-10"
+              className="absolute right-2 top-2 z-10 text-white hover:bg-white/10 hover:text-white"
               onClick={() => setMobileMenuOpen(false)}
             >
               <X className="h-5 w-5" />
@@ -216,7 +215,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="xl:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#e6ebef] bg-white/95 px-4 backdrop-blur sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#ded9fb] bg-gradient-to-r from-[#f1edff]/95 via-[#fffdf9]/95 to-[#eaf9f5]/95 px-4 shadow-[0_4px_18px_rgba(76,65,147,0.10)] backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               type="button"
@@ -228,12 +227,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <p className="truncate text-lg font-semibold text-[#1f1f1f]">{pageTitle}</p>
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#35a991] shadow-[0_0_0_4px_rgba(53,169,145,0.14)]" />
+            <p className="truncate text-lg font-bold text-[#29264a]">{pageTitle}</p>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
             <Link href="/dashboard/credits">
-              <Button variant="ghost" className="gap-2 text-[#0070a0]">
+              <Button variant="ghost" className="gap-2 text-[#5b55d6]">
                 <Coins className="h-4 w-4" />
                 <span>{credits?.availablePoints ?? 0}</span>
                 <span className="hidden sm:inline">积分</span>
@@ -243,14 +243,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="max-w-[12rem] gap-2">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e5f3f8] text-[#0070a0]">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eeeafd] text-[#5b55d6]">
                     <User className="h-4 w-4" />
                   </span>
                   <span className="hidden truncate text-sm sm:inline">{displayName}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="truncate font-normal text-[#626a72]">
+                <DropdownMenuLabel className="truncate font-normal text-[#625f77]">
                   {displayName}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -272,7 +272,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main className="relative mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>

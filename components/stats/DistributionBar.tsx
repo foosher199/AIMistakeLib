@@ -12,15 +12,15 @@ export function DistributionBar({ label, count, total, color, showPercentage = t
   return (
     <div className="mb-3 last:mb-0">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm text-[#1f1f1f]">{label}</span>
+        <span className="text-sm text-[#29264a]">{label}</span>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-[#1f1f1f]">{count}</span>
+          <span className="text-sm font-medium text-[#29264a]">{count}</span>
           {showPercentage && (
-            <span className="text-xs text-[#626a72] w-10 text-right">{percentage}%</span>
+            <span className="text-xs text-[#625f77] w-10 text-right">{percentage}%</span>
           )}
         </div>
       </div>
-      <div className="h-2 bg-[#f7f9fa] rounded-full overflow-hidden">
+      <div className="h-2 bg-[#fff9f1] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${percentage}%`, backgroundColor: color }}
