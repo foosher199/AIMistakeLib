@@ -175,7 +175,7 @@ function WorksheetPage({ title, page, totalPages, questions, startIndex, columns
             {includeImages && (question.images?.length ? question.images : question.image_url ? [{ id: 'legacy', signedUrl: question.image_url }] : []).map((image, imageIndex) => (
               <img key={image.id} src={image.signedUrl} alt={`第 ${startIndex + index + 1} 题图片 ${imageIndex + 1}`} className="mt-3 max-h-64 max-w-full object-contain" />
             ))}
-            {Array.from({ length: answerLines }).map((_, line) => <div key={line} className="mt-5 border-b border-dashed border-gray-300" />)}
+            {Array.from({ length: answerLines }).map((_, line) => <div key={line} className="h-5" aria-hidden="true" />)}
             {answerMode === 'inline' && <Answer question={question} />}
           </section>
         ))}

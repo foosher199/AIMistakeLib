@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils'
 const navigation = [
   { href: '/dashboard/upload', label: '拍照识题', icon: Camera },
   { href: '/dashboard/questions', label: '我的错题', icon: BookOpen },
-  { href: '/dashboard/worksheets', label: '练习卷', icon: FileText },
+  { href: '/dashboard/worksheets', label: '错题过关', icon: FileText },
   { href: '/dashboard/history', label: '历史题库', icon: History },
   { href: '/dashboard/stats', label: '数据统计', icon: BarChart3 },
 ]
@@ -47,7 +47,7 @@ const secondaryNavigation = [
 const pageTitles: Record<string, string> = {
   '/dashboard/upload': '拍照识题',
   '/dashboard/questions': '我的错题',
-  '/dashboard/worksheets': '练习卷',
+  '/dashboard/worksheets': '错题过关',
   '/dashboard/history': '历史题库',
   '/dashboard/stats': '数据统计',
   '/dashboard/credits': '积分中心',
