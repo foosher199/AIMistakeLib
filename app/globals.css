@@ -137,42 +137,89 @@
       0 3px 7px rgb(76 65 147 / 10%);
   }
 
+  .dashboard-shell .jelly-button {
+    border: 1px solid #625cc2;
+    background: #625cc2;
+    box-shadow: 0 2px 5px rgb(76 65 147 / 14%);
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .dashboard-shell .jelly-button:hover {
+    transform: none;
+    border-color: #5650ad;
+    background: #5650ad;
+    filter: none;
+    box-shadow: 0 3px 8px rgb(76 65 147 / 16%);
+  }
+
+  .dashboard-shell .jelly-button:active {
+    transform: none;
+    border-color: #4d489c;
+    background: #4d489c;
+    filter: none;
+    box-shadow: 0 1px 3px rgb(76 65 147 / 14%);
+  }
+
+  .dashboard-shell .jelly-outline,
+  .dashboard-shell .jelly-secondary {
+    border: 1px solid #d8d4e4;
+    color: #514bb8;
+    box-shadow: none;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .dashboard-shell .jelly-outline {
+    background: #ffffff;
+  }
+
+  .dashboard-shell .jelly-secondary {
+    background: #f1eff8;
+  }
+
+  .dashboard-shell .jelly-outline:hover,
+  .dashboard-shell .jelly-secondary:hover {
+    transform: none;
+    border-color: #c6c0dc;
+    background: #f5f3fa;
+    box-shadow: none;
+  }
+
+  .dashboard-shell .jelly-outline:active,
+  .dashboard-shell .jelly-secondary:active {
+    transform: none;
+    background: #ece9f5;
+    box-shadow: none;
+  }
+
   .dashboard-nav-item {
-    border: 1px solid rgb(255 255 255 / 12%);
-    background: linear-gradient(180deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 7%));
-    color: rgb(255 255 255 / 86%);
-    box-shadow:
-      inset 0 1px 1px rgb(255 255 255 / 18%),
-      0 3px 0 rgb(35 29 110 / 42%),
-      0 7px 14px rgb(35 29 110 / 16%);
-    transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #454153;
+    box-shadow: none;
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .dashboard-nav-item svg {
+    color: #716ab7;
   }
 
   .dashboard-nav-item:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(180deg, rgb(255 255 255 / 20%), rgb(255 255 255 / 11%));
-    color: white;
-    box-shadow:
-      inset 0 1px 1px rgb(255 255 255 / 24%),
-      0 4px 0 rgb(35 29 110 / 42%),
-      0 9px 17px rgb(35 29 110 / 19%);
+    background: #eeebfa;
+    border-color: transparent;
+    color: #514bb8;
+    box-shadow: none;
   }
 
   .dashboard-nav-item:active {
-    transform: translateY(2px) scale(0.99);
-    box-shadow:
-      inset 0 2px 4px rgb(35 29 110 / 25%),
-      0 1px 0 rgb(35 29 110 / 42%);
+    background: #e8e4f7;
+    box-shadow: none;
   }
 
   .dashboard-nav-item.is-active {
-    border-color: rgb(255 255 255 / 78%);
-    background: linear-gradient(180deg, #ffffff 0%, #e5f8f3 100%);
+    border-color: transparent;
+    background: #eae7f8;
     color: #514bb8;
-    box-shadow:
-      inset 0 2px 1px rgb(255 255 255 / 90%),
-      0 4px 0 #cfc9e8,
-      0 9px 20px rgb(35 29 110 / 22%);
+    box-shadow: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

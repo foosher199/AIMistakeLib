@@ -88,28 +88,28 @@ function SidebarContent({
       <Link
         href="/dashboard/upload"
         onClick={onNavigate}
-        className="flex h-16 items-center gap-3 border-b border-white/10 px-5"
+        className="flex h-16 items-center gap-3 border-b border-[#e7e4ef] px-5"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-gradient-to-br from-[#756ff0] to-[#5b55d6] shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_5px_12px_rgba(91,85,214,0.24)]">
-          <BookOpen className="h-5 w-5 text-white" />
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d8d3ed] bg-[#eeebfa] shadow-[0_2px_6px_rgba(76,65,147,0.08)]">
+          <BookOpen className="h-5 w-5 text-[#625ca8]" />
         </span>
-        <span className="text-lg font-bold text-white">AI 错题本</span>
+        <span className="text-lg font-bold text-[#38344d]">AI 错题本</span>
       </Link>
 
       <nav className="flex flex-1 flex-col overflow-y-auto px-3 py-5" aria-label="工作区导航">
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/45">
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#9994a9]">
           学习工具
         </p>
         <div className="space-y-1">{navigation.map(renderLink)}</div>
 
-        <div className="my-5 border-t border-white/10" />
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/45">
+        <div className="my-5 border-t border-[#e7e4ef]" />
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#9994a9]">
           账户与支持
         </p>
         <div className="space-y-1">{secondaryNavigation.map(renderLink)}</div>
       </nav>
 
-      <div className="border-t border-white/10 p-3">
+      <div className="border-t border-[#e7e4ef] p-3">
         <Link
           href="/dashboard/profile"
           onClick={onNavigate}
@@ -177,11 +177,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="dashboard-shell relative min-h-screen bg-[#fff9f1]">
-      <div className="no-print pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(91,85,214,0.13),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(53,169,145,0.12),transparent_32%)]" />
-      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-[#4b46b8] bg-gradient-to-b from-[#5b55d6] via-[#514bb8] to-[#403a9f] shadow-[10px_0_30px_rgba(64,58,159,0.12)] xl:flex">
-        <div className="pointer-events-none absolute -left-16 top-24 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-[#35a991]/20 blur-3xl" />
+    <div className="dashboard-shell relative min-h-screen bg-[#f8f8fb]">
+      <div className="no-print pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(91,85,214,0.05),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(53,169,145,0.045),transparent_32%)]" />
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-[#e1deeb] bg-[#faf9fc] shadow-[8px_0_24px_rgba(55,49,86,0.05)] xl:flex">
         <SidebarContent pathname={pathname} />
       </aside>
 
@@ -197,14 +195,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             role="dialog"
             aria-modal="true"
             aria-label="导航菜单"
-            className="relative flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden bg-gradient-to-b from-[#5b55d6] via-[#514bb8] to-[#403a9f] shadow-2xl"
+            className="relative flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden border-r border-[#e1deeb] bg-[#faf9fc] shadow-2xl"
           >
             <Button
               type="button"
               variant="ghost"
               size="icon"
               aria-label="关闭菜单"
-              className="absolute right-2 top-2 z-10 text-white hover:bg-white/10 hover:text-white"
+              className="absolute right-2 top-2 z-10 text-[#625f77] hover:bg-[#eeebf7] hover:text-[#38344d]"
               onClick={() => setMobileMenuOpen(false)}
             >
               <X className="h-5 w-5" />
@@ -215,7 +213,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="dashboard-content xl:pl-64">
-        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#ded9fb] bg-gradient-to-r from-[#f1edff]/95 via-[#fffdf9]/95 to-[#eaf9f5]/95 px-4 shadow-[0_4px_18px_rgba(76,65,147,0.10)] backdrop-blur-xl sm:px-6 lg:px-8">
+        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#e7e4ef] bg-white/90 px-4 shadow-[0_2px_12px_rgba(55,49,86,0.045)] backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               type="button"
