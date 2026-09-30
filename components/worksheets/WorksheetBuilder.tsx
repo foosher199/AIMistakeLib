@@ -142,12 +142,21 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
         .worksheet-sheet { width: 210mm; min-height: 297mm; }
         .worksheet-columns-2 { column-count: 2; column-gap: 12mm; }
         @media print {
-          @page { size: A4; margin: 12mm; }
-          body { background: white !important; }
+          @page { size: A4; margin: 0; }
+          html, body { margin: 0 !important; background: white !important; }
           nav, footer, .no-print { display: none !important; }
+          .dashboard-shell { min-height: 0 !important; background: white !important; }
+          .dashboard-content { padding-left: 0 !important; }
           main { max-width: none !important; padding: 0 !important; }
           .worksheet-page { display: block !important; }
-          .worksheet-sheet { width: auto; min-height: 273mm; padding: 0 !important; box-shadow: none !important; }
+          .worksheet-sheet {
+            box-sizing: border-box;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 !important;
+            padding: 12mm !important;
+            box-shadow: none !important;
+          }
           .worksheet-physical-page { break-after: page; }
           .worksheet-physical-page:last-child { break-after: auto; }
         }

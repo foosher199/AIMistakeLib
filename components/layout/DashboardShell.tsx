@@ -177,16 +177,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#fff9f1]">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(91,85,214,0.13),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(53,169,145,0.12),transparent_32%)]" />
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-[#4b46b8] bg-gradient-to-b from-[#5b55d6] via-[#514bb8] to-[#403a9f] shadow-[10px_0_30px_rgba(64,58,159,0.12)] xl:flex">
+    <div className="dashboard-shell relative min-h-screen bg-[#fff9f1]">
+      <div className="no-print pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(91,85,214,0.13),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(53,169,145,0.12),transparent_32%)]" />
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-[#4b46b8] bg-gradient-to-b from-[#5b55d6] via-[#514bb8] to-[#403a9f] shadow-[10px_0_30px_rgba(64,58,159,0.12)] xl:flex">
         <div className="pointer-events-none absolute -left-16 top-24 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-[#35a991]/20 blur-3xl" />
         <SidebarContent pathname={pathname} />
       </aside>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden">
+        <div className="no-print fixed inset-0 z-50 xl:hidden">
           <button
             type="button"
             aria-label="关闭菜单"
@@ -214,8 +214,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="xl:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#ded9fb] bg-gradient-to-r from-[#f1edff]/95 via-[#fffdf9]/95 to-[#eaf9f5]/95 px-4 shadow-[0_4px_18px_rgba(76,65,147,0.10)] backdrop-blur-xl sm:px-6 lg:px-8">
+      <div className="dashboard-content xl:pl-64">
+        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#ded9fb] bg-gradient-to-r from-[#f1edff]/95 via-[#fffdf9]/95 to-[#eaf9f5]/95 px-4 shadow-[0_4px_18px_rgba(76,65,147,0.10)] backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               type="button"
