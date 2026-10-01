@@ -84,10 +84,10 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
           {/* 分隔线 */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#e4def5]" />
+              <div className="w-full border-t border-[#dce5ef]" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-[#625f77]">或</span>
+              <span className="bg-white px-2 text-[#64748b]">或</span>
             </div>
           </div>
 
@@ -101,7 +101,7 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
             {loading ? '登录中...' : '游客快速体验'}
           </Button>
 
-          <p className="mt-4 text-xs text-[#625f77] text-center">
+          <p className="mt-4 text-xs text-[#64748b] text-center">
             游客模式可快速体验，后续可绑定邮箱保存数据
           </p>
         </div>

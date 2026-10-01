@@ -10,7 +10,7 @@ interface TimelineChartProps {
 
 export function TimelineChart({ data, maxCount }: TimelineChartProps) {
   if (data.length === 0) {
-    return <p className="text-sm text-[#625f77]">暂无数据</p>
+    return <p className="text-sm text-[#64748b]">暂无数据</p>
   }
 
   return (
@@ -24,14 +24,14 @@ export function TimelineChart({ data, maxCount }: TimelineChartProps) {
             <div className="w-full flex items-end justify-center h-32">
               <div
                 className={`w-full max-w-[20px] rounded-t transition-all duration-500 ${
-                  isLastSevenDays ? 'bg-[#5b55d6]' : 'bg-[#eeeafd]'
+                  isLastSevenDays ? 'bg-[#2563eb]' : 'bg-[#eff6ff]'
                 }`}
                 style={{ height: `${Math.max(height, 4)}%` }}
                 title={`${item.date}: ${item.count} 道`}
               />
             </div>
             {index % 5 === 4 && (
-              <span className="text-[10px] text-[#625f77] truncate w-full text-center">
+              <span className="text-[10px] text-[#64748b] truncate w-full text-center">
                 {item.date}
               </span>
             )}

@@ -98,12 +98,12 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
     <div className="space-y-4">
       {/* 头部操作栏 */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[#29264a]">
+        <h3 className="text-lg font-semibold text-[#172033]">
           识别结果 ({results.length} 道题目)
         </h3>
         <div className="flex items-center gap-3">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-[#625f77]">
-            <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-4 w-4 accent-[#5b55d6]" />
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-[#64748b]">
+            <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-4 w-4 accent-[#2563eb]" />
             全选
           </label>
           <Button variant="destructive" size="sm" disabled={selectedCount === 0 || deleting} onClick={() => setShowDeleteConfirm(true)}>
@@ -128,7 +128,7 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
           return (
             <div
               key={questionId || index}
-              className="space-y-3 rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-4"
+              className="space-y-3 rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-4"
             >
               {/* 头部标签 */}
               <div className="flex items-start justify-between">
@@ -138,17 +138,17 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
                       type="checkbox"
                       checked={selectedIds.has(questionId)}
                       onChange={() => toggleSelected(questionId)}
-                      className="h-4 w-4 accent-[#5b55d6]"
+                      className="h-4 w-4 accent-[#2563eb]"
                       aria-label={`选择第 ${index + 1} 道题`}
                     />
                   )}
-                  <Badge variant="outline" className="bg-[#f3efff] text-[#514bb8] border-[#c8c1ec]">
+                  <Badge variant="outline" className="bg-[#f1f5f9] text-[#1d4ed8] border-[#93c5fd]">
                     {subjectLabel}
                   </Badge>
                   <Badge variant="outline" className={difficultyColor}>
                     {difficultyLabel}
                   </Badge>
-                  <Badge variant="outline" className="bg-[#f3efff] text-[#514f64] border-[#d7d1eb]">
+                  <Badge variant="outline" className="bg-[#f1f5f9] text-[#475569] border-[#dce5ef]">
                     {result.category}
                   </Badge>
                   {result.confidence && (
@@ -211,21 +211,21 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
 
               {/* 题目内容 */}
               <div>
-                <p className="text-sm font-medium text-[#514f64] mb-1">题目：</p>
-                <p className="text-[#29264a] whitespace-pre-wrap">{result.content}</p>
+                <p className="text-sm font-medium text-[#475569] mb-1">题目：</p>
+                <p className="text-[#172033] whitespace-pre-wrap">{result.content}</p>
               </div>
 
               {/* 答案 */}
               <div>
-                <p className="text-sm font-medium text-[#514f64] mb-1">答案：</p>
-                <p className="text-[#29264a] bg-green-50 p-2 rounded">{result.answer}</p>
+                <p className="text-sm font-medium text-[#475569] mb-1">答案：</p>
+                <p className="text-[#172033] bg-green-50 p-2 rounded">{result.answer}</p>
               </div>
 
               {/* 解析 */}
               {result.explanation && (
                 <div>
-                  <p className="text-sm font-medium text-[#514f64] mb-1">解析：</p>
-                  <p className="text-[#514f64] bg-[#f3efff] p-2 rounded whitespace-pre-wrap">
+                  <p className="text-sm font-medium text-[#475569] mb-1">解析：</p>
+                  <p className="text-[#475569] bg-[#f1f5f9] p-2 rounded whitespace-pre-wrap">
                     {result.explanation}
                   </p>
                 </div>
@@ -251,7 +251,7 @@ ${result.answer}${result.explanation ? `\n\n【解析】\n${result.explanation}`
           <DialogHeader>
             <DialogTitle>确认批量删除</DialogTitle>
           </DialogHeader>
-          <p className="text-[#625f77]">
+          <p className="text-[#64748b]">
             确定要删除选中的 {selectedCount} 道题目吗？删除后将同时从错题库移除，且无法撤销。
           </p>
           <DialogFooter>

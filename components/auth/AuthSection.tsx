@@ -17,20 +17,20 @@ export function AuthSection() {
   // 如果是游客用户，显示绑定邮箱界面
   if (user && isAnonymous) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f3efff] to-[#e7e4ff] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#f1f5f9] to-[#dbeafe] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-[#29264a] mb-2">
+              <h1 className="text-3xl font-bold text-[#172033] mb-2">
                 AI 错题本
               </h1>
-              <p className="text-[#625f77]">绑定邮箱，永久保存数据</p>
+              <p className="text-[#64748b]">绑定邮箱，永久保存数据</p>
             </div>
 
             <BindEmailForm onSuccess={() => setActiveTab('login')} />
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-[#716d86]">
+              <p className="text-sm text-[#64748b]">
                 暂时跳过，继续使用游客模式
               </p>
             </div>
@@ -61,15 +61,15 @@ export function AuthSection() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f3efff] to-[#e7e4ff] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#f1f5f9] to-[#dbeafe] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* 标题 */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-[#29264a] mb-2">
+            <h1 className="text-3xl font-bold text-[#172033] mb-2">
               AI 错题本
             </h1>
-            <p className="text-[#625f77]">智能识别，科学复习</p>
+            <p className="text-[#64748b]">智能识别，科学复习</p>
           </div>
 
           {/* Tab 切换 */}
@@ -91,10 +91,10 @@ export function AuthSection() {
           {/* 分隔线 */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#d7d1eb]" />
+              <div className="w-full border-t border-[#dce5ef]" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-[#716d86]">或</span>
+              <span className="bg-white px-2 text-[#64748b]">或</span>
             </div>
           </div>
 
@@ -108,13 +108,13 @@ export function AuthSection() {
             {loading ? '登录中...' : '游客快速体验'}
           </Button>
 
-          <p className="mt-4 text-xs text-[#716d86] text-center">
+          <p className="mt-4 text-xs text-[#64748b] text-center">
             游客模式可快速体验，后续可绑定邮箱保存数据
           </p>
         </div>
 
         {/* 底部说明 */}
-        <div className="mt-8 text-center text-sm text-[#625f77]">
+        <div className="mt-8 text-center text-sm text-[#64748b]">
           <p>© 2024 AI 错题本 - 让学习更高效</p>
         </div>
       </div>

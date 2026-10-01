@@ -23,7 +23,7 @@ export function SavedWorksheetLoader({ id }: { id: string }) {
       }
     },
   })
-  if (query.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#5b55d6]" />
+  if (query.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#2563eb]" />
   if (query.error || !query.data) return <div className="rounded border bg-white p-10 text-center text-red-500">{query.error?.message || '练习卷不存在'}</div>
   return <WorksheetBuilder key={query.data.updated_at} worksheetId={id} questionIds={query.data.questionIds} initialQuestions={query.data.questions} initialTitle={query.data.title} initialSettings={query.data.settings} />
 }

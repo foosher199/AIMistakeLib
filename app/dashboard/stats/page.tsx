@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 
 const difficultyColors: Record<string, string> = {
-  easy: '#248b77',
+  easy: '#0f766e',
   medium: '#f59e0b',
   hard: '#f43f5e',
 }
@@ -125,8 +125,8 @@ export default function StatsPage() {
   if (loading || questionsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#5b55d6] animate-spin mr-2" />
-        <span className="text-[#625f77]">加载中...</span>
+        <Loader2 className="w-8 h-8 text-[#2563eb] animate-spin mr-2" />
+        <span className="text-[#64748b]">加载中...</span>
       </div>
     )
   }
@@ -139,16 +139,16 @@ export default function StatsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#29264a] mb-2">数据统计</h1>
-          <p className="text-[#625f77]">洞察错题分布，聚焦薄弱环节</p>
+          <h1 className="text-3xl font-bold text-[#172033] mb-2">数据统计</h1>
+          <p className="text-[#64748b]">洞察错题分布，聚焦薄弱环节</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#e4def5] text-center">
-          <div className="w-16 h-16 bg-[#eeeafd] rounded-full flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="w-8 h-8 text-[#5b55d6]" />
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#dce5ef] text-center">
+          <div className="w-16 h-16 bg-[#eff6ff] rounded-full flex items-center justify-center mx-auto mb-4">
+            <BarChart3 className="w-8 h-8 text-[#2563eb]" />
           </div>
-          <h2 className="text-xl font-semibold text-[#29264a] mb-2">暂无数据</h2>
-          <p className="text-[#625f77] mb-6">还没有错题记录，快去拍照识别题目吧</p>
+          <h2 className="text-xl font-semibold text-[#172033] mb-2">暂无数据</h2>
+          <p className="text-[#64748b] mb-6">还没有错题记录，快去拍照识别题目吧</p>
           <Link href="/dashboard/upload">
             <Button>
               <Upload className="w-4 h-4 mr-2" />
@@ -163,8 +163,8 @@ export default function StatsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-[#29264a] mb-2">数据统计</h1>
-        <p className="text-[#625f77]">洞察错题分布，聚焦薄弱环节</p>
+        <h1 className="text-3xl font-bold text-[#172033] mb-2">数据统计</h1>
+        <p className="text-[#64748b]">洞察错题分布，聚焦薄弱环节</p>
       </div>
 
       {/* 概览卡片 */}
@@ -173,13 +173,13 @@ export default function StatsPage() {
           label="总错题数"
           value={stats.total}
           icon={BookOpen}
-          colorClass="bg-[#eeeafd] text-[#5b55d6]"
+          colorClass="bg-[#eff6ff] text-[#2563eb]"
         />
         <StatCard
           label="已掌握"
           value={stats.mastered}
           icon={Target}
-          colorClass="bg-[#e5f8f3] text-[#248b77]"
+          colorClass="bg-[#ecfdf5] text-[#0f766e]"
         />
         <StatCard
           label="待复习"
@@ -191,7 +191,7 @@ export default function StatsPage() {
           label="掌握率"
           value={`${stats.masteryRate}%`}
           icon={TrendingUp}
-          colorClass="bg-[#e0e7ff] text-[#6366f1]"
+          colorClass="bg-[#dbeafe] text-[#2563eb]"
         />
         <StatCard
           label="总复习次数"
@@ -203,18 +203,18 @@ export default function StatsPage() {
 
       {/* 学科掌握 + 难度分布 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-2 mb-4">
-            <Target className="w-5 h-5 text-[#5b55d6]" />
-            <h2 className="text-lg font-semibold text-[#29264a]">学科掌握情况</h2>
+            <Target className="w-5 h-5 text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#172033]">学科掌握情况</h2>
           </div>
           <MasteryBySubject subjects={stats.bySubject} />
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-[#5b55d6]" />
-            <h2 className="text-lg font-semibold text-[#29264a]">难度分布</h2>
+            <BarChart3 className="w-5 h-5 text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#172033]">难度分布</h2>
           </div>
           {stats.byDifficulty.map((diff) => (
             <DistributionBar
@@ -230,27 +230,27 @@ export default function StatsPage() {
 
       {/* AI 错因分布 + 30 天趋势 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-[#5b55d6]" />
-            <h2 className="text-lg font-semibold text-[#29264a]">AI 错因分析</h2>
+            <TrendingUp className="w-5 h-5 text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#172033]">AI 错因分析</h2>
           </div>
           <MistakeReasonChart reasons={stats.byMistakeReason} />
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-[#5b55d6]" />
-            <h2 className="text-lg font-semibold text-[#29264a]">近 30 天新增错题</h2>
+            <Clock className="w-5 h-5 text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#172033]">近 30 天新增错题</h2>
           </div>
           <TimelineChart data={stats.timeline} maxCount={stats.maxTimelineCount} />
-          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-[#625f77]">
+          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-[#64748b]">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-[#eeeafd]" />
+              <div className="w-3 h-3 rounded bg-[#eff6ff]" />
               <span>更早</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-[#5b55d6]" />
+              <div className="w-3 h-3 rounded bg-[#2563eb]" />
               <span>近 7 天</span>
             </div>
           </div>

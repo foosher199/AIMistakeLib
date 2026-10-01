@@ -74,7 +74,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium text-[#514f64]">
+        <label htmlFor="email" className="text-sm font-medium text-[#475569]">
           邮箱
         </label>
         <Input
@@ -92,7 +92,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium text-[#514f64]">
+        <label htmlFor="password" className="text-sm font-medium text-[#475569]">
           密码
         </label>
         <Input

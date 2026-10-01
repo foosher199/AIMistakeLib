@@ -75,11 +75,11 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
   ].filter(Boolean).length
 
   return (
-    <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-4 space-y-4">
+    <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-4 space-y-4">
       {/* 搜索框 */}
       <form onSubmit={handleSearchSubmit} className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#625f77] w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#64748b] w-4 h-4" />
           <Input
             type="text"
             placeholder="搜索题目内容或知识点..."

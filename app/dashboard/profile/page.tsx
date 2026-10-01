@@ -85,8 +85,8 @@ export default function ProfilePage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[#5b55d6] animate-spin mx-auto mb-4" />
-          <p className="text-[#625f77]">加载中...</p>
+          <Loader2 className="w-12 h-12 text-[#2563eb] animate-spin mx-auto mb-4" />
+          <p className="text-[#64748b]">加载中...</p>
         </div>
       </div>
     )
@@ -109,16 +109,16 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-3xl font-bold text-[#29264a] mb-2">个人中心</h1>
-        <p className="text-[#625f77]">管理您的账户信息和数据</p>
+        <h1 className="text-3xl font-bold text-[#172033] mb-2">个人中心</h1>
+        <p className="text-[#64748b]">管理您的账户信息和数据</p>
       </div>
 
       {/* 数据加载中 */}
       {isLoading && (
-        <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-12">
+        <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-12">
           <div className="flex flex-col items-center justify-center">
-            <Loader2 className="w-8 h-8 text-[#5b55d6] animate-spin mb-3" />
-            <p className="text-[#625f77]">正在加载数据...</p>
+            <Loader2 className="w-8 h-8 text-[#2563eb] animate-spin mb-3" />
+            <p className="text-[#64748b]">正在加载数据...</p>
           </div>
         </div>
       )}
@@ -127,13 +127,13 @@ export default function ProfilePage() {
       {!isLoading && (
         <>
           {/* 账户信息卡片 */}
-          <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
+          <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-[#29264a] mb-1">
+                <h2 className="text-xl font-semibold text-[#172033] mb-1">
                   账户信息
                 </h2>
-                <p className="text-sm text-[#625f77]">
+                <p className="text-sm text-[#64748b]">
                   {isAnonymous ? '您正在使用游客模式' : '您的账户信息'}
                 </p>
               </div>
@@ -162,12 +162,12 @@ export default function ProfilePage() {
             <div className="space-y-4">
               {/* 用户 ID */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#e7e4ff] rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-[#5b55d6]" />
+                <div className="w-10 h-10 bg-[#dbeafe] rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-[#2563eb]" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-[#625f77]">用户 ID</p>
-                  <p className="text-sm font-mono text-[#29264a]">
+                  <p className="text-sm text-[#64748b]">用户 ID</p>
+                  <p className="text-sm font-mono text-[#172033]">
                     {user?.id?.slice(0, 8) || 'N/A'}...
                   </p>
                 </div>
@@ -179,8 +179,8 @@ export default function ProfilePage() {
                   <Mail className="w-5 h-5 text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-[#625f77]">邮箱地址</p>
-                  <p className="text-sm font-medium text-[#29264a]">
+                  <p className="text-sm text-[#64748b]">邮箱地址</p>
+                  <p className="text-sm font-medium text-[#172033]">
                     {user?.email || '未绑定'}
                   </p>
                 </div>
@@ -195,12 +195,12 @@ export default function ProfilePage() {
 
               {/* 创建时间 */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#eeeafd] rounded-full flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-[#5b55d6]" />
+                <div className="w-10 h-10 bg-[#eff6ff] rounded-full flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-[#2563eb]" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-[#625f77]">注册时间</p>
-                  <p className="text-sm font-medium text-[#29264a]">
+                  <p className="text-sm text-[#64748b]">注册时间</p>
+                  <p className="text-sm font-medium text-[#172033]">
                     {user?.created_at
                       ? new Date(user.created_at).toLocaleDateString('zh-CN')
                       : 'N/A'}
@@ -221,17 +221,17 @@ export default function ProfilePage() {
           </div>
 
           {/* 数据统计卡片 */}
-          <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
-            <h2 className="text-xl font-semibold text-[#29264a] mb-6">数据统计</h2>
+          <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
+            <h2 className="text-xl font-semibold text-[#172033] mb-6">数据统计</h2>
 
             {/* 总览统计 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="p-4 bg-[#f3efff] rounded-2xl">
+              <div className="p-4 bg-[#f1f5f9] rounded-2xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <BookOpen className="w-4 h-4 text-[#5b55d6]" />
-                  <p className="text-sm text-[#5b55d6] font-medium">总题目数</p>
+                  <BookOpen className="w-4 h-4 text-[#2563eb]" />
+                  <p className="text-sm text-[#2563eb] font-medium">总题目数</p>
                 </div>
-                <p className="text-2xl font-bold text-[#353087]">{stats.total}</p>
+                <p className="text-2xl font-bold text-[#1e40af]">{stats.total}</p>
               </div>
 
               <div className="p-4 bg-green-50 rounded-2xl">
@@ -252,12 +252,12 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-[#faf8ff] rounded-2xl">
+              <div className="p-4 bg-[#f8fafc] rounded-2xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-[#625f77]" />
-                  <p className="text-sm text-[#625f77] font-medium">未开始</p>
+                  <Clock className="w-4 h-4 text-[#64748b]" />
+                  <p className="text-sm text-[#64748b] font-medium">未开始</p>
                 </div>
-                <p className="text-2xl font-bold text-[#29264a]">
+                <p className="text-2xl font-bold text-[#172033]">
                   {stats.notStarted}
                 </p>
               </div>
@@ -266,7 +266,7 @@ export default function ProfilePage() {
             {/* 学科分布 */}
             {Object.keys(stats.bySubject).length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-[#29264a] mb-3">
+                <h3 className="text-sm font-semibold text-[#172033] mb-3">
                   学科分布
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -275,12 +275,12 @@ export default function ProfilePage() {
                     .map(([subject, count]) => (
                       <div
                         key={subject}
-                        className="flex items-center justify-between p-3 bg-[#faf8ff] rounded-2xl"
+                        className="flex items-center justify-between p-3 bg-[#f8fafc] rounded-2xl"
                       >
-                        <span className="text-sm text-[#514f64]">
+                        <span className="text-sm text-[#475569]">
                           {subjectNames[subject] || subject}
                         </span>
-                        <span className="text-sm font-semibold text-[#29264a]">
+                        <span className="text-sm font-semibold text-[#172033]">
                           {count}
                         </span>
                       </div>
@@ -291,8 +291,8 @@ export default function ProfilePage() {
 
             {/* 复习统计 */}
             {stats.totalReviews > 0 && (
-              <div className="mt-4 p-4 bg-[#f3efff] rounded-2xl">
-                <p className="text-sm text-[#514bb8]">
+              <div className="mt-4 p-4 bg-[#f1f5f9] rounded-2xl">
+                <p className="text-sm text-[#1d4ed8]">
                   累计复习次数：
                   <span className="font-semibold ml-1">{stats.totalReviews}</span> 次
                 </p>
@@ -302,8 +302,8 @@ export default function ProfilePage() {
             {/* 空状态 */}
             {stats.total === 0 && (
               <div className="text-center py-8">
-                <BookOpen className="w-12 h-12 text-[#8b879d] mx-auto mb-3" />
-                <p className="text-[#625f77] mb-4">还没有错题数据</p>
+                <BookOpen className="w-12 h-12 text-[#94a3b8] mx-auto mb-3" />
+                <p className="text-[#64748b] mb-4">还没有错题数据</p>
                 <Link href="/dashboard/upload">
                   <Button>立即上传错题</Button>
                 </Link>
@@ -312,8 +312,8 @@ export default function ProfilePage() {
           </div>
 
           {/* 账户操作卡片 */}
-          <div className="bg-white rounded-2xl border border-[#e4def5] shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
-            <h2 className="text-xl font-semibold text-[#29264a] mb-4">账户操作</h2>
+          <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
+            <h2 className="text-xl font-semibold text-[#172033] mb-4">账户操作</h2>
 
             <div className="space-y-3">
               {/* 绑定邮箱（仅游客） */}

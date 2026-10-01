@@ -28,12 +28,12 @@ const SUBJECT_CONFIG: Record<
 > = {
   math: { name: '数学', icon: '📐', color: '#3b82f6' },
   chinese: { name: '语文', icon: '📖', color: '#ef4444' },
-  english: { name: '英语', icon: '🔤', color: '#8b5cf6' },
+  english: { name: '英语', icon: '🔤', color: '#0ea5e9' },
   physics: { name: '物理', icon: '⚛️', color: '#06b6d4' },
-  chemistry: { name: '化学', icon: '🧪', color: '#248b77' },
+  chemistry: { name: '化学', icon: '🧪', color: '#0f766e' },
   biology: { name: '生物', icon: '🧬', color: '#22c55e' },
   history: { name: '历史', icon: '📜', color: '#f59e0b' },
-  geography: { name: '地理', icon: '🌍', color: '#6366f1' },
+  geography: { name: '地理', icon: '🌍', color: '#2563eb' },
   politics: { name: '政治', icon: '🏛️', color: '#ec4899' },
 }
 
@@ -146,13 +146,13 @@ export default function HistoryPage() {
   const getDifficultyColor = (d: Difficulty) => {
     switch (d) {
       case 'easy':
-        return 'bg-[#e5f8f3] text-[#248b77]'
+        return 'bg-[#ecfdf5] text-[#0f766e]'
       case 'medium':
         return 'bg-[#fef3c7] text-[#f59e0b]'
       case 'hard':
         return 'bg-[#ffe4e6] text-[#f43f5e]'
       default:
-        return 'bg-[#f3efff] text-[#625f77]'
+        return 'bg-[#f1f5f9] text-[#64748b]'
     }
   }
 
@@ -174,8 +174,8 @@ export default function HistoryPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[#5b55d6] animate-spin mx-auto mb-4" />
-          <p className="text-[#625f77]">加载中...</p>
+          <Loader2 className="w-12 h-12 text-[#2563eb] animate-spin mx-auto mb-4" />
+          <p className="text-[#64748b]">加载中...</p>
         </div>
       </div>
     )
@@ -185,50 +185,50 @@ export default function HistoryPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[#29264a] mb-2">历史题库</h1>
-        <p className="text-[#625f77]">查看学习进度和错题统计</p>
+        <h1 className="text-3xl font-bold text-[#172033] mb-2">历史题库</h1>
+        <p className="text-[#64748b]">查看学习进度和错题统计</p>
       </div>
 
       {/* Overview Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-[#eeeafd] rounded-xl flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-[#5b55d6]" />
+            <div className="w-10 h-10 bg-[#eff6ff] rounded-xl flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-[#2563eb]" />
             </div>
-            <span className="text-sm text-[#625f77]">总错题数</span>
+            <span className="text-sm text-[#64748b]">总错题数</span>
           </div>
-          <p className="text-3xl font-bold text-[#29264a]">{stats.total}</p>
+          <p className="text-3xl font-bold text-[#172033]">{stats.total}</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
               <Target className="w-5 h-5 text-green-600" />
             </div>
-            <span className="text-sm text-[#625f77]">掌握率</span>
+            <span className="text-sm text-[#64748b]">掌握率</span>
           </div>
           <p className="text-3xl font-bold text-green-600">{stats.masteryRate}%</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-orange-600" />
             </div>
-            <span className="text-sm text-[#625f77]">待复习</span>
+            <span className="text-sm text-[#64748b]">待复习</span>
           </div>
           <p className="text-3xl font-bold text-orange-600">{stats.pending}</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#e4def5]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-[#eeeafd] rounded-xl flex items-center justify-center">
-              <Clock className="w-5 h-5 text-[#5b55d6]" />
+            <div className="w-10 h-10 bg-[#eff6ff] rounded-xl flex items-center justify-center">
+              <Clock className="w-5 h-5 text-[#2563eb]" />
             </div>
-            <span className="text-sm text-[#625f77]">本周新增</span>
+            <span className="text-sm text-[#64748b]">本周新增</span>
           </div>
-          <p className="text-3xl font-bold text-[#5b55d6]">{stats.weeklyNew}</p>
+          <p className="text-3xl font-bold text-[#2563eb]">{stats.weeklyNew}</p>
         </div>
       </div>
 
@@ -236,13 +236,13 @@ export default function HistoryPage() {
         {/* Left Column - Stats */}
         <div className="lg:col-span-1 space-y-6">
           {/* Subject Breakdown */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#e4def5] p-5">
+          <div className="bg-white rounded-2xl shadow-sm border border-[#dce5ef] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-5 h-5 text-[#5b55d6]" />
-              <h3 className="font-bold text-[#29264a]">学科分布</h3>
+              <BarChart3 className="w-5 h-5 text-[#2563eb]" />
+              <h3 className="font-bold text-[#172033]">学科分布</h3>
             </div>
             {stats.bySubject.length === 0 ? (
-              <p className="text-center text-[#625f77] py-4">暂无数据</p>
+              <p className="text-center text-[#64748b] py-4">暂无数据</p>
             ) : (
               <div className="space-y-4">
                 {stats.bySubject.map((subject) => (
@@ -250,15 +250,15 @@ export default function HistoryPage() {
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span>{subject.icon}</span>
-                        <span className="text-sm font-medium text-[#29264a]">
+                        <span className="text-sm font-medium text-[#172033]">
                           {subject.name}
                         </span>
                       </div>
-                      <span className="text-sm text-[#625f77]">
+                      <span className="text-sm text-[#64748b]">
                         {subject.mastered}/{subject.total}
                       </span>
                     </div>
-                    <div className="h-2 bg-[#f3efff] rounded-full overflow-hidden">
+                    <div className="h-2 bg-[#f1f5f9] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
                         style={{
@@ -267,7 +267,7 @@ export default function HistoryPage() {
                         }}
                       />
                     </div>
-                    <p className="text-xs text-[#625f77] mt-1">掌握率 {subject.rate}%</p>
+                    <p className="text-xs text-[#64748b] mt-1">掌握率 {subject.rate}%</p>
                   </div>
                 ))}
               </div>
@@ -275,14 +275,14 @@ export default function HistoryPage() {
           </div>
 
           {/* Difficulty Breakdown */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#e4def5] p-5">
+          <div className="bg-white rounded-2xl shadow-sm border border-[#dce5ef] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Target className="w-5 h-5 text-[#5b55d6]" />
-              <h3 className="font-bold text-[#29264a]">难度分布</h3>
+              <Target className="w-5 h-5 text-[#2563eb]" />
+              <h3 className="font-bold text-[#172033]">难度分布</h3>
             </div>
             <div className="space-y-3">
               {[
-                { key: 'easy', label: '简单', color: '#248b77' },
+                { key: 'easy', label: '简单', color: '#0f766e' },
                 { key: 'medium', label: '中等', color: '#f59e0b' },
                 { key: 'hard', label: '困难', color: '#f43f5e' },
               ].map((diff) => {
@@ -297,13 +297,13 @@ export default function HistoryPage() {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: diff.color }}
                       />
-                      <span className="text-sm text-[#625f77]">{diff.label}</span>
+                      <span className="text-sm text-[#64748b]">{diff.label}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-[#29264a] font-medium">
+                      <span className="text-sm text-[#172033] font-medium">
                         {data.mastered}/{data.total}
                       </span>
-                      <span className="text-xs text-[#625f77] w-10 text-right">
+                      <span className="text-xs text-[#64748b] w-10 text-right">
                         {rate}%
                       </span>
                     </div>
@@ -314,13 +314,13 @@ export default function HistoryPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#e4def5] p-5">
+          <div className="bg-white rounded-2xl shadow-sm border border-[#dce5ef] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-[#5b55d6]" />
-              <h3 className="font-bold text-[#29264a]">最近添加</h3>
+              <Clock className="w-5 h-5 text-[#2563eb]" />
+              <h3 className="font-bold text-[#172033]">最近添加</h3>
             </div>
             {recentQuestions.length === 0 ? (
-              <p className="text-center text-[#625f77] py-4">暂无数据</p>
+              <p className="text-center text-[#64748b] py-4">暂无数据</p>
             ) : (
               <div className="space-y-3">
                 {recentQuestions.map((q) => {
@@ -329,15 +329,15 @@ export default function HistoryPage() {
                     <Link
                       key={q.id}
                       href={`/dashboard/questions?id=${q.id}`}
-                      className="block p-3 bg-[#fff9f1] rounded-xl hover:bg-[#eeeafd]/30 transition-colors"
+                      className="block p-3 bg-[#f6f9fc] rounded-xl hover:bg-[#eff6ff]/30 transition-colors"
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm">{subject?.icon}</span>
-                        <span className="text-xs text-[#625f77]">
+                        <span className="text-xs text-[#64748b]">
                           {new Date(q.created_at).toLocaleDateString('zh-CN')}
                         </span>
                       </div>
-                      <p className="text-sm text-[#29264a] line-clamp-1">{q.content}</p>
+                      <p className="text-sm text-[#172033] line-clamp-1">{q.content}</p>
                     </Link>
                   )
                 })}
@@ -348,17 +348,17 @@ export default function HistoryPage() {
 
         {/* Right Column - Question List */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl shadow-sm border border-[#e4def5] p-5">
+          <div className="bg-white rounded-2xl shadow-sm border border-[#dce5ef] p-5">
             {/* Search and Filters */}
             <div className="mb-6">
               <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#625f77]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748b]" />
                   <Input
                     placeholder="搜索题目内容..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-12 border-[#d7d1eb] focus:border-[#5b55d6] rounded-xl"
+                    className="pl-10 h-12 border-[#dce5ef] focus:border-[#2563eb] rounded-xl"
                   />
                 </div>
               </div>
@@ -369,7 +369,7 @@ export default function HistoryPage() {
                     setSelectedSubject(e.target.value)
                     setSelectedCategory('')
                   }}
-                  className="px-4 py-2 bg-[#fff9f1] border border-[#d7d1eb] rounded-2xl text-sm focus:outline-none focus:border-[#5b55d6]"
+                  className="px-4 py-2 bg-[#f6f9fc] border border-[#dce5ef] rounded-2xl text-sm focus:outline-none focus:border-[#2563eb]"
                 >
                   <option value="">所有学科</option>
                   {SUBJECTS.map((s) => (
@@ -381,7 +381,7 @@ export default function HistoryPage() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 bg-[#fff9f1] border border-[#d7d1eb] rounded-2xl text-sm focus:outline-none focus:border-[#5b55d6]"
+                  className="px-4 py-2 bg-[#f6f9fc] border border-[#dce5ef] rounded-2xl text-sm focus:outline-none focus:border-[#2563eb]"
                 >
                   <option value="">所有分类</option>
                   {(selectedSubject
@@ -396,7 +396,7 @@ export default function HistoryPage() {
                 <select
                   value={selectedDifficulty}
                   onChange={(e) => setSelectedDifficulty(e.target.value)}
-                  className="px-4 py-2 bg-[#fff9f1] border border-[#d7d1eb] rounded-2xl text-sm focus:outline-none focus:border-[#5b55d6]"
+                  className="px-4 py-2 bg-[#f6f9fc] border border-[#dce5ef] rounded-2xl text-sm focus:outline-none focus:border-[#2563eb]"
                 >
                   <option value="">所有难度</option>
                   <option value="easy">简单</option>
@@ -420,9 +420,9 @@ export default function HistoryPage() {
 
             {/* Results Count */}
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-[#625f77]">
+              <p className="text-sm text-[#64748b]">
                 共{' '}
-                <span className="font-bold text-[#29264a]">
+                <span className="font-bold text-[#172033]">
                   {filteredQuestions.length}
                 </span>{' '}
                 道错题
@@ -432,10 +432,10 @@ export default function HistoryPage() {
             {/* Question List */}
             {filteredQuestions.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-[#f3efff] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="w-8 h-8 text-[#8b879d]" />
+                <div className="w-16 h-16 bg-[#f1f5f9] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="w-8 h-8 text-[#94a3b8]" />
                 </div>
-                <p className="text-[#716d86]">没有找到符合条件的错题</p>
+                <p className="text-[#64748b]">没有找到符合条件的错题</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -445,7 +445,7 @@ export default function HistoryPage() {
                     <Link
                       key={question.id}
                       href={`/dashboard/questions?id=${question.id}`}
-                      className="block p-4 bg-[#fff9f1] rounded-xl hover:bg-[#eeeafd]/20 transition-colors group"
+                      className="block p-4 bg-[#f6f9fc] rounded-xl hover:bg-[#eff6ff]/20 transition-colors group"
                     >
                       <div className="flex items-start gap-4">
                         <div
@@ -474,7 +474,7 @@ export default function HistoryPage() {
                             </Badge>
                             <Badge
                               variant="secondary"
-                              className="text-xs bg-white text-[#625f77]"
+                              className="text-xs bg-white text-[#64748b]"
                             >
                               {question.category}
                             </Badge>
@@ -484,10 +484,10 @@ export default function HistoryPage() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-[#29264a] font-medium line-clamp-2 mb-2">
+                          <p className="text-[#172033] font-medium line-clamp-2 mb-2">
                             {question.content}
                           </p>
-                          <div className="flex items-center gap-4 text-sm text-[#625f77]">
+                          <div className="flex items-center gap-4 text-sm text-[#64748b]">
                             <span className="flex items-center gap-1">
                               <GraduationCap className="w-4 h-4" />
                               答案：{question.answer}
@@ -500,7 +500,7 @@ export default function HistoryPage() {
                             </span>
                           </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-[#d7d1eb] group-hover:text-[#5b55d6] transition-colors" />
+                        <ChevronRight className="w-5 h-5 text-[#dce5ef] group-hover:text-[#2563eb] transition-colors" />
                       </div>
                     </Link>
                   )

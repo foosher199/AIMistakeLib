@@ -101,11 +101,11 @@ export function BindEmailForm({ onSuccess }: BindEmailFormProps) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#f3efff] border border-[#ded9fb] rounded-2xl p-4">
-        <p className="text-sm text-[#403a9f]">
+      <div className="bg-[#f1f5f9] border border-[#bfdbfe] rounded-2xl p-4">
+        <p className="text-sm text-[#1e40af]">
           <strong>游客模式</strong>：您当前以游客身份使用，绑定邮箱后可以：
         </p>
-        <ul className="mt-2 text-sm text-[#514bb8] list-disc list-inside space-y-1">
+        <ul className="mt-2 text-sm text-[#1d4ed8] list-disc list-inside space-y-1">
           <li>永久保存您的所有错题数据</li>
           <li>在任何设备上登录访问</li>
           <li>不会丢失任何已有数据</li>
@@ -114,7 +114,7 @@ export function BindEmailForm({ onSuccess }: BindEmailFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="bind-email" className="text-sm font-medium text-[#514f64]">
+          <label htmlFor="bind-email" className="text-sm font-medium text-[#475569]">
             绑定邮箱
           </label>
           <Input
@@ -134,7 +134,7 @@ export function BindEmailForm({ onSuccess }: BindEmailFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="bind-password"
-            className="text-sm font-medium text-[#514f64]"
+            className="text-sm font-medium text-[#475569]"
           >
             设置密码
           </label>
@@ -155,7 +155,7 @@ export function BindEmailForm({ onSuccess }: BindEmailFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="bind-confirm-password"
-            className="text-sm font-medium text-[#514f64]"
+            className="text-sm font-medium text-[#475569]"
           >
             确认密码
           </label>

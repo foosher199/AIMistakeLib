@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "jelly-outline",
         secondary:
           "jelly-secondary",
-        ghost: "text-[#625f77] hover:bg-[#eeeafd] hover:text-[#514bb8]",
+        ghost: "text-[#64748b] hover:bg-[#eff6ff] hover:text-[#1d4ed8]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

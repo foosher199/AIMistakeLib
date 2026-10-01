@@ -54,7 +54,7 @@ export default function CreditsPage() {
   if (loading || !user || credits.isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-9 w-9 animate-spin text-[#5b55d6]" />
+        <Loader2 className="h-9 w-9 animate-spin text-[#2563eb]" />
       </div>
     )
   }
@@ -64,8 +64,8 @@ export default function CreditsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#29264a]">积分中心</h1>
-        <p className="mt-2 text-[#625f77]">查看 AI 调用积分，并兑换试用邀请码。</p>
+        <h1 className="text-3xl font-bold text-[#172033]">积分中心</h1>
+        <p className="mt-2 text-[#64748b]">查看 AI 调用积分，并兑换试用邀请码。</p>
       </div>
 
       {credits.isError ? (
@@ -81,14 +81,14 @@ export default function CreditsPage() {
       )}
 
       {balance?.inviteRequired && (
-        <section className="rounded-2xl border border-[#ded9fb] bg-white p-6 shadow-[0_8px_24px_rgba(76,65,147,0.10)]">
+        <section className="rounded-2xl border border-[#bfdbfe] bg-white p-6 shadow-[0_8px_24px_rgba(30,64,100,0.10)]">
           <div className="mb-4 flex items-start gap-3">
-            <div className="rounded-full bg-[#eeeafd] p-2 text-[#5b55d6]">
+            <div className="rounded-full bg-[#eff6ff] p-2 text-[#2563eb]">
               <Ticket className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-semibold text-[#29264a]">兑换试用邀请码</h2>
-              <p className="mt-1 text-sm text-[#625f77]">
+              <h2 className="font-semibold text-[#172033]">兑换试用邀请码</h2>
+              <p className="mt-1 text-sm text-[#64748b]">
                 每个邀请码和每个注册账户都只能兑换一次。
               </p>
             </div>
@@ -125,10 +125,10 @@ export default function CreditsPage() {
         </section>
       )}
 
-      <section className="rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-6">
-        <h2 className="mb-4 text-xl font-semibold text-[#29264a]">积分明细</h2>
+      <section className="rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
+        <h2 className="mb-4 text-xl font-semibold text-[#172033]">积分明细</h2>
         {transactions.isLoading ? (
-          <Loader2 className="h-6 w-6 animate-spin text-[#5b55d6]" />
+          <Loader2 className="h-6 w-6 animate-spin text-[#2563eb]" />
         ) : transactions.isError ? (
           <p className="text-sm text-red-600">{transactions.error.message}</p>
         ) : transactions.data?.length ? (
@@ -136,10 +136,10 @@ export default function CreditsPage() {
             {transactions.data.map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between gap-4 py-3">
                 <div>
-                  <p className="text-sm font-medium text-[#29264a]">
+                  <p className="text-sm font-medium text-[#172033]">
                     {transaction.description || transactionNames[transaction.transaction_type] || '积分变动'}
                   </p>
-                  <p className="mt-1 text-xs text-[#716d86]">
+                  <p className="mt-1 text-xs text-[#64748b]">
                     {new Date(transaction.created_at).toLocaleString('zh-CN')}
                   </p>
                 </div>
@@ -147,17 +147,17 @@ export default function CreditsPage() {
                   <p className={`font-semibold ${transaction.available_delta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {transaction.available_delta > 0 ? '+' : ''}{transaction.available_delta}
                   </p>
-                  <p className="text-xs text-[#716d86]">余额 {transaction.available_after}</p>
+                  <p className="text-xs text-[#64748b]">余额 {transaction.available_after}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-[#716d86]">暂无积分记录</p>
+          <p className="text-sm text-[#64748b]">暂无积分记录</p>
         )}
       </section>
 
-      <p className="text-sm text-[#716d86]">
+      <p className="text-sm text-[#64748b]">
         图片识别、错因分析和举一反三会根据模型实际用量结算；失败的模型调用会自动退回预冻结积分。
       </p>
     </div>
@@ -174,12 +174,12 @@ function StatCard({
   value: number
 }) {
   return (
-    <div className="rounded-2xl border border-[#e4def5] bg-white shadow-[0_8px_24px_rgba(76,65,147,0.10)] p-5">
-      <div className="flex items-center gap-3 text-[#625f77]">
-        <Icon className="h-5 w-5 text-[#5b55d6]" />
+    <div className="rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-5">
+      <div className="flex items-center gap-3 text-[#64748b]">
+        <Icon className="h-5 w-5 text-[#2563eb]" />
         <span className="text-sm">{label}</span>
       </div>
-      <p className="mt-3 text-3xl font-bold text-[#29264a]">{value.toLocaleString('zh-CN')}</p>
+      <p className="mt-3 text-3xl font-bold text-[#172033]">{value.toLocaleString('zh-CN')}</p>
     </div>
   )
 }

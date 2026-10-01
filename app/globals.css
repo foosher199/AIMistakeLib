@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 34 100% 97%;
-    --foreground: 245 32% 22%;
+    --background: 210 40% 98%;
+    --foreground: 217 38% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 245 32% 22%;
+    --card-foreground: 217 38% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 245 32% 22%;
+    --popover-foreground: 217 38% 15%;
 
-    --primary: 244 61% 59%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 248 61% 96%;
-    --secondary-foreground: 244 43% 51%;
+    --secondary: 214 100% 97%;
+    --secondary-foreground: 224 76% 48%;
 
-    --muted: 260 100% 98%;
-    --muted-foreground: 249 11% 42%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 164 58% 94%;
-    --accent-foreground: 168 56% 31%;
+    --accent: 152 81% 96%;
+    --accent-foreground: 173 80% 30%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 253 49% 92%;
-    --input: 253 34% 88%;
-    --ring: 244 61% 59%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
 
     --radius: 1rem;
   }
@@ -69,13 +69,13 @@
 @layer components {
   .jelly-button {
     border: 1px solid rgb(255 255 255 / 65%);
-    background: linear-gradient(180deg, #7771ed 0%, #5b55d6 72%, #514bb8 100%);
+    background: linear-gradient(180deg, #60a5fa 0%, #2563eb 72%, #1d4ed8 100%);
     color: white;
     box-shadow:
       inset 0 2px 1px rgb(255 255 255 / 48%),
-      inset 0 -3px 6px rgb(55 48 150 / 18%),
-      0 4px 0 #403a9f,
-      0 8px 18px rgb(91 85 214 / 24%);
+      inset 0 -3px 6px rgb(30 64 175 / 18%),
+      0 4px 0 #1e40af,
+      0 8px 18px rgb(37 99 235 / 22%);
     transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
   }
 
@@ -84,86 +84,86 @@
     filter: brightness(1.04);
     box-shadow:
       inset 0 2px 1px rgb(255 255 255 / 52%),
-      inset 0 -3px 6px rgb(55 48 150 / 16%),
-      0 5px 0 #403a9f,
-      0 11px 22px rgb(91 85 214 / 27%);
+      inset 0 -3px 6px rgb(30 64 175 / 16%),
+      0 5px 0 #1e40af,
+      0 11px 22px rgb(37 99 235 / 25%);
   }
 
   .jelly-button:active {
     transform: translateY(3px) scale(0.985);
     filter: brightness(0.98);
     box-shadow:
-      inset 0 3px 6px rgb(55 48 150 / 22%),
-      0 1px 0 #403a9f,
-      0 4px 9px rgb(91 85 214 / 20%);
+      inset 0 3px 6px rgb(30 64 175 / 22%),
+      0 1px 0 #1e40af,
+      0 4px 9px rgb(37 99 235 / 18%);
   }
 
   .jelly-outline,
   .jelly-secondary {
-    border: 1px solid #d7d1eb;
-    color: #514bb8;
+    border: 1px solid #dce5ef;
+    color: #1d4ed8;
     box-shadow:
       inset 0 1px 1px rgb(255 255 255 / 85%),
-      0 3px 0 #d1cbea,
-      0 6px 12px rgb(76 65 147 / 10%);
+      0 3px 0 #bfdbfe,
+      0 6px 12px rgb(30 64 100 / 9%);
     transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
   }
 
   .jelly-outline {
-    background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   }
 
   .jelly-secondary {
-    background: linear-gradient(180deg, #f4f1ff 0%, #e7e3fb 100%);
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
   }
 
   .jelly-outline:hover,
   .jelly-secondary:hover {
     transform: translateY(-1px);
-    border-color: #bdb5e4;
-    background-color: #f3efff;
+    border-color: #93c5fd;
+    background-color: #eff6ff;
     box-shadow:
       inset 0 1px 1px rgb(255 255 255 / 90%),
-      0 4px 0 #d1cbea,
-      0 8px 15px rgb(76 65 147 / 13%);
+      0 4px 0 #bfdbfe,
+      0 8px 15px rgb(30 64 100 / 12%);
   }
 
   .jelly-outline:active,
   .jelly-secondary:active {
     transform: translateY(2px) scale(0.99);
     box-shadow:
-      inset 0 2px 4px rgb(76 65 147 / 12%),
-      0 1px 0 #d1cbea,
-      0 3px 7px rgb(76 65 147 / 10%);
+      inset 0 2px 4px rgb(30 64 100 / 11%),
+      0 1px 0 #bfdbfe,
+      0 3px 7px rgb(30 64 100 / 9%);
   }
 
   .dashboard-shell .jelly-button {
-    border: 1px solid #625cc2;
-    background: #625cc2;
-    box-shadow: 0 2px 5px rgb(76 65 147 / 14%);
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    box-shadow: 0 2px 5px rgb(30 64 100 / 13%);
     transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
   }
 
   .dashboard-shell .jelly-button:hover {
     transform: none;
-    border-color: #5650ad;
-    background: #5650ad;
+    border-color: #1d4ed8;
+    background: #1d4ed8;
     filter: none;
-    box-shadow: 0 3px 8px rgb(76 65 147 / 16%);
+    box-shadow: 0 3px 8px rgb(30 64 100 / 15%);
   }
 
   .dashboard-shell .jelly-button:active {
     transform: none;
-    border-color: #4d489c;
-    background: #4d489c;
+    border-color: #1e40af;
+    background: #1e40af;
     filter: none;
-    box-shadow: 0 1px 3px rgb(76 65 147 / 14%);
+    box-shadow: 0 1px 3px rgb(30 64 100 / 13%);
   }
 
   .dashboard-shell .jelly-outline,
   .dashboard-shell .jelly-secondary {
-    border: 1px solid #d8d4e4;
-    color: #514bb8;
+    border: 1px solid #dce5ef;
+    color: #1d4ed8;
     box-shadow: none;
     transition: background-color 150ms ease, border-color 150ms ease;
   }
@@ -173,52 +173,52 @@
   }
 
   .dashboard-shell .jelly-secondary {
-    background: #f1eff8;
+    background: #eff6ff;
   }
 
   .dashboard-shell .jelly-outline:hover,
   .dashboard-shell .jelly-secondary:hover {
     transform: none;
-    border-color: #c6c0dc;
-    background: #f5f3fa;
+    border-color: #bfdbfe;
+    background: #f8fafc;
     box-shadow: none;
   }
 
   .dashboard-shell .jelly-outline:active,
   .dashboard-shell .jelly-secondary:active {
     transform: none;
-    background: #ece9f5;
+    background: #dbeafe;
     box-shadow: none;
   }
 
   .dashboard-nav-item {
     border: 1px solid transparent;
     background: transparent;
-    color: #454153;
+    color: #475569;
     box-shadow: none;
     transition: color 150ms ease, background-color 150ms ease;
   }
 
   .dashboard-nav-item svg {
-    color: #716ab7;
+    color: #3b82f6;
   }
 
   .dashboard-nav-item:hover {
-    background: #eeebfa;
+    background: #eff6ff;
     border-color: transparent;
-    color: #514bb8;
+    color: #1d4ed8;
     box-shadow: none;
   }
 
   .dashboard-nav-item:active {
-    background: #e8e4f7;
+    background: #dbeafe;
     box-shadow: none;
   }
 
   .dashboard-nav-item.is-active {
     border-color: transparent;
-    background: #eae7f8;
-    color: #514bb8;
+    background: #dbeafe;
+    color: #1d4ed8;
     box-shadow: none;
   }
 

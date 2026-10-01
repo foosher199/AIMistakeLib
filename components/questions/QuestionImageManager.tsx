@@ -119,7 +119,7 @@ export function QuestionImageManager({ question }: { question: Question }) {
       {visibleImages.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {visibleImages.map((image, index) => (
-            <img key={image.id} src={image.signedUrl} alt={`题目图片 ${index + 1}`} className="h-36 w-full rounded border border-[#e4def5] object-contain" />
+            <img key={image.id} src={image.signedUrl} alt={`题目图片 ${index + 1}`} className="h-36 w-full rounded border border-[#dce5ef] object-contain" />
           ))}
         </div>
       )}
@@ -143,7 +143,7 @@ export function QuestionImageManager({ question }: { question: Question }) {
             添加图片
           </Button>
           {images.length === 0 ? (
-            <p className="py-8 text-center text-sm text-[#625f77]">暂无新存储图片；旧图片仍会继续显示。</p>
+            <p className="py-8 text-center text-sm text-[#64748b]">暂无新存储图片；旧图片仍会继续显示。</p>
           ) : (
             <div className="space-y-3">
               {images.map((image, index) => (
