@@ -74,7 +74,7 @@ function SidebarContent({
       href={href}
       onClick={onNavigate}
       className={cn(
-        'dashboard-nav-item flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+        'dashboard-nav-item flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold',
         isCurrentPath(pathname, href) && 'is-active'
       )}
     >
@@ -90,8 +90,8 @@ function SidebarContent({
         onClick={onNavigate}
         className="flex h-16 items-center gap-3 border-b border-[#e2e8f0] px-5"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#bfdbfe] bg-[#eff6ff] shadow-[0_2px_6px_rgba(30,64,100,0.08)]">
-          <BookOpen className="h-5 w-5 text-[#3b82f6]" />
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-[0_6px_14px_rgba(37,99,235,0.18)]">
+          <BookOpen className="h-5 w-5 text-white" />
         </span>
         <span className="text-lg font-bold text-[#172b4d]">AI 错题本</span>
       </Link>
@@ -100,13 +100,13 @@ function SidebarContent({
         <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">
           学习工具
         </p>
-        <div className="space-y-1">{navigation.map(renderLink)}</div>
+        <div className="space-y-1.5">{navigation.map(renderLink)}</div>
 
         <div className="my-5 border-t border-[#e2e8f0]" />
         <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">
           账户与支持
         </p>
-        <div className="space-y-1">{secondaryNavigation.map(renderLink)}</div>
+        <div className="space-y-1.5">{secondaryNavigation.map(renderLink)}</div>
       </nav>
 
       <div className="border-t border-[#e2e8f0] p-3">
@@ -114,7 +114,7 @@ function SidebarContent({
           href="/dashboard/profile"
           onClick={onNavigate}
           className={cn(
-            'dashboard-nav-item flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+            'dashboard-nav-item flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold',
             isCurrentPath(pathname, '/dashboard/profile') && 'is-active'
           )}
         >
@@ -270,7 +270,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="relative mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main className="relative w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>

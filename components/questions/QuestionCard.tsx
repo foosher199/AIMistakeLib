@@ -212,7 +212,7 @@ export function QuestionCard({
   const hasAnalysis = existingAnalysis.tags.length > 0
 
   return (
-    <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] shadow-sm hover:shadow-md transition-shadow p-4">
+    <div className="rounded-2xl border border-[#dce7f5] bg-white p-4 shadow-[0_4px_14px_rgba(30,64,100,0.045)] transition-[border-color,box-shadow] hover:border-[#bfdbfe] hover:shadow-[0_8px_22px_rgba(30,64,100,0.07)]">
       {/* 头部：标签和操作 */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-wrap gap-2">

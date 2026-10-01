@@ -60,7 +60,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* 筛选器 */}
       <QuestionFilters filters={filters} onChange={handleFilterChange} />
 
@@ -114,7 +114,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
           ) : (
             <>
               {/* 结果计数 */}
-              <div className="text-sm text-[#64748b]">
+              <div className="text-base text-[#64748b]">
                 共找到 <span className="font-medium text-[#172b4d]">{data.total}</span> 道题目
                 {page > 0 && (
                   <span className="ml-2">

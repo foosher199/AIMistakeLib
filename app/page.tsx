@@ -42,9 +42,24 @@ export default function HomePage() {
   }, [])
 
   const features = [
-    { icon: Camera, text: '拍照识别题目' },
-    { icon: Sparkles, text: 'AI智能分析' },
-    { icon: BookOpen, text: '高效复习' },
+    {
+      icon: Camera,
+      text: '拍照识别题目',
+      iconClass: 'text-[#059669]',
+      shellClass: 'border-[#a7f3d0] bg-[#ecfdf5]',
+    },
+    {
+      icon: Sparkles,
+      text: 'AI智能分析',
+      iconClass: 'text-[#d97706]',
+      shellClass: 'border-[#fde68a] bg-[#fffbeb]',
+    },
+    {
+      icon: BookOpen,
+      text: '高效复习',
+      iconClass: 'text-[#2563eb]',
+      shellClass: 'border-[#bfdbfe] bg-[#eff6ff]',
+    },
   ]
 
   return (
@@ -54,36 +69,25 @@ export default function HomePage() {
         ref={heroRef}
         className="relative min-h-[80vh] flex items-center overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
       >
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#eff6ff] via-[#f7faff] to-[#ecfdf5]" />
-
-        {/* Animated Background Shapes */}
+        {/* Icy blue education-product background */}
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,#fbfdff_0%,#f4f9ff_42%,#e8f4ff_100%)]" />
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-16 left-6 h-72 w-72 rounded-full bg-[#60a5fa]/15 blur-3xl animate-pulse" />
-          <div
-            className="absolute bottom-12 right-4 h-96 w-96 rounded-full bg-[#2dd4bf]/15 blur-3xl animate-pulse"
-            style={{ animationDelay: '1s' }}
-          />
-          <div className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-radial from-[#ffcf70]/10 to-transparent" />
+          <div className="absolute -left-28 -top-24 h-[34rem] w-[34rem] rounded-full bg-white/90 blur-3xl" />
+          <div className="absolute left-[42%] top-[-58%] h-[165%] w-44 rotate-[42deg] bg-white/55 blur-sm" />
+          <div className="absolute left-[58%] top-[-48%] h-[155%] w-72 rotate-[42deg] bg-[#bfdbfe]/25 blur-md" />
+          <div className="absolute -right-24 top-4 h-[32rem] w-[32rem] rounded-full bg-[#93c5fd]/20 blur-3xl" />
+          <div className="absolute bottom-[-35%] left-[28%] h-[28rem] w-[52rem] rounded-full bg-white/75 blur-3xl" />
         </div>
 
         <div className="relative w-full max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Content */}
             <div className="space-y-8">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-white/80 px-4 py-2 shadow-sm backdrop-blur">
-                <Sparkles className="h-4 w-4 text-[#3b82f6]" />
-                <span className="text-sm font-semibold text-[#2563eb]">
-                  AI 驱动的智能错题本
-                </span>
-              </div>
-
               {/* Title */}
               <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-[#172b4d] sm:text-5xl lg:text-6xl">
                 错题本，
                 <br />
-                <span className="bg-gradient-to-r from-[#3b82f6] to-[#10b981] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#3b82f6] via-[#3180f5] to-[#2563eb] bg-clip-text text-transparent">
                   但有了超能力
                 </span>
               </h1>
@@ -119,8 +123,10 @@ export default function HomePage() {
                       key={index}
                       className="flex items-center gap-2 text-[#64748b]"
                     >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d1fae5] bg-[#ecfdf5] shadow-sm">
-                        <Icon className="h-4 w-4 text-[#0f766e]" />
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-full border shadow-sm ${feature.shellClass}`}
+                      >
+                        <Icon className={`h-4 w-4 ${feature.iconClass}`} />
                       </div>
                       <span className="text-sm font-medium">{feature.text}</span>
                     </div>
@@ -136,11 +142,11 @@ export default function HomePage() {
               style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Main Card */}
-              <div className="relative rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-[0_24px_70px_rgba(30,64,100,0.10)] backdrop-blur">
+              <div className="relative rounded-[28px] border border-[#dce7f5] bg-white/95 p-6 shadow-[0_24px_70px_rgba(37,99,235,0.12)] backdrop-blur-xl">
                 {/* Card Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/60 bg-gradient-to-br from-[#3b82f6] to-[#3b82f6] shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_0_#1e40af]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/70 bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_8px_18px_rgba(37,99,235,0.20)]">
                       <Camera className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -156,7 +162,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Question Preview */}
-                <div className="mb-4 rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-5">
+                <div className="mb-4 rounded-2xl border border-[#dce7f5] bg-[#f8fbff] p-5">
                   <div className="flex items-start gap-3">
                     <span className="rounded-lg bg-[#3b82f6] px-2.5 py-1 text-xs font-bold text-white">
                       数学

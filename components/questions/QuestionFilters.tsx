@@ -75,7 +75,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
   ].filter(Boolean).length
 
   return (
-    <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-4 space-y-4">
+    <div className="space-y-4 border-b border-[#e5eef9] pb-5">
       {/* 搜索框 */}
       <form onSubmit={handleSearchSubmit} className="flex gap-2">
         <div className="relative flex-1">
@@ -85,10 +85,12 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             placeholder="搜索题目内容或知识点..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-10"
+            className="h-12 rounded-full border-[#dce7f5] pl-11 shadow-none"
           />
         </div>
-        <Button type="submit">搜索</Button>
+        <Button type="submit" variant="jelly" className="h-12 rounded-full px-7">
+          搜索
+        </Button>
       </form>
 
       {/* 筛选按钮组 */}
@@ -99,7 +101,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             <Button
               variant={filters.subject ? 'default' : 'outline'}
               size="sm"
-              className="gap-2"
+              className="gap-2 rounded-full px-4"
             >
               <Filter className="w-4 h-4" />
               学科
@@ -129,7 +131,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             <Button
               variant={filters.difficulty ? 'default' : 'outline'}
               size="sm"
-              className="gap-2"
+              className="gap-2 rounded-full px-4"
             >
               <Filter className="w-4 h-4" />
               难度
@@ -159,7 +161,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             <Button
               variant={filters.is_mastered !== undefined ? 'default' : 'outline'}
               size="sm"
-              className="gap-2"
+              className="gap-2 rounded-full px-4"
             >
               <Filter className="w-4 h-4" />
               状态

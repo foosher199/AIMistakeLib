@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { QuestionList } from '@/components/questions/QuestionList'
-import { QuestionStats } from '@/components/questions/QuestionStats'
 import { QuestionForm } from '@/components/upload/QuestionForm'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/database'
-import { Plus, Loader2 } from 'lucide-react'
+import { FileText, Plus, Loader2 } from 'lucide-react'
 
 export default function QuestionsPage() {
   const router = useRouter()
@@ -54,27 +53,30 @@ export default function QuestionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* 头部 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-[#172b4d] mb-2">错题列表</h1>
-          <p className="text-[#64748b]">管理和复习你的错题</p>
+    <div>
+      <section className="rounded-[28px] border border-[#dce7f5] bg-white p-5 shadow-[0_14px_40px_rgba(30,64,100,0.07)] sm:p-6">
+        {/* 头部 */}
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white shadow-[0_6px_14px_rgba(37,99,235,0.18)]">
+              <FileText className="h-5 w-5" />
+            </span>
+            <h1 className="text-2xl font-bold text-[#172b4d]">错题列表</h1>
+          </div>
+
+          <Button
+            onClick={handleAdd}
+            variant="jelly"
+            className="rounded-full px-6"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            手动添加
+          </Button>
         </div>
 
-        <Button
-          onClick={handleAdd}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          手动添加
-        </Button>
-      </div>
-
-      {/* 统计卡片 */}
-      <QuestionStats />
-
-      {/* 题目列表 */}
-      <QuestionList onEdit={handleEdit} />
+        {/* 题目列表 */}
+        <QuestionList onEdit={handleEdit} />
+      </section>
 
       {/* 题目表单 */}
       <QuestionForm
