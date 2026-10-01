@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useQuestions } from '@/hooks/useQuestions'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { SubjectIcon } from '@/components/subjects/SubjectIcon'
+import { SUBJECT_CONFIG } from '@/lib/subject-config'
 import {
   Search,
   BookOpen,
@@ -20,22 +22,6 @@ import {
 } from 'lucide-react'
 import { SUBJECTS, CATEGORIES, type Subject, type Difficulty } from '@/types/database'
 import Link from 'next/link'
-
-// 学科配置（带图标和颜色）
-const SUBJECT_CONFIG: Record<
-  Subject,
-  { name: string; icon: string; color: string }
-> = {
-  math: { name: '数学', icon: '📐', color: '#3b82f6' },
-  chinese: { name: '语文', icon: '📖', color: '#ef4444' },
-  english: { name: '英语', icon: '🔤', color: '#0ea5e9' },
-  physics: { name: '物理', icon: '⚛️', color: '#06b6d4' },
-  chemistry: { name: '化学', icon: '🧪', color: '#0f766e' },
-  biology: { name: '生物', icon: '🧬', color: '#22c55e' },
-  history: { name: '历史', icon: '📜', color: '#f59e0b' },
-  geography: { name: '地理', icon: '🌍', color: '#2563eb' },
-  politics: { name: '政治', icon: '🏛️', color: '#ec4899' },
-}
 
 export default function HistoryPage() {
   const router = useRouter()
@@ -56,7 +42,10 @@ export default function HistoryPage() {
   const { data: questionsData, isLoading: questionsLoading } = useQuestions({
     limit: 1000,
   })
-  const questions = questionsData?.questions || []
+  const questions = useMemo(
+    () => questionsData?.questions ?? [],
+    [questionsData?.questions]
+  )
 
   // 计算详细统计
   const stats = useMemo(() => {
@@ -249,7 +238,11 @@ export default function HistoryPage() {
                   <div key={subject.id}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span>{subject.icon}</span>
+                        <SubjectIcon
+                          subject={subject.id}
+                          className="h-4 w-4"
+                          style={{ color: subject.color }}
+                        />
                         <span className="text-sm font-medium text-[#172033]">
                           {subject.name}
                         </span>
@@ -332,7 +325,11 @@ export default function HistoryPage() {
                       className="block p-3 bg-[#f6f9fc] rounded-xl hover:bg-[#eff6ff]/30 transition-colors"
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm">{subject?.icon}</span>
+                        <SubjectIcon
+                          subject={q.subject as Subject}
+                          className="h-4 w-4"
+                          style={{ color: subject?.color }}
+                        />
                         <span className="text-xs text-[#64748b]">
                           {new Date(q.created_at).toLocaleDateString('zh-CN')}
                         </span>
@@ -449,20 +446,26 @@ export default function HistoryPage() {
                     >
                       <div className="flex items-start gap-4">
                         <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl"
+                          className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: subject?.color + '20' }}
                         >
-                          {subject?.icon}
+                          <SubjectIcon
+                            subject={question.subject as Subject}
+                            className="h-6 w-6"
+                            style={{ color: subject?.color }}
+                          />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <Badge
-                              className="text-xs"
-                              style={{
-                                backgroundColor: subject?.color + '20',
-                                color: subject?.color,
-                              }}
+                              variant="outline"
+                              className="gap-1.5 border-[#dce5ef] bg-white text-xs font-semibold text-[#172033] shadow-none"
                             >
+                              <SubjectIcon
+                                subject={question.subject as Subject}
+                                className="h-3.5 w-3.5"
+                                style={{ color: subject?.color }}
+                              />
                               {subject?.name}
                             </Badge>
                             <Badge
