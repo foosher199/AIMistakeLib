@@ -28,7 +28,7 @@ export default function QuestionsPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[#2563eb] animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-[#3b82f6] animate-spin mx-auto mb-4" />
           <p className="text-[#64748b]">加载中...</p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function QuestionsPage() {
       {/* 头部 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#172033] mb-2">错题列表</h1>
+          <h1 className="text-3xl font-bold text-[#172b4d] mb-2">错题列表</h1>
           <p className="text-[#64748b]">管理和复习你的错题</p>
         </div>
 

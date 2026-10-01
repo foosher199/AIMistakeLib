@@ -119,7 +119,7 @@ export function QuestionImageManager({ question }: { question: Question }) {
       {visibleImages.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {visibleImages.map((image, index) => (
-            <img key={image.id} src={image.signedUrl} alt={`题目图片 ${index + 1}`} className="h-36 w-full rounded border border-[#dce5ef] object-contain" />
+            <img key={image.id} src={image.signedUrl} alt={`题目图片 ${index + 1}`} className="h-36 w-full rounded border border-[#dce7f5] object-contain" />
           ))}
         </div>
       )}

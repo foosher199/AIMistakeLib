@@ -186,8 +186,8 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="请输入题目内容..."
-              className={`w-full min-h-[120px] px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563eb] ${
-                errors.content ? 'border-red-500' : 'border-[#dce5ef]'
+              className={`w-full min-h-[120px] px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3b82f6] ${
+                errors.content ? 'border-red-500' : 'border-[#dce7f5]'
               }`}
             />
             {errors.content && (
@@ -297,8 +297,8 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="请输入正确答案..."
-              className={`w-full min-h-[80px] px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563eb] ${
-                errors.answer ? 'border-red-500' : 'border-[#dce5ef]'
+              className={`w-full min-h-[80px] px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3b82f6] ${
+                errors.answer ? 'border-red-500' : 'border-[#dce7f5]'
               }`}
             />
             {errors.answer && (
@@ -315,7 +315,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
               placeholder="请输入您的错误答案..."
-              className="w-full min-h-[80px] px-3 py-2 border border-[#dce5ef] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              className="w-full min-h-[80px] px-3 py-2 border border-[#dce7f5] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
             />
           </div>
 
@@ -328,7 +328,7 @@ export function QuestionForm({ open, onOpenChange, question, initialData }: Ques
               value={explanation}
               onChange={(e) => setExplanation(e.target.value)}
               placeholder="请输入答案解析..."
-              className="w-full min-h-[100px] px-3 py-2 border border-[#dce5ef] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              className="w-full min-h-[100px] px-3 py-2 border border-[#dce7f5] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
             />
           </div>
 

@@ -24,7 +24,7 @@ export function TimelineChart({ data, maxCount }: TimelineChartProps) {
             <div className="w-full flex items-end justify-center h-32">
               <div
                 className={`w-full max-w-[20px] rounded-t transition-all duration-500 ${
-                  isLastSevenDays ? 'bg-[#2563eb]' : 'bg-[#eff6ff]'
+                  isLastSevenDays ? 'bg-[#3b82f6]' : 'bg-[#eff6ff]'
                 }`}
                 style={{ height: `${Math.max(height, 4)}%` }}
                 title={`${item.date}: ${item.count} 道`}

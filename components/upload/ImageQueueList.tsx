@@ -67,13 +67,13 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
         return {
           icon: Clock,
           label: '等待中',
-          color: 'text-[#64748b] bg-[#f6f9fc]',
+          color: 'text-[#64748b] bg-[#f7faff]',
         }
       case 'processing':
         return {
           icon: Loader2,
           label: '识别中',
-          color: 'text-[#2563eb] bg-[#eff6ff]',
+          color: 'text-[#3b82f6] bg-[#eff6ff]',
           animate: true,
         }
       case 'success':
@@ -103,14 +103,14 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
   return (
     <div className="space-y-4">
       {/* 整体进度 */}
-      <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-4">
+      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-[#172033]">
+            <h3 className="font-semibold text-[#172b4d]">
               识别进度 {successCount + failedCount}/{totalCount}
             </h3>
             {processingCount > 0 && (
-              <Badge variant="outline" className="border-[#2563eb] text-[#2563eb]">
+              <Badge variant="outline" className="border-[#3b82f6] text-[#3b82f6]">
                 进行中
               </Badge>
             )}
@@ -138,7 +138,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
           return (
             <div
               key={item.id}
-              className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-4 hover:border-[#2563eb] transition-colors"
+              className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-4 hover:border-[#3b82f6] transition-colors"
             >
               <div className="flex gap-4">
                 {/* 缩略图 */}
@@ -147,10 +147,10 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                     <img
                       src={preview}
                       alt={item.file.name}
-                      className="w-20 h-20 object-cover rounded border border-[#dce5ef]"
+                      className="w-20 h-20 object-cover rounded border border-[#dce7f5]"
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-[#f6f9fc] rounded border border-[#dce5ef] flex items-center justify-center">
+                    <div className="w-20 h-20 bg-[#f7faff] rounded border border-[#dce7f5] flex items-center justify-center">
                       <ImageIcon className="w-8 h-8 text-[#64748b]" />
                     </div>
                   )}
@@ -160,7 +160,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-[#172033] truncate">
+                      <h4 className="font-medium text-[#172b4d] truncate">
                         {item.file.name}
                       </h4>
                       <p className="text-sm text-[#64748b]">
@@ -207,7 +207,7 @@ export function ImageQueueList({ items, onRemove, onRetry }: ImageQueueListProps
                           size="sm"
                           variant="outline"
                           onClick={() => onRetry(item.id)}
-                          className="gap-1 text-[#2563eb] border-[#2563eb] hover:bg-[#eff6ff]"
+                          className="gap-1 text-[#3b82f6] border-[#3b82f6] hover:bg-[#eff6ff]"
                         >
                           <RefreshCw className="w-3 h-3" />
                           重试

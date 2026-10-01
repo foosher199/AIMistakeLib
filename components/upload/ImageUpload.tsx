@@ -104,7 +104,7 @@ export function ImageUpload({ onUpload, loading = false, progress = 0, disabled 
       {/* 上传区域 */}
       {!preview ? (
         <div
-          className="border-2 border-dashed border-[#dce5ef] rounded-2xl p-8 text-center hover:border-[#2563eb] hover:bg-[#f6f9fc] transition-colors cursor-pointer"
+          className="border-2 border-dashed border-[#dce7f5] rounded-2xl p-8 text-center hover:border-[#3b82f6] hover:bg-[#f7faff] transition-colors cursor-pointer"
           onClick={handleClick}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
@@ -120,10 +120,10 @@ export function ImageUpload({ onUpload, loading = false, progress = 0, disabled 
 
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 bg-[#eff6ff] rounded-full flex items-center justify-center">
-              <Upload className="w-8 h-8 text-[#2563eb]" />
+              <Upload className="w-8 h-8 text-[#3b82f6]" />
             </div>
             <div>
-              <p className="text-lg font-medium text-[#172033] mb-1">
+              <p className="text-lg font-medium text-[#172b4d] mb-1">
                 点击上传或拖拽图片到此处
               </p>
               <p className="text-sm text-[#64748b]">
@@ -133,13 +133,13 @@ export function ImageUpload({ onUpload, loading = false, progress = 0, disabled 
           </div>
         </div>
       ) : (
-        <div className="border border-[#dce5ef] rounded-2xl p-4 space-y-4">
+        <div className="border border-[#dce7f5] rounded-2xl p-4 space-y-4">
           {/* 预览图片 */}
           <div className="relative">
             <img
               src={preview}
               alt="预览"
-              className="max-w-full h-auto max-h-96 mx-auto rounded border border-[#dce5ef]"
+              className="max-w-full h-auto max-h-96 mx-auto rounded border border-[#dce7f5]"
             />
             {!loading && (
               <Button

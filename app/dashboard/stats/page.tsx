@@ -125,7 +125,7 @@ export default function StatsPage() {
   if (loading || questionsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#2563eb] animate-spin mr-2" />
+        <Loader2 className="w-8 h-8 text-[#3b82f6] animate-spin mr-2" />
         <span className="text-[#64748b]">加载中...</span>
       </div>
     )
@@ -139,15 +139,15 @@ export default function StatsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#172033] mb-2">数据统计</h1>
+          <h1 className="text-3xl font-bold text-[#172b4d] mb-2">数据统计</h1>
           <p className="text-[#64748b]">洞察错题分布，聚焦薄弱环节</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#dce5ef] text-center">
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#dce7f5] text-center">
           <div className="w-16 h-16 bg-[#eff6ff] rounded-full flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="w-8 h-8 text-[#2563eb]" />
+            <BarChart3 className="w-8 h-8 text-[#3b82f6]" />
           </div>
-          <h2 className="text-xl font-semibold text-[#172033] mb-2">暂无数据</h2>
+          <h2 className="text-xl font-semibold text-[#172b4d] mb-2">暂无数据</h2>
           <p className="text-[#64748b] mb-6">还没有错题记录，快去拍照识别题目吧</p>
           <Link href="/dashboard/upload">
             <Button>
@@ -163,7 +163,7 @@ export default function StatsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-[#172033] mb-2">数据统计</h1>
+        <h1 className="text-3xl font-bold text-[#172b4d] mb-2">数据统计</h1>
         <p className="text-[#64748b]">洞察错题分布，聚焦薄弱环节</p>
       </div>
 
@@ -173,7 +173,7 @@ export default function StatsPage() {
           label="总错题数"
           value={stats.total}
           icon={BookOpen}
-          colorClass="bg-[#eff6ff] text-[#2563eb]"
+          colorClass="bg-[#eff6ff] text-[#3b82f6]"
         />
         <StatCard
           label="已掌握"
@@ -185,13 +185,13 @@ export default function StatsPage() {
           label="待复习"
           value={stats.pending}
           icon={Clock}
-          colorClass="bg-[#fef3c7] text-[#f59e0b]"
+          colorClass="bg-[#fffbeb] text-[#f59e0b]"
         />
         <StatCard
           label="掌握率"
           value={`${stats.masteryRate}%`}
           icon={TrendingUp}
-          colorClass="bg-[#dbeafe] text-[#2563eb]"
+          colorClass="bg-[#dbeafe] text-[#3b82f6]"
         />
         <StatCard
           label="总复习次数"
@@ -203,18 +203,18 @@ export default function StatsPage() {
 
       {/* 学科掌握 + 难度分布 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
           <div className="flex items-center gap-2 mb-4">
-            <Target className="w-5 h-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-[#172033]">学科掌握情况</h2>
+            <Target className="w-5 h-5 text-[#3b82f6]" />
+            <h2 className="text-lg font-semibold text-[#172b4d]">学科掌握情况</h2>
           </div>
           <MasteryBySubject subjects={stats.bySubject} />
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-[#172033]">难度分布</h2>
+            <BarChart3 className="w-5 h-5 text-[#3b82f6]" />
+            <h2 className="text-lg font-semibold text-[#172b4d]">难度分布</h2>
           </div>
           {stats.byDifficulty.map((diff) => (
             <DistributionBar
@@ -230,18 +230,18 @@ export default function StatsPage() {
 
       {/* AI 错因分布 + 30 天趋势 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-[#172033]">AI 错因分析</h2>
+            <TrendingUp className="w-5 h-5 text-[#3b82f6]" />
+            <h2 className="text-lg font-semibold text-[#172b4d]">AI 错因分析</h2>
           </div>
           <MistakeReasonChart reasons={stats.byMistakeReason} />
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce5ef]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
           <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-[#172033]">近 30 天新增错题</h2>
+            <Clock className="w-5 h-5 text-[#3b82f6]" />
+            <h2 className="text-lg font-semibold text-[#172b4d]">近 30 天新增错题</h2>
           </div>
           <TimelineChart data={stats.timeline} maxCount={stats.maxTimelineCount} />
           <div className="flex items-center justify-center gap-4 mt-4 text-xs text-[#64748b]">
@@ -250,7 +250,7 @@ export default function StatsPage() {
               <span>更早</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-[#2563eb]" />
+              <div className="w-3 h-3 rounded bg-[#3b82f6]" />
               <span>近 7 天</span>
             </div>
           </div>

@@ -129,7 +129,7 @@ export function MultiImageUpload({
     <div className="space-y-4">
       {/* 上传区域 */}
       <div
-        className="border-2 border-dashed border-[#dce5ef] rounded-2xl p-8 text-center hover:border-[#2563eb] hover:bg-[#f6f9fc] transition-colors cursor-pointer"
+        className="border-2 border-dashed border-[#dce7f5] rounded-2xl p-8 text-center hover:border-[#3b82f6] hover:bg-[#f7faff] transition-colors cursor-pointer"
         onClick={handleClick}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -146,10 +146,10 @@ export function MultiImageUpload({
 
         <div className="flex flex-col items-center gap-3">
           <div className="w-16 h-16 bg-[#eff6ff] rounded-full flex items-center justify-center">
-            <Upload className="w-8 h-8 text-[#2563eb]" />
+            <Upload className="w-8 h-8 text-[#3b82f6]" />
           </div>
           <div>
-            <p className="text-lg font-medium text-[#172033] mb-1">
+            <p className="text-lg font-medium text-[#172b4d] mb-1">
               点击上传或拖拽图片到此处
             </p>
             <p className="text-sm text-[#64748b]">
@@ -166,7 +166,7 @@ export function MultiImageUpload({
       {filePreviews.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-[#172033]">
+            <h3 className="font-semibold text-[#172b4d]">
               已选择 {filePreviews.length} 张图片
             </h3>
             {!loading && (
@@ -186,7 +186,7 @@ export function MultiImageUpload({
             {filePreviews.map((item, index) => (
               <div
                 key={index}
-                className="relative group border border-[#dce5ef] rounded-2xl overflow-hidden hover:border-[#2563eb] transition-colors"
+                className="relative group border border-[#dce7f5] rounded-2xl overflow-hidden hover:border-[#3b82f6] transition-colors"
               >
                 <img
                   src={item.preview}
@@ -220,7 +220,7 @@ export function MultiImageUpload({
                 )}
 
                 {/* 序号标签 */}
-                <div className="absolute bottom-2 left-2 bg-[#2563eb] text-white text-xs font-bold rounded px-2 py-0.5">
+                <div className="absolute bottom-2 left-2 bg-[#3b82f6] text-white text-xs font-bold rounded px-2 py-0.5">
                   {index + 1}
                 </div>
               </div>
@@ -230,7 +230,7 @@ export function MultiImageUpload({
             {!loading && filePreviews.length < maxFiles && (
               <button
                 onClick={handleClick}
-                className="h-32 border-2 border-dashed border-[#dce5ef] rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-[#2563eb] hover:bg-[#f6f9fc] transition-colors"
+                className="h-32 border-2 border-dashed border-[#dce7f5] rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-[#3b82f6] hover:bg-[#f7faff] transition-colors"
               >
                 <Plus className="w-8 h-8 text-[#64748b]" />
                 <span className="text-sm text-[#64748b]">添加更多</span>

@@ -54,7 +54,7 @@ export default function CreditsPage() {
   if (loading || !user || credits.isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-9 w-9 animate-spin text-[#2563eb]" />
+        <Loader2 className="h-9 w-9 animate-spin text-[#3b82f6]" />
       </div>
     )
   }
@@ -64,7 +64,7 @@ export default function CreditsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#172033]">积分中心</h1>
+        <h1 className="text-3xl font-bold text-[#172b4d]">积分中心</h1>
         <p className="mt-2 text-[#64748b]">查看 AI 调用积分，并兑换试用邀请码。</p>
       </div>
 
@@ -81,13 +81,13 @@ export default function CreditsPage() {
       )}
 
       {balance?.inviteRequired && (
-        <section className="rounded-2xl border border-[#bfdbfe] bg-white p-6 shadow-[0_8px_24px_rgba(30,64,100,0.10)]">
+        <section className="rounded-2xl border border-[#bfdbfe] bg-white p-6 shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
           <div className="mb-4 flex items-start gap-3">
-            <div className="rounded-full bg-[#eff6ff] p-2 text-[#2563eb]">
+            <div className="rounded-full bg-[#eff6ff] p-2 text-[#3b82f6]">
               <Ticket className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-semibold text-[#172033]">兑换试用邀请码</h2>
+              <h2 className="font-semibold text-[#172b4d]">兑换试用邀请码</h2>
               <p className="mt-1 text-sm text-[#64748b]">
                 每个邀请码和每个注册账户都只能兑换一次。
               </p>
@@ -125,10 +125,10 @@ export default function CreditsPage() {
         </section>
       )}
 
-      <section className="rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
-        <h2 className="mb-4 text-xl font-semibold text-[#172033]">积分明细</h2>
+      <section className="rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+        <h2 className="mb-4 text-xl font-semibold text-[#172b4d]">积分明细</h2>
         {transactions.isLoading ? (
-          <Loader2 className="h-6 w-6 animate-spin text-[#2563eb]" />
+          <Loader2 className="h-6 w-6 animate-spin text-[#3b82f6]" />
         ) : transactions.isError ? (
           <p className="text-sm text-red-600">{transactions.error.message}</p>
         ) : transactions.data?.length ? (
@@ -136,7 +136,7 @@ export default function CreditsPage() {
             {transactions.data.map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between gap-4 py-3">
                 <div>
-                  <p className="text-sm font-medium text-[#172033]">
+                  <p className="text-sm font-medium text-[#172b4d]">
                     {transaction.description || transactionNames[transaction.transaction_type] || '积分变动'}
                   </p>
                   <p className="mt-1 text-xs text-[#64748b]">
@@ -174,12 +174,12 @@ function StatCard({
   value: number
 }) {
   return (
-    <div className="rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-5">
+    <div className="rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
       <div className="flex items-center gap-3 text-[#64748b]">
-        <Icon className="h-5 w-5 text-[#2563eb]" />
+        <Icon className="h-5 w-5 text-[#3b82f6]" />
         <span className="text-sm">{label}</span>
       </div>
-      <p className="mt-3 text-3xl font-bold text-[#172033]">{value.toLocaleString('zh-CN')}</p>
+      <p className="mt-3 text-3xl font-bold text-[#172b4d]">{value.toLocaleString('zh-CN')}</p>
     </div>
   )
 }

@@ -12,10 +12,10 @@ export function QuestionStats() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6 animate-pulse"
+            className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 animate-pulse"
           >
-            <div className="h-4 bg-[#f6f9fc] rounded w-20 mb-2" />
-            <div className="h-8 bg-[#f6f9fc] rounded w-16" />
+            <div className="h-4 bg-[#f7faff] rounded w-20 mb-2" />
+            <div className="h-8 bg-[#f7faff] rounded w-16" />
           </div>
         ))}
       </div>
@@ -39,20 +39,20 @@ export function QuestionStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* 总题数 */}
-      <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-[#64748b] mb-1">总题数</p>
-            <p className="text-3xl font-bold text-[#172033]">{stats.total}</p>
+            <p className="text-3xl font-bold text-[#172b4d]">{stats.total}</p>
           </div>
           <div className="w-12 h-12 bg-[#eff6ff] rounded-full flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-[#2563eb]" />
+            <BookOpen className="w-6 h-6 text-[#3b82f6]" />
           </div>
         </div>
       </div>
 
       {/* 已掌握 */}
-      <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-[#64748b] mb-1">已掌握</p>
@@ -68,13 +68,13 @@ export function QuestionStats() {
       </div>
 
       {/* 待复习 */}
-      <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-[#64748b] mb-1">待复习</p>
             <p className="text-3xl font-bold text-[#f59e0b]">{stats.pending}</p>
           </div>
-          <div className="w-12 h-12 bg-[#fef3c7] rounded-full flex items-center justify-center">
+          <div className="w-12 h-12 bg-[#fffbeb] rounded-full flex items-center justify-center">
             <Clock className="w-6 h-6 text-[#f59e0b]" />
           </div>
         </div>

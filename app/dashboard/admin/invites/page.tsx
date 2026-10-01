@@ -108,14 +108,14 @@ export default function AdminInvitesPage() {
   }
 
   if (invitesQuery.isLoading) {
-    return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#2563eb]" />
+    return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" />
   }
 
   if (forbidden) {
     return (
       <div className="mx-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
         <ShieldCheck className="mx-auto mb-3 h-10 w-10 text-red-600" />
-        <h1 className="text-xl font-semibold text-[#172033]">无管理员权限</h1>
+        <h1 className="text-xl font-semibold text-[#172b4d]">无管理员权限</h1>
         <p className="mt-2 text-sm text-[#64748b]">
           请将当前账户的 Supabase User ID 加入 Railway 的 ADMIN_USER_IDS。
         </p>
@@ -135,7 +135,7 @@ export default function AdminInvitesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#172033]">邀请码管理</h1>
+          <h1 className="text-3xl font-bold text-[#172b4d]">邀请码管理</h1>
           <p className="mt-2 text-[#64748b]">创建小红书活动邀请码并查看兑换进度。</p>
         </div>
         <Button
@@ -148,9 +148,9 @@ export default function AdminInvitesPage() {
         </Button>
       </div>
 
-      <form onSubmit={createInvite} className="rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
+      <form onSubmit={createInvite} className="rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
         <div className="mb-5 flex items-center gap-2">
-          <Plus className="h-5 w-5 text-[#2563eb]" />
+          <Plus className="h-5 w-5 text-[#3b82f6]" />
           <h2 className="text-xl font-semibold">创建活动邀请码</h2>
         </div>
         <p className="mb-5 text-sm text-[#64748b]">
@@ -176,7 +176,7 @@ export default function AdminInvitesPage() {
         </Button>
       </form>
 
-      <section className="rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-6">
+      <section className="rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
         <h2 className="mb-4 text-xl font-semibold">邀请码列表</h2>
         {codes.length === 0 ? (
           <p className="text-sm text-[#64748b]">尚未创建邀请码</p>
@@ -186,7 +186,7 @@ export default function AdminInvitesPage() {
               <div key={code.id} className="flex flex-col justify-between gap-3 rounded-2xl border border-[#eff6ff] p-4 sm:flex-row sm:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-lg font-bold text-[#2563eb]">{code.code}</span>
+                    <span className="font-mono text-lg font-bold text-[#3b82f6]">{code.code}</span>
                     <span className={`rounded-full px-2 py-0.5 text-xs ${code.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-[#f1f5f9] text-[#64748b]'}`}>
                       {code.status}
                     </span>

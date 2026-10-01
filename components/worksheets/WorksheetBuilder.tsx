@@ -76,7 +76,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
     }
   }
 
-  if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#2563eb]" />
+  if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" />
   if (questionsQuery.error) {
     return <div className="rounded border border-red-200 bg-red-50 p-5 text-red-600">加载练习卷题目失败：{questionsQuery.error.message}</div>
   }
@@ -95,7 +95,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
         </div>
       </div>
 
-      <section className="no-print rounded-2xl border border-[#dce5ef] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-5">
+      <section className="no-print rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
         <h1 className="mb-4 text-xl font-semibold">复习卷设置</h1>
         {missingCount > 0 && (
           <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
@@ -108,7 +108,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
           <Select label="答案" value={answerMode} onChange={(value) => setAnswerMode(value as typeof answerMode)} options={[['none', '不显示'], ['end', '卷尾答案'], ['inline', '题后答案']]} />
           <label className="space-y-2 text-sm"><span>答题空行</span><Input type="number" min="0" max="10" value={answerLines} onChange={(event) => setAnswerLines(Math.min(10, Math.max(0, Number(event.target.value))))} /></label>
           <Select label="每页题数" value={questionsPerPage} onChange={(value) => setQuestionsPerPage(Number(value))} options={[['4', '4 题'], ['6', '6 题'], ['8', '8 题'], ['10', '10 题']]} />
-          <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeImages} onChange={(event) => setIncludeImages(event.target.checked)} className="h-4 w-4 accent-[#2563eb]" />包含原题图片</label>
+          <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeImages} onChange={(event) => setIncludeImages(event.target.checked)} className="h-4 w-4 accent-[#3b82f6]" />包含原题图片</label>
         </div>
         <div className="mt-5 space-y-2 border-t pt-4">
           <p className="text-sm font-medium">题目顺序</p>
@@ -123,7 +123,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       </section>
 
       {selected.length === 0 ? (
-        <div className="rounded-2xl border border-[#dce5ef] bg-white p-12 text-center text-[#64748b] shadow-[0_8px_24px_rgba(30,64,100,0.10)]">未找到所选题目，请返回错题库重新选择。</div>
+        <div className="rounded-2xl border border-[#dce7f5] bg-white p-12 text-center text-[#64748b] shadow-[0_8px_24px_rgba(30,64,100,0.07)]">未找到所选题目，请返回错题库重新选择。</div>
       ) : (
         <div className="space-y-6 overflow-x-auto pb-2 print:space-y-0 print:overflow-visible print:pb-0">
           {pages.map((pageQuestions, pageIndex) => (
@@ -198,7 +198,7 @@ function Select({ label, value, onChange, options }: { label: string; value: str
 }
 
 function Answer({ question, index }: { question: Pick<Question, 'answer' | 'explanation'>; index?: number }) {
-  return <div className="mt-4 break-inside-avoid rounded border border-[#dce5ef] bg-[#f8fafc] p-3 text-sm"><p><strong>{index ? `${index}. ` : ''}答案：</strong>{question.answer}</p>{question.explanation && <p className="mt-2 whitespace-pre-wrap text-[#475569]"><strong>解析：</strong>{question.explanation}</p>}</div>
+  return <div className="mt-4 break-inside-avoid rounded border border-[#dce7f5] bg-[#f8fafc] p-3 text-sm"><p><strong>{index ? `${index}. ` : ''}答案：</strong>{question.answer}</p>{question.explanation && <p className="mt-2 whitespace-pre-wrap text-[#475569]"><strong>解析：</strong>{question.explanation}</p>}</div>
 }
 
 function chunk<T>(items: T[], size: number) {

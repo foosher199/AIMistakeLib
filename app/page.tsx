@@ -55,7 +55,7 @@ export default function HomePage() {
         className="relative min-h-[80vh] flex items-center overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
       >
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#eff6ff] via-[#f6f9fc] to-[#ecfdf5]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#eff6ff] via-[#f7faff] to-[#ecfdf5]" />
 
         {/* Animated Background Shapes */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -73,17 +73,17 @@ export default function HomePage() {
             <div className="space-y-8">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-white/80 px-4 py-2 shadow-sm backdrop-blur">
-                <Sparkles className="h-4 w-4 text-[#2563eb]" />
-                <span className="text-sm font-semibold text-[#1d4ed8]">
+                <Sparkles className="h-4 w-4 text-[#3b82f6]" />
+                <span className="text-sm font-semibold text-[#2563eb]">
                   AI 驱动的智能错题本
                 </span>
               </div>
 
               {/* Title */}
-              <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-[#172033] sm:text-5xl lg:text-6xl">
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-[#172b4d] sm:text-5xl lg:text-6xl">
                 错题本，
                 <br />
-                <span className="bg-gradient-to-r from-[#2563eb] to-[#0f9f8f] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#3b82f6] to-[#10b981] bg-clip-text text-transparent">
                   但有了超能力
                 </span>
               </h1>
@@ -136,15 +136,15 @@ export default function HomePage() {
               style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Main Card */}
-              <div className="relative rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-[0_24px_70px_rgba(30,64,100,0.16)] backdrop-blur">
+              <div className="relative rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-[0_24px_70px_rgba(30,64,100,0.10)] backdrop-blur">
                 {/* Card Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/60 bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_0_#1e40af]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/60 bg-gradient-to-br from-[#3b82f6] to-[#3b82f6] shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_0_#1e40af]">
                       <Camera className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-[#172033]">拍照识题</h3>
+                      <h3 className="font-bold text-[#172b4d]">拍照识题</h3>
                       <p className="text-sm text-[#64748b]">
                         AI 自动识别题目内容
                       </p>
@@ -158,19 +158,19 @@ export default function HomePage() {
                 {/* Question Preview */}
                 <div className="mb-4 rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-5">
                   <div className="flex items-start gap-3">
-                    <span className="rounded-lg bg-[#2563eb] px-2.5 py-1 text-xs font-bold text-white">
+                    <span className="rounded-lg bg-[#3b82f6] px-2.5 py-1 text-xs font-bold text-white">
                       数学
                     </span>
                     <span className="px-2 py-1 bg-[#f59e0b]/10 text-[#f59e0b] text-xs font-medium rounded">
                       中等
                     </span>
                   </div>
-                  <p className="mt-3 font-medium text-[#172033]">
+                  <p className="mt-3 font-medium text-[#172b4d]">
                     已知函数 f(x) = x² - 2x + 1，求 f(2) 的值。
                   </p>
                   <div className="mt-4 flex items-center gap-2">
                     <span className="text-sm text-[#64748b]">答案：</span>
-                    <span className="rounded-lg bg-[#dbeafe] px-3 py-1 font-bold text-[#1d4ed8]">
+                    <span className="rounded-lg bg-[#dbeafe] px-3 py-1 font-bold text-[#2563eb]">
                       1
                     </span>
                   </div>
@@ -193,15 +193,15 @@ export default function HomePage() {
       </section>
 
       {/* 使用说明 */}
-      <div className="rounded-[24px] border border-[#dce5ef] bg-gradient-to-br from-white to-[#f1f5f9] p-6 shadow-[0_12px_35px_rgba(30,64,100,0.08)]">
-        <h2 className="mb-4 text-xl font-bold text-[#172033]">使用说明</h2>
+      <div className="rounded-[24px] border border-[#dce7f5] bg-gradient-to-br from-white to-[#f1f5f9] p-6 shadow-[0_12px_35px_rgba(30,64,100,0.08)]">
+        <h2 className="mb-4 text-xl font-bold text-[#172b4d]">使用说明</h2>
         <div className="space-y-3">
           <div className="flex gap-3">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white shadow-[0_3px_0_#1e40af]">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#3b82f6] text-sm font-bold text-white shadow-[0_3px_0_#1e40af]">
               1
             </div>
             <div>
-              <p className="font-semibold text-[#172033]">上传错题图片</p>
+              <p className="font-semibold text-[#172b4d]">上传错题图片</p>
               <p className="mt-0.5 text-sm text-[#64748b]">
                 拍照或选择错题图片，支持多种格式
               </p>
@@ -209,11 +209,11 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-3">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#0f9f8f] text-sm font-bold text-white shadow-[0_3px_0_#0f766e]">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#10b981] text-sm font-bold text-white shadow-[0_3px_0_#0f766e]">
               2
             </div>
             <div>
-              <p className="font-semibold text-[#172033]">AI 自动识别</p>
+              <p className="font-semibold text-[#172b4d]">AI 自动识别</p>
               <p className="mt-0.5 text-sm text-[#64748b]">
                 系统自动识别题目内容、学科、难度和答案
               </p>
@@ -225,7 +225,7 @@ export default function HomePage() {
               3
             </div>
             <div>
-              <p className="font-semibold text-[#172033]">保存到错题本</p>
+              <p className="font-semibold text-[#172b4d]">保存到错题本</p>
               <p className="mt-0.5 text-sm text-[#64748b]">
                 识别完成后自动保存到个人错题库
               </p>
@@ -233,11 +233,11 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-3">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white shadow-[0_3px_0_#1e40af]">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#3b82f6] text-sm font-bold text-white shadow-[0_3px_0_#1e40af]">
               4
             </div>
             <div>
-              <p className="font-semibold text-[#172033]">定期复习</p>
+              <p className="font-semibold text-[#172b4d]">定期复习</p>
               <p className="mt-0.5 text-sm text-[#64748b]">
                 记录复习次数，标记掌握状态，科学管理学习进度
               </p>

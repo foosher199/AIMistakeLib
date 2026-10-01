@@ -105,7 +105,7 @@ export function BindEmailForm({ onSuccess }: BindEmailFormProps) {
         <p className="text-sm text-[#1e40af]">
           <strong>游客模式</strong>：您当前以游客身份使用，绑定邮箱后可以：
         </p>
-        <ul className="mt-2 text-sm text-[#1d4ed8] list-disc list-inside space-y-1">
+        <ul className="mt-2 text-sm text-[#2563eb] list-disc list-inside space-y-1">
           <li>永久保存您的所有错题数据</li>
           <li>在任何设备上登录访问</li>
           <li>不会丢失任何已有数据</li>

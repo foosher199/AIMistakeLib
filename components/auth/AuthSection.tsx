@@ -21,7 +21,7 @@ export function AuthSection() {
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-[#172033] mb-2">
+              <h1 className="text-3xl font-bold text-[#172b4d] mb-2">
                 AI 错题本
               </h1>
               <p className="text-[#64748b]">绑定邮箱，永久保存数据</p>
@@ -66,7 +66,7 @@ export function AuthSection() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* 标题 */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-[#172033] mb-2">
+            <h1 className="text-3xl font-bold text-[#172b4d] mb-2">
               AI 错题本
             </h1>
             <p className="text-[#64748b]">智能识别，科学复习</p>
@@ -91,7 +91,7 @@ export function AuthSection() {
           {/* 分隔线 */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#dce5ef]" />
+              <div className="w-full border-t border-[#dce7f5]" />
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-white px-2 text-[#64748b]">或</span>

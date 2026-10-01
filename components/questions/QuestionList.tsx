@@ -66,7 +66,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
 
       {selectedIds.size > 0 && (
         <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#8bc7dd] bg-[#eaf6fa] p-3 shadow-sm">
-          <span className="text-sm font-medium text-[#1d4ed8]">
+          <span className="text-sm font-medium text-[#2563eb]">
             已选择 {selectedIds.size} 道题
           </span>
           <div className="flex gap-2">
@@ -86,7 +86,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
       {/* 加载状态 */}
       {isLoading && page === 0 && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-[#2563eb] animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#3b82f6] animate-spin" />
           <span className="ml-2 text-[#64748b]">加载中...</span>
         </div>
       )}
@@ -103,7 +103,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
       {data && (
         <>
           {data.questions.length === 0 ? (
-            <div className="bg-[#f6f9fc] border border-[#dce5ef] rounded-2xl p-12 text-center">
+            <div className="bg-[#f7faff] border border-[#dce7f5] rounded-2xl p-12 text-center">
               <p className="text-[#64748b] mb-2">暂无题目</p>
               <p className="text-sm text-[#64748b]">
                 {Object.keys(filters).length > 0
@@ -115,7 +115,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
             <>
               {/* 结果计数 */}
               <div className="text-sm text-[#64748b]">
-                共找到 <span className="font-medium text-[#172033]">{data.total}</span> 道题目
+                共找到 <span className="font-medium text-[#172b4d]">{data.total}</span> 道题目
                 {page > 0 && (
                   <span className="ml-2">
                     （显示 {Math.min((page + 1) * pageSize, data.total)} / {data.total}）

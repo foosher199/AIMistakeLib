@@ -75,7 +75,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
   ].filter(Boolean).length
 
   return (
-    <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] p-4 space-y-4">
+    <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-4 space-y-4">
       {/* 搜索框 */}
       <form onSubmit={handleSearchSubmit} className="flex gap-2">
         <div className="relative flex-1">

@@ -20,7 +20,7 @@ export interface SubjectConfig {
 
 /** Central catalog for subject names, icons, and identifying colors. */
 export const SUBJECT_CONFIG: Record<Subject, SubjectConfig> = {
-  math: { name: '数学', icon: Calculator, color: '#2563eb' },
+  math: { name: '数学', icon: Calculator, color: '#3b82f6' },
   chinese: { name: '语文', icon: BookOpenText, color: '#e11d48' },
   english: { name: '英语', icon: Languages, color: '#0284c7' },
   physics: { name: '物理', icon: Atom, color: '#0891b2' },

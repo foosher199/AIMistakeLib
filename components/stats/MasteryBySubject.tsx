@@ -41,12 +41,12 @@ export function MasteryBySubject({ subjects }: MasteryBySubjectProps) {
         return (
           <div key={subject.id}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-[#172033]">{subject.name}</span>
+              <span className="text-sm font-medium text-[#172b4d]">{subject.name}</span>
               <span className="text-xs text-[#64748b]">
                 {subject.mastered}/{subject.total} 掌握 {subject.rate}%
               </span>
             </div>
-            <div className="h-2 bg-[#f6f9fc] rounded-full overflow-hidden relative">
+            <div className="h-2 bg-[#f7faff] rounded-full overflow-hidden relative">
               <div
                 className="h-full rounded-full transition-all duration-500 absolute left-0 top-0 opacity-30"
                 style={{ width: `${totalWidth}%`, backgroundColor: color }}

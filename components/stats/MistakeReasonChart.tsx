@@ -20,18 +20,18 @@ export function MistakeReasonChart({ reasons }: MistakeReasonChartProps) {
   return (
     <div className="space-y-3">
       {reasons.map((item) => {
-        const color = reasonColorMap.get(item.reason) || '#2563eb'
+        const color = reasonColorMap.get(item.reason) || '#3b82f6'
 
         return (
           <div key={item.reason}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-[#172033]">{item.reason}</span>
+              <span className="text-sm text-[#172b4d]">{item.reason}</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-[#172033]">{item.count} 次</span>
+                <span className="text-sm font-medium text-[#172b4d]">{item.count} 次</span>
                 <span className="text-xs text-[#64748b] w-10 text-right">{item.percentage}%</span>
               </div>
             </div>
-            <div className="h-2 bg-[#f6f9fc] rounded-full overflow-hidden">
+            <div className="h-2 bg-[#f7faff] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${item.percentage}%`, backgroundColor: color }}

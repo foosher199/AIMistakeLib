@@ -84,7 +84,7 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
           {/* 分隔线 */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#dce5ef]" />
+              <div className="w-full border-t border-[#dce7f5]" />
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-white px-2 text-[#64748b]">或</span>

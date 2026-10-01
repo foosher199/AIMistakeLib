@@ -93,7 +93,7 @@ export function QuestionCard({
   const difficultyLabel = DIFFICULTIES.find((d) => d.id === question.difficulty)?.label || question.difficulty
   const difficultyColor = {
     easy: 'bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30',
-    medium: 'bg-[#fef3c7] text-[#f59e0b] border-[#f59e0b]/30',
+    medium: 'bg-[#fffbeb] text-[#f59e0b] border-[#f59e0b]/30',
     hard: 'bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30',
   }[question.difficulty]
 
@@ -212,22 +212,22 @@ export function QuestionCard({
   const hasAnalysis = existingAnalysis.tags.length > 0
 
   return (
-    <div className="bg-white rounded-2xl border border-[#dce5ef] shadow-[0_8px_24px_rgba(30,64,100,0.10)] shadow-sm hover:shadow-md transition-shadow p-4">
+    <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] shadow-sm hover:shadow-md transition-shadow p-4">
       {/* 头部：标签和操作 */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-wrap gap-2">
           {onSelectionChange && (
-            <label className="flex cursor-pointer items-center gap-2 rounded border border-[#dce5ef] px-2 py-1 text-xs text-[#64748b]">
+            <label className="flex cursor-pointer items-center gap-2 rounded border border-[#dce7f5] px-2 py-1 text-xs text-[#64748b]">
               <input
                 type="checkbox"
                 checked={selected}
                 onChange={(event) => onSelectionChange(question, event.target.checked)}
-                className="h-4 w-4 accent-[#2563eb]"
+                className="h-4 w-4 accent-[#3b82f6]"
               />
               选择
             </label>
           )}
-          <Badge variant="outline" className="bg-[#eff6ff] text-[#2563eb] border-[#2563eb]/30">
+          <Badge variant="outline" className="bg-[#eff6ff] text-[#3b82f6] border-[#3b82f6]/30">
             {subjectLabel}
           </Badge>
           <Badge variant="outline" className={difficultyColor}>
@@ -290,19 +290,19 @@ export function QuestionCard({
       {/* 题目内容 */}
       <div className="mb-3">
         <p className="text-sm text-[#64748b] mb-1">{question.category}</p>
-        <p className="text-[#172033] whitespace-pre-wrap">{question.content}</p>
+        <p className="text-[#172b4d] whitespace-pre-wrap">{question.content}</p>
       </div>
 
       <QuestionImageManager key={`${question.id}-${question.images?.map((image) => image.id).join('-') || 'legacy'}`} question={question} />
 
       {/* 答案区域 */}
-      <div className="border-t border-[#dce5ef] pt-3 mb-3">
+      <div className="border-t border-[#dce7f5] pt-3 mb-3">
         <div className="flex flex-wrap gap-2 mb-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowAnswer(!showAnswer)}
-            className="text-[#2563eb] hover:text-[#1e40af]"
+            className="text-[#3b82f6] hover:text-[#1e40af]"
           >
             {showAnswer ? '隐藏答案' : '显示答案'}
           </Button>
@@ -311,7 +311,7 @@ export function QuestionCard({
             size="sm"
             onClick={handleAnalyze}
             disabled={analyzeMistake.isPending}
-            className="text-[#2563eb] hover:text-[#1e40af]"
+            className="text-[#3b82f6] hover:text-[#1e40af]"
           >
             {analyzeMistake.isPending ? (
               <>
@@ -330,7 +330,7 @@ export function QuestionCard({
             size="sm"
             onClick={handleGenerateVariations}
             disabled={generateVariations.isPending}
-            className="text-[#2563eb] hover:text-[#1e40af]"
+            className="text-[#3b82f6] hover:text-[#1e40af]"
           >
             {generateVariations.isPending ? (
               <>
@@ -350,7 +350,7 @@ export function QuestionCard({
           <div className="mt-2 space-y-2">
             <div>
               <p className="text-sm font-medium text-[#64748b]">正确答案：</p>
-              <p className="text-[#172033] bg-[#ecfdf5]/30 p-2 rounded">
+              <p className="text-[#172b4d] bg-[#ecfdf5]/30 p-2 rounded">
                 {question.answer}
               </p>
             </div>
@@ -358,7 +358,7 @@ export function QuestionCard({
             {question.user_answer && (
               <div>
                 <p className="text-sm font-medium text-[#64748b]">我的答案：</p>
-                <p className="text-[#172033] bg-[#ffe4e6]/30 p-2 rounded">
+                <p className="text-[#172b4d] bg-[#ffe4e6]/30 p-2 rounded">
                   {question.user_answer}
                 </p>
               </div>
@@ -377,18 +377,18 @@ export function QuestionCard({
 
         {/* 错因分析结果 */}
         {hasAnalysis && (
-          <div className="mt-3 bg-[#f6f9fc] border border-[#dce5ef] rounded-2xl p-3">
+          <div className="mt-3 bg-[#f7faff] border border-[#dce7f5] rounded-2xl p-3">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-[#2563eb]" />
-                <p className="text-sm font-medium text-[#172033]">AI 错因分析</p>
+                <Brain className="w-4 h-4 text-[#3b82f6]" />
+                <p className="text-sm font-medium text-[#172b4d]">AI 错因分析</p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleOpenAnalysisEdit}
                 disabled={updateQuestion.isPending}
-                className="h-7 px-2 text-[#64748b] hover:text-[#2563eb]"
+                className="h-7 px-2 text-[#64748b] hover:text-[#3b82f6]"
               >
                 <Edit className="w-3.5 h-3.5 mr-1" />
                 编辑
@@ -401,7 +401,7 @@ export function QuestionCard({
                 </Badge>
               ))}
             </div>
-            <p className="text-sm text-[#172033] mb-1">{existingAnalysis.detail}</p>
+            <p className="text-sm text-[#172b4d] mb-1">{existingAnalysis.detail}</p>
             <p className="text-sm text-[#64748b]">
               <span className="font-medium">建议：</span> {existingAnalysis.advice}
             </p>
@@ -414,7 +414,7 @@ export function QuestionCard({
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Copy className="w-5 h-5 text-[#2563eb]" />
+              <Copy className="w-5 h-5 text-[#3b82f6]" />
               举一反三
               {hasHistoricalVariations && historicalVariations && (
                 <Badge variant="outline" className="text-xs bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30">
@@ -472,7 +472,7 @@ export function QuestionCard({
 
           {isLoadingVariations || generateVariations.isPending ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-[#2563eb] animate-spin mr-2" />
+              <Loader2 className="w-8 h-8 text-[#3b82f6] animate-spin mr-2" />
               <span className="text-[#64748b]">
                 {isLoadingVariations ? '加载历史变式题...' : 'AI 生成中...'}
               </span>
@@ -497,7 +497,7 @@ export function QuestionCard({
           ) : (
             <div className="space-y-4">
               {displayedVariations.map((variation, index) => (
-                <div key={variation.id} className="bg-[#f6f9fc] border border-[#dce5ef] rounded-2xl p-4">
+                <div key={variation.id} className="bg-[#f7faff] border border-[#dce7f5] rounded-2xl p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -506,14 +506,14 @@ export function QuestionCard({
                           variant="outline"
                           className={{
                             easy: 'bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30',
-                            medium: 'bg-[#fef3c7] text-[#f59e0b] border-[#f59e0b]/30',
+                            medium: 'bg-[#fffbeb] text-[#f59e0b] border-[#f59e0b]/30',
                             hard: 'bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30',
                           }[variation.difficulty]}
                         >
                           {DIFFICULTIES.find((d) => d.id === variation.difficulty)?.label || variation.difficulty}
                         </Badge>
                       </div>
-                      <p className="text-[#172033] whitespace-pre-wrap mb-2">{variation.content}</p>
+                      <p className="text-[#172b4d] whitespace-pre-wrap mb-2">{variation.content}</p>
                     </div>
                     <div className="flex gap-1">
                       <Button
@@ -566,7 +566,7 @@ export function QuestionCard({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-[#2563eb] hover:text-[#1e40af]"
+                    className="text-[#3b82f6] hover:text-[#1e40af]"
                     onClick={() =>
                       setExpandedVariationId(
                         expandedVariationId === variation.id ? null : variation.id
@@ -580,7 +580,7 @@ export function QuestionCard({
                     <div className="mt-2 space-y-2">
                       <div>
                         <p className="text-sm font-medium text-[#64748b]">答案：</p>
-                        <p className="text-[#172033] bg-[#ecfdf5]/30 p-2 rounded">{variation.answer}</p>
+                        <p className="text-[#172b4d] bg-[#ecfdf5]/30 p-2 rounded">{variation.answer}</p>
                       </div>
                       {variation.explanation && (
                         <div>
@@ -604,14 +604,14 @@ export function QuestionCard({
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-[#2563eb]" />
+              <Brain className="w-5 h-5 text-[#3b82f6]" />
               编辑错因分析
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-[#172033] mb-2">错因标签</p>
+              <p className="text-sm font-medium text-[#172b4d] mb-2">错因标签</p>
               <div className="flex flex-wrap gap-2 mb-2">
                 {MISTAKE_REASONS.map((reason) => {
                   const selected = editingTags.includes(reason.id)
@@ -674,24 +674,24 @@ export function QuestionCard({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-[#172033] mb-2">详细分析</p>
+              <p className="text-sm font-medium text-[#172b4d] mb-2">详细分析</p>
               <textarea
                 value={editingDetail}
                 onChange={(e) => setEditingDetail(e.target.value)}
                 placeholder="描述错因详情..."
                 rows={3}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-[#dce5ef] bg-white text-[#172033] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-[#dce7f5] bg-white text-[#172b4d] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent resize-none"
               />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-[#172033] mb-2">改进建议</p>
+              <p className="text-sm font-medium text-[#172b4d] mb-2">改进建议</p>
               <textarea
                 value={editingAdvice}
                 onChange={(e) => setEditingAdvice(e.target.value)}
                 placeholder="输入改进建议..."
                 rows={3}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-[#dce5ef] bg-white text-[#172033] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-[#dce7f5] bg-white text-[#172b4d] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent resize-none"
               />
             </div>
 

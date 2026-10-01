@@ -57,12 +57,12 @@ export function RecognitionJobHistory() {
 
   if (!query.data?.length) return null
   return (
-    <section className="rounded-2xl border border-[#dce5ef] bg-white p-5 shadow-[0_8px_24px_rgba(30,64,100,0.10)]">
+    <section className="rounded-2xl border border-[#dce7f5] bg-white p-5 shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
       <h2 className="mb-4 text-lg font-semibold">最近识别任务</h2>
       <div className="space-y-3">
         {query.data.map((job) => {
           const active = job.status === 'queued' || job.status === 'processing'
-          const icon = active ? <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" /> : job.status === 'succeeded' ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : job.status === 'failed' ? <XCircle className="h-4 w-4 text-red-500" /> : <Clock className="h-4 w-4 text-[#64748b]" />
+          const icon = active ? <Loader2 className="h-4 w-4 animate-spin text-[#3b82f6]" /> : job.status === 'succeeded' ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : job.status === 'failed' ? <XCircle className="h-4 w-4 text-red-500" /> : <Clock className="h-4 w-4 text-[#64748b]" />
           return (
             <div key={job.id} className="rounded border p-3">
               <div className="flex items-center gap-2 text-sm">
