@@ -444,28 +444,13 @@ export default function HistoryPage() {
                       href={`/dashboard/questions?id=${question.id}`}
                       className="block p-4 bg-[#f7faff] rounded-xl hover:bg-[#eff6ff]/20 transition-colors group"
                     >
-                      <div className="flex items-start gap-4">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: subject?.color + '20' }}
-                        >
-                          <SubjectIcon
-                            subject={question.subject as Subject}
-                            className="h-6 w-6"
-                            style={{ color: subject?.color }}
-                          />
-                        </div>
+                      <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <Badge
                               variant="outline"
-                              className="gap-1.5 border-[#dce7f5] bg-white text-xs font-semibold text-[#172b4d] shadow-none"
+                              className="border-[#dce7f5] bg-white text-xs font-semibold text-[#172b4d] shadow-none"
                             >
-                              <SubjectIcon
-                                subject={question.subject as Subject}
-                                className="h-3.5 w-3.5"
-                                style={{ color: subject?.color }}
-                              />
                               {subject?.name}
                             </Badge>
                             <Badge
