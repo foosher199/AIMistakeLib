@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils'
 const navigation = [
   { href: '/dashboard/upload', label: '拍照识题', icon: Camera },
   { href: '/dashboard/questions', label: '我的错题', icon: BookOpen },
-  { href: '/dashboard/worksheets', label: '错题过关', icon: FileText },
+  { href: '/dashboard/worksheets', label: '错题练习', icon: FileText },
   { href: '/dashboard/history', label: '历史题库', icon: History },
   { href: '/dashboard/stats', label: '数据统计', icon: BarChart3 },
 ]
@@ -47,7 +47,7 @@ const secondaryNavigation = [
 const pageTitles: Record<string, string> = {
   '/dashboard/upload': '拍照识题',
   '/dashboard/questions': '我的错题',
-  '/dashboard/worksheets': '错题过关',
+  '/dashboard/worksheets': '错题练习',
   '/dashboard/history': '历史题库',
   '/dashboard/stats': '数据统计',
   '/dashboard/credits': '积分中心',
@@ -179,7 +179,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="dashboard-shell relative min-h-screen bg-[#f7faff]">
       <div className="no-print pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(59,130,246,0.06),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(16,185,129,0.04),transparent_32%)]" />
-      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-[#dce7f5] bg-[#ffffff] shadow-[8px_0_24px_rgba(30,64,100,0.05)] xl:flex">
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-56 flex-col overflow-hidden border-r border-[#dce7f5] bg-[#ffffff] shadow-[8px_0_24px_rgba(30,64,100,0.05)] xl:flex">
         <SidebarContent pathname={pathname} />
       </aside>
 
@@ -212,7 +212,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="dashboard-content xl:pl-64">
+      <div className="dashboard-content xl:pl-56">
         <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#e2e8f0] bg-white/90 px-4 shadow-[0_2px_12px_rgba(30,64,100,0.045)] backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button

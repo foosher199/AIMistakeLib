@@ -77,7 +77,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
               <Trash2 className="mr-1 h-4 w-4" />{deleteQuestions.isPending ? '删除中...' : '删除所选'}
             </Button>
             <Button size="sm" onClick={createWorksheet}>
-              <FileText className="mr-1 h-4 w-4" />生成复习卷
+              <FileText className="mr-1 h-4 w-4" />生成练习卷
             </Button>
           </div>
         </div>

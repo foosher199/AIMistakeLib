@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { useQuestions } from '@/hooks/useQuestions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { normalizeWorksheetTitle } from '@/lib/worksheet-title'
 import { DIFFICULTIES, SUBJECTS, type Question } from '@/types/database'
 
 export interface WorksheetSettings {
@@ -28,7 +29,9 @@ interface WorksheetBuilderProps {
 
 export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, initialTitle, initialSettings }: WorksheetBuilderProps) {
   const router = useRouter()
-  const [title, setTitle] = useState(initialTitle || '错题复习卷')
+  const [title, setTitle] = useState(
+    normalizeWorksheetTitle(initialTitle || '错题练习卷')
+  )
   const [orderedIds, setOrderedIds] = useState(questionIds)
   const [columns, setColumns] = useState<1 | 2>(initialSettings?.columns || 1)
   const [answerMode, setAnswerMode] = useState<'none' | 'end' | 'inline'>(initialSettings?.answerMode || 'end')
@@ -96,7 +99,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       </div>
 
       <section className="no-print rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
-        <h1 className="mb-4 text-xl font-semibold">复习卷设置</h1>
+        <h1 className="mb-4 text-xl font-semibold">练习卷设置</h1>
         {missingCount > 0 && (
           <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             有 {missingCount} 道题已删除或当前无法访问，本练习卷仅显示其余 {selected.length} 道题。
@@ -171,7 +174,7 @@ function WorksheetPage({ title, page, totalPages, questions, startIndex, columns
   return (
     <article className="worksheet-sheet worksheet-physical-page mx-auto bg-white p-10 shadow-sm">
       <header className="mb-8 text-center">
-        <h1 className="text-2xl font-bold">{title || '错题复习卷'}</h1>
+        <h1 className="text-2xl font-bold">{title || '错题练习卷'}</h1>
         <div className="mt-5 flex justify-between border-b border-[#94a3b8] pb-2 text-sm"><span>姓名：____________</span><span>日期：____________</span><span>第 {page}/{totalPages} 页</span></div>
       </header>
       <div className={columns === 2 ? 'worksheet-columns-2' : ''}>

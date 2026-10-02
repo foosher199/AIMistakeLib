@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { QuestionList } from '@/components/questions/QuestionList'
@@ -9,11 +9,21 @@ import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/database'
 import { FileText, Plus, Loader2 } from 'lucide-react'
 
+const subscribeToLocation = () => () => undefined
+const getWorksheetMode = () =>
+  new URLSearchParams(window.location.search).get('mode') === 'worksheet'
+const getServerWorksheetMode = () => false
+
 export default function QuestionsPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
   const [formOpen, setFormOpen] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<Question | undefined>()
+  const worksheetMode = useSyncExternalStore(
+    subscribeToLocation,
+    getWorksheetMode,
+    getServerWorksheetMode
+  )
 
   // 检查登录状态
   useEffect(() => {
@@ -73,6 +83,18 @@ export default function QuestionsPage() {
             手动添加
           </Button>
         </div>
+
+        {worksheetMode && (
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#bfdbfe] bg-[#eff6ff] px-4 py-3 text-sm text-[#2563eb]">
+            <FileText className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-semibold">选择练习卷题目</p>
+              <p className="mt-0.5 text-[#64748b]">
+                勾选下方题目，选中后点击“生成练习卷”。
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 题目列表 */}
         <QuestionList onEdit={handleEdit} />

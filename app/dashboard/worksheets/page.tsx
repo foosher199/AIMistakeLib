@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { FileText, Loader2, Printer, Trash2 } from 'lucide-react'
+import { FileText, Loader2, Plus, Printer, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/lib/utils'
+import { normalizeWorksheetTitle } from '@/lib/worksheet-title'
 
 interface WorksheetListItem {
   id: string
@@ -42,16 +43,35 @@ export default function WorksheetsPage() {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-3xl font-bold">历史练习卷</h1><p className="mt-2 text-[#64748b]">重新打开、调整并打印已保存的练习卷。</p></div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">练习卷</h1>
+          <p className="mt-2 text-[#64748b]">创建练习卷，或重新打开、调整并打印已保存的练习卷。</p>
+        </div>
+        <Button asChild variant="jelly" className="gap-2 rounded-full px-6">
+          <Link href="/dashboard/questions?mode=worksheet">
+            <Plus className="h-4 w-4" />
+            创建练习卷
+          </Link>
+        </Button>
+      </div>
       {query.isLoading ? <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" /> : query.error ? (
         <div className="rounded border border-red-200 bg-red-50 p-5 text-red-600">{query.error.message}</div>
       ) : query.data?.worksheets.length === 0 ? (
-        <div className="rounded-2xl border border-[#dce7f5] bg-white p-12 text-center shadow-[0_8px_24px_rgba(30,64,100,0.07)]"><FileText className="mx-auto mb-3 h-10 w-10 text-[#94a3b8]" /><p className="text-[#64748b]">还没有保存练习卷</p><Link href="/dashboard/questions"><Button className="mt-4">去错题库选题</Button></Link></div>
+        <div className="rounded-2xl border border-[#dce7f5] bg-white p-12 text-center shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
+          <FileText className="mx-auto mb-3 h-10 w-10 text-[#94a3b8]" />
+          <p className="text-[#64748b]">还没有保存练习卷</p>
+          <Button asChild className="mt-4">
+            <Link href="/dashboard/questions?mode=worksheet">选择题目并创建</Link>
+          </Button>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {query.data?.worksheets.map((worksheet) => (
             <div key={worksheet.id} className="rounded-2xl border border-[#dce7f5] bg-white p-5 shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
-              <h2 className="truncate text-lg font-semibold">{worksheet.title}</h2>
+              <h2 className="truncate text-lg font-semibold">
+                {normalizeWorksheetTitle(worksheet.title)}
+              </h2>
               <p className="mt-2 text-sm text-[#64748b]">{worksheet.questionCount} 道题 · {formatDateTime(worksheet.updated_at)}</p>
               <div className="mt-5 flex gap-2">
                 <Link href={`/dashboard/worksheets/${worksheet.id}`} className="flex-1"><Button className="w-full gap-2"><Printer className="h-4 w-4" />打开与打印</Button></Link>
