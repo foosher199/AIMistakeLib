@@ -3,7 +3,17 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowDown, ArrowLeft, ArrowUp, Loader2, Printer, Save } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  FileDown,
+  Loader2,
+  Pencil,
+  Printer,
+  Save,
+  X,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { useQuestions } from '@/hooks/useQuestions'
 import { Button } from '@/components/ui/button'
@@ -29,8 +39,9 @@ interface WorksheetBuilderProps {
 
 export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, initialTitle, initialSettings }: WorksheetBuilderProps) {
   const router = useRouter()
+  const defaultTitle = normalizeWorksheetTitle(initialTitle || '错题练习卷')
   const [title, setTitle] = useState(
-    normalizeWorksheetTitle(initialTitle || '错题练习卷')
+    defaultTitle
   )
   const [orderedIds, setOrderedIds] = useState(questionIds)
   const [columns, setColumns] = useState<1 | 2>(initialSettings?.columns || 1)
@@ -39,6 +50,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
   const [answerLines, setAnswerLines] = useState(initialSettings?.answerLines ?? 3)
   const [questionsPerPage, setQuestionsPerPage] = useState(initialSettings?.questionsPerPage ?? 6)
   const [saving, setSaving] = useState(false)
+  const [isEditing, setIsEditing] = useState(!worksheetId)
   const questionsQuery = useQuestions({ limit: 1000 }, { enabled: !initialQuestions })
   const availableQuestions = initialQuestions || questionsQuery.data?.questions || []
   const questionMap = new Map(availableQuestions.map((question) => [question.id, question]))
@@ -71,12 +83,29 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || '保存失败')
       toast.success(worksheetId ? '练习卷已更新' : '练习卷已保存')
-      if (!worksheetId && data.worksheet?.id) router.replace(`/dashboard/worksheets/${data.worksheet.id}`)
+      if (worksheetId) setIsEditing(false)
+      else if (data.worksheet?.id) router.replace(`/dashboard/worksheets/${data.worksheet.id}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '保存练习卷失败')
     } finally {
       setSaving(false)
     }
+  }
+
+  const cancelEditing = () => {
+    setTitle(defaultTitle)
+    setOrderedIds(questionIds)
+    setColumns(initialSettings?.columns || 1)
+    setAnswerMode(initialSettings?.answerMode || 'end')
+    setIncludeImages(initialSettings?.includeImages ?? true)
+    setAnswerLines(initialSettings?.answerLines ?? 3)
+    setQuestionsPerPage(initialSettings?.questionsPerPage ?? 6)
+    setIsEditing(false)
+  }
+
+  const saveAsPdf = () => {
+    toast.info('请在打印窗口中选择“另存为 PDF”')
+    window.print()
   }
 
   if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" />
@@ -88,17 +117,38 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
   return (
     <div className="worksheet-page space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <Link href="/dashboard/questions"><Button variant="ghost" className="gap-2"><ArrowLeft className="h-4 w-4" />返回错题库</Button></Link>
+        <Button asChild variant="ghost" className="gap-2">
+          <Link href={worksheetId ? '/dashboard/worksheets' : '/dashboard/questions'}>
+            <ArrowLeft className="h-4 w-4" />返回
+          </Link>
+        </Button>
         <div className="flex flex-wrap justify-end gap-2">
-          <Link href="/dashboard/worksheets"><Button variant="outline">历史练习卷</Button></Link>
-          <Button onClick={save} disabled={saving || selected.length === 0} variant="outline" className="gap-2">
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}保存
+          {worksheetId && !isEditing && (
+            <Button variant="outline" className="gap-2" onClick={() => setIsEditing(true)}>
+              <Pencil className="h-4 w-4" />编辑
+            </Button>
+          )}
+          {worksheetId && isEditing && (
+            <Button variant="ghost" className="gap-2" onClick={cancelEditing} disabled={saving}>
+              <X className="h-4 w-4" />取消
+            </Button>
+          )}
+          {(!worksheetId || isEditing) && (
+            <Button onClick={save} disabled={saving || selected.length === 0} variant="outline" className="gap-2">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {worksheetId ? '保存修改' : '保存'}
+            </Button>
+          )}
+          <Button onClick={saveAsPdf} variant="outline" className="gap-2">
+            <FileDown className="h-4 w-4" />保存为 PDF
           </Button>
-          <Button onClick={() => window.print()} className="gap-2"><Printer className="h-4 w-4" />打印 / 保存 PDF</Button>
+          <Button onClick={() => window.print()} className="gap-2">
+            <Printer className="h-4 w-4" />打印
+          </Button>
         </div>
       </div>
 
-      <section className="no-print rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
+      {(!worksheetId || isEditing) && <section className="no-print rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
         <h1 className="mb-4 text-xl font-semibold">练习卷设置</h1>
         {missingCount > 0 && (
           <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
@@ -123,7 +173,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       {selected.length === 0 ? (
         <div className="rounded-2xl border border-[#dce7f5] bg-white p-12 text-center text-[#64748b] shadow-[0_8px_24px_rgba(30,64,100,0.07)]">未找到所选题目，请返回错题库重新选择。</div>
