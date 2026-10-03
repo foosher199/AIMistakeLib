@@ -70,12 +70,12 @@ export default function HomePage() {
         className="relative min-h-[80vh] flex items-center overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
       >
         {/* Icy blue education-product background */}
-        <div className="absolute inset-0 bg-[linear-gradient(115deg,#fbfdff_0%,#f4f9ff_42%,#e8f4ff_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,#fbfdff_0%,#f5faff_38%,#edf8f5_72%,#f8fcff_100%)]" />
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -left-28 -top-24 h-[34rem] w-[34rem] rounded-full bg-white/90 blur-3xl" />
           <div className="absolute left-[42%] top-[-58%] h-[165%] w-44 rotate-[42deg] bg-white/55 blur-sm" />
-          <div className="absolute left-[58%] top-[-48%] h-[155%] w-72 rotate-[42deg] bg-[#bfdbfe]/25 blur-md" />
-          <div className="absolute -right-24 top-4 h-[32rem] w-[32rem] rounded-full bg-[#93c5fd]/20 blur-3xl" />
+          <div className="absolute left-[58%] top-[-48%] h-[155%] w-72 rotate-[42deg] bg-[#b8d9f5]/20 blur-md" />
+          <div className="absolute -right-24 top-4 h-[32rem] w-[32rem] rounded-full bg-[#a7e8cf]/30 blur-3xl" />
           <div className="absolute bottom-[-35%] left-[28%] h-[28rem] w-[52rem] rounded-full bg-white/75 blur-3xl" />
         </div>
 
@@ -87,7 +87,7 @@ export default function HomePage() {
               <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-[#172b4d] sm:text-5xl lg:text-6xl">
                 错题本，
                 <br />
-                <span className="bg-gradient-to-r from-[#3b82f6] via-[#3180f5] to-[#2563eb] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#397ff0] via-[#258de0] to-[#16a085] bg-clip-text text-transparent">
                   但有了超能力
                 </span>
               </h1>
@@ -142,11 +142,11 @@ export default function HomePage() {
               style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Main Card */}
-              <div className="relative rounded-[28px] border border-[#dce7f5] bg-white/95 p-6 shadow-[0_24px_70px_rgba(37,99,235,0.12)] backdrop-blur-xl">
+              <div className="relative rounded-[28px] border border-[#dce8f3] bg-white/95 p-6 shadow-[0_24px_70px_rgba(58,108,150,0.13)] backdrop-blur-xl">
                 {/* Card Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/70 bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_8px_18px_rgba(37,99,235,0.20)]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/70 bg-gradient-to-br from-[#4b91ed] to-[#2f79d5] shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_8px_18px_rgba(47,121,213,0.18)]">
                       <Camera className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -164,10 +164,10 @@ export default function HomePage() {
                 {/* Question Preview */}
                 <div className="mb-4 rounded-2xl border border-[#dce7f5] bg-[#f8fbff] p-5">
                   <div className="flex items-start gap-3">
-                    <span className="rounded-lg bg-[#3b82f6] px-2.5 py-1 text-xs font-bold text-white">
+                    <span className="rounded-lg bg-[#eaf3ff] px-2.5 py-1 text-xs font-bold text-[#3577d4]">
                       数学
                     </span>
-                    <span className="px-2 py-1 bg-[#f59e0b]/10 text-[#f59e0b] text-xs font-medium rounded">
+                    <span className="px-2 py-1 bg-[#fff5d6] text-[#c98a16] text-xs font-medium rounded">
                       中等
                     </span>
                   </div>
@@ -176,7 +176,7 @@ export default function HomePage() {
                   </p>
                   <div className="mt-4 flex items-center gap-2">
                     <span className="text-sm text-[#64748b]">答案：</span>
-                    <span className="rounded-lg bg-[#dbeafe] px-3 py-1 font-bold text-[#2563eb]">
+                    <span className="rounded-lg bg-[#eaf3ff] px-3 py-1 font-bold text-[#3577d4]">
                       1
                     </span>
                   </div>
@@ -184,7 +184,7 @@ export default function HomePage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <div className="flex-1 rounded-xl border border-[#a7f3d0] bg-[#ecfdf5] py-3 text-center font-semibold text-[#0f766e]">
+                  <div className="flex-1 rounded-xl border border-[#bcebd8] bg-[#effbf5] py-3 text-center font-semibold text-[#15866d]">
                     已自动保存
                   </div>
                   <button className="rounded-xl border border-[#cbd5e1] bg-white px-4 py-3 font-medium text-[#64748b] transition-colors hover:bg-[#eff6ff]">
@@ -199,7 +199,7 @@ export default function HomePage() {
       </section>
 
       {/* 使用说明 */}
-      <div className="rounded-[24px] border border-[#dce7f5] bg-gradient-to-br from-white to-[#f1f5f9] p-6 shadow-[0_12px_35px_rgba(30,64,100,0.08)]">
+      <div className="rounded-[24px] border border-[#dce7f5] bg-gradient-to-br from-white to-[#f5fafc] p-6 shadow-[0_12px_35px_rgba(30,64,100,0.08)]">
         <h2 className="mb-4 text-xl font-bold text-[#172b4d]">使用说明</h2>
         <div className="space-y-3">
           <div className="flex gap-3">
@@ -227,7 +227,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-3">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f0a735] text-sm font-bold text-[#3d2b0a] shadow-[0_3px_0_#bd7620]">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f7c95f] text-sm font-bold text-[#3d2b0a] shadow-[0_3px_0_#bd7620]">
               3
             </div>
             <div>
