@@ -45,7 +45,7 @@ export default function UploadPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[#3b82f6] animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-[#3483df] animate-spin mx-auto mb-4" />
           <p className="text-[#64748b]">加载中...</p>
         </div>
       </div>
@@ -250,10 +250,10 @@ export default function UploadPage() {
       </div>
 
       {/* AI 识别模式切换 */}
-      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-4">
+      <div className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_30px_rgba(58,108,150,0.07)] p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <Sparkles className="w-5 h-5 text-[#3b82f6]" />
+            <Sparkles className="w-5 h-5 text-[#159a78]" />
             <div>
               <p className="text-sm font-medium text-[#172b4d]">AI 识别引擎</p>
               <p className="text-xs text-[#64748b] mt-0.5">
@@ -280,9 +280,9 @@ export default function UploadPage() {
       </div>
 
       {/* 上传区域 */}
-      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+      <div className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_30px_rgba(58,108,150,0.07)] p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Camera className="w-5 h-5 text-[#64748b]" />
+          <Camera className="w-5 h-5 text-[#4b7fa8]" />
           <h2 className="text-lg font-semibold text-[#172b4d]">
             上传图片
           </h2>
@@ -305,10 +305,10 @@ export default function UploadPage() {
             return (
               <div
                 key={index}
-                className="flex items-start gap-3 p-4 bg-[#f7faff] rounded-xl"
+                className="flex items-start gap-3 p-4 bg-[#f7fbff] rounded-xl"
               >
-                <div className="w-10 h-10 bg-[#eff6ff] rounded-2xl flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-5 h-5 text-[#3b82f6]" />
+                <div className="w-10 h-10 bg-[#eff6ff] rounded-2xl border border-[#dcecff] flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-5 h-5 text-[#159a78]" />
                 </div>
                 <div>
                   <h4 className="font-bold text-[#172b4d] text-sm">{tip.title}</h4>
@@ -333,7 +333,7 @@ export default function UploadPage() {
 
       {/* 本次识别结果 */}
       {hasResults && (
-        <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+        <div className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_30px_rgba(58,108,150,0.07)] p-6">
           <RecognitionResults
             results={uploadedResults}
             questionIds={uploadedQuestionIds}
@@ -347,36 +347,36 @@ export default function UploadPage() {
 
       {/* 空状态提示 */}
       {!hasResults && queueItems.length === 0 && !isProcessing && (
-        <div className="bg-[#eff6ff]/30 border border-[#3b82f6]/20 rounded-2xl p-6">
+        <div className="bg-[#effaf7] border border-[#cceee2] rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-3">
-            <Inbox className="w-6 h-6 text-[#3b82f6]" />
+            <Inbox className="w-6 h-6 text-[#159a78]" />
             <h3 className="text-lg font-semibold text-[#172b4d]">
               使用提示
             </h3>
           </div>
           <ul className="space-y-2 text-sm text-[#64748b]">
             <li className="flex gap-2">
-              <span className="text-[#3b82f6]">•</span>
+              <span className="text-[#159a78]">•</span>
               <span>上传图片后，AI 会自动识别题目并<strong>保存到错题库</strong></span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#3b82f6]">•</span>
+              <span className="text-[#159a78]">•</span>
               <span>识别完成后无需逐题保存，可直接在错题库查看</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#3b82f6]">•</span>
+              <span className="text-[#159a78]">•</span>
               <span>可勾选多道识别结果后批量删除</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#3b82f6]">•</span>
+              <span className="text-[#159a78]">•</span>
               <span>确保图片清晰，光线充足，避免遮挡</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#3b82f6]">•</span>
+              <span className="text-[#159a78]">•</span>
               <span>支持 JPG、PNG、GIF、WebP 格式，单张最大 10MB</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-[#3b82f6]">•</span>
+              <span className="text-[#159a78]">•</span>
               <span>支持一次上传多张图片（最多 10 张）</span>
             </li>
           </ul>
