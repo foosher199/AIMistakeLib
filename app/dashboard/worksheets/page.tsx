@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { FileText, Loader2, Plus, Printer, Trash2 } from 'lucide-react'
+import { FileText, Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/lib/utils'
@@ -74,7 +74,9 @@ export default function WorksheetsPage() {
               </h2>
               <p className="mt-2 text-sm text-[#64748b]">{worksheet.questionCount} 道题 · {formatDateTime(worksheet.updated_at)}</p>
               <div className="mt-5 flex gap-2">
-                <Link href={`/dashboard/worksheets/${worksheet.id}`} className="flex-1"><Button className="w-full gap-2"><Printer className="h-4 w-4" />打开与打印</Button></Link>
+                <Button asChild className="flex-1">
+                  <Link href={`/dashboard/worksheets/${worksheet.id}`}>打开</Link>
+                </Button>
                 <Button variant="ghost" disabled={remove.isPending} onClick={() => confirm('确定删除这份练习卷吗？') && remove.mutate(worksheet.id)} className="text-[#f43f5e]"><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>

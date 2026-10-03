@@ -10,10 +10,13 @@ import {
   FileDown,
   Loader2,
   Pencil,
+  Plus,
   Printer,
   Save,
+  Trash2,
   X,
 } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useQuestions } from '@/hooks/useQuestions'
 import { Button } from '@/components/ui/button'
@@ -39,6 +42,7 @@ interface WorksheetBuilderProps {
 
 export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, initialTitle, initialSettings }: WorksheetBuilderProps) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const defaultTitle = normalizeWorksheetTitle(initialTitle || '错题练习卷')
   const [title, setTitle] = useState(
     defaultTitle
@@ -51,10 +55,23 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
   const [questionsPerPage, setQuestionsPerPage] = useState(initialSettings?.questionsPerPage ?? 6)
   const [saving, setSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(!worksheetId)
-  const questionsQuery = useQuestions({ limit: 1000 }, { enabled: !initialQuestions })
-  const availableQuestions = initialQuestions || questionsQuery.data?.questions || []
+  const [questionToAdd, setQuestionToAdd] = useState('')
+  const questionsQuery = useQuestions(
+    { limit: 1000 },
+    { enabled: !initialQuestions || isEditing }
+  )
+  const availableQuestions = Array.from(
+    new Map(
+      [...(initialQuestions || []), ...(questionsQuery.data?.questions || [])].map(
+        (question) => [question.id, question]
+      )
+    ).values()
+  )
   const questionMap = new Map(availableQuestions.map((question) => [question.id, question]))
   const selected = orderedIds.map((id) => questionMap.get(id)).filter((question): question is Question => Boolean(question))
+  const questionsAvailableToAdd = availableQuestions.filter(
+    (question) => !orderedIds.includes(question.id)
+  )
   const missingCount = orderedIds.length - selected.length
 
   const move = (index: number, direction: -1 | 1) => {
@@ -65,6 +82,17 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       ;[next[index], next[target]] = [next[target], next[index]]
       return next
     })
+  }
+
+  const addQuestion = () => {
+    if (!questionToAdd || orderedIds.includes(questionToAdd)) return
+    setOrderedIds((current) => [...current, questionToAdd])
+    setQuestionToAdd('')
+  }
+
+  const removeQuestion = (id: string) => {
+    setOrderedIds((current) => current.filter((questionId) => questionId !== id))
+    if (questionToAdd === id) setQuestionToAdd('')
   }
 
   const save = async () => {
@@ -82,8 +110,12 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || '保存失败')
+      await queryClient.invalidateQueries({ queryKey: ['worksheets'] })
       toast.success(worksheetId ? '练习卷已更新' : '练习卷已保存')
-      if (worksheetId) setIsEditing(false)
+      if (worksheetId) {
+        await queryClient.invalidateQueries({ queryKey: ['worksheet', worksheetId] })
+        setIsEditing(false)
+      }
       else if (data.worksheet?.id) router.replace(`/dashboard/worksheets/${data.worksheet.id}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '保存练习卷失败')
@@ -100,6 +132,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
     setIncludeImages(initialSettings?.includeImages ?? true)
     setAnswerLines(initialSettings?.answerLines ?? 3)
     setQuestionsPerPage(initialSettings?.questionsPerPage ?? 6)
+    setQuestionToAdd('')
     setIsEditing(false)
   }
 
@@ -108,8 +141,8 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
     window.print()
   }
 
-  if (questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" />
-  if (questionsQuery.error) {
+  if (!initialQuestions && questionsQuery.isLoading) return <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" />
+  if (!initialQuestions && questionsQuery.error) {
     return <div className="rounded border border-red-200 bg-red-50 p-5 text-red-600">加载练习卷题目失败：{questionsQuery.error.message}</div>
   }
   const pages = chunk(selected, questionsPerPage)
@@ -170,8 +203,48 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
               <span className="w-8 text-[#64748b]">{index + 1}.</span><span className="flex-1 truncate">{question.content}</span>
               <Button variant="ghost" size="sm" disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp className="h-4 w-4" /></Button>
               <Button variant="ghost" size="sm" disabled={index === selected.length - 1} onClick={() => move(index, 1)}><ArrowDown className="h-4 w-4" /></Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={`删除第 ${index + 1} 题`}
+                className="text-[#f43f5e] hover:bg-[#ffe4e6] hover:text-[#f43f5e]"
+                onClick={() => removeQuestion(question.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           ))}
+        </div>
+        <div className="mt-5 border-t pt-4">
+          <p className="mb-2 text-sm font-medium">添加题目</p>
+          {questionsQuery.error ? (
+            <p className="text-sm text-[#f43f5e]">加载可添加题目失败：{questionsQuery.error.message}</p>
+          ) : questionsQuery.isLoading ? (
+            <p className="flex items-center gap-2 text-sm text-[#64748b]">
+              <Loader2 className="h-4 w-4 animate-spin" />正在加载题目...
+            </p>
+          ) : questionsAvailableToAdd.length === 0 ? (
+            <p className="text-sm text-[#64748b]">没有其他可以添加的题目</p>
+          ) : (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <select
+                value={questionToAdd}
+                onChange={(event) => setQuestionToAdd(event.target.value)}
+                className="h-10 min-w-0 flex-1 rounded-xl border border-[#dce7f5] bg-white px-3 text-sm"
+              >
+                <option value="">选择要添加的题目</option>
+                {questionsAvailableToAdd.map((question) => (
+                  <option key={question.id} value={question.id}>
+                    {SUBJECTS.find((item) => item.id === question.subject)?.label || question.subject}
+                    {' · '}{question.content.slice(0, 80)}
+                  </option>
+                ))}
+              </select>
+              <Button type="button" variant="outline" className="gap-2" disabled={!questionToAdd} onClick={addQuestion}>
+                <Plus className="h-4 w-4" />添加题目
+              </Button>
+            </div>
+          )}
         </div>
       </section>}
 
