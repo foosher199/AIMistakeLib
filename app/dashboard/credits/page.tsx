@@ -62,9 +62,9 @@ export default function CreditsPage() {
   const balance = credits.data
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-7">
       <div>
-        <h1 className="text-3xl font-bold text-[#172b4d]">积分中心</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#172b4d]">积分中心</h1>
         <p className="mt-2 text-[#64748b]">查看 AI 调用积分，并兑换试用邀请码。</p>
       </div>
 
@@ -81,9 +81,9 @@ export default function CreditsPage() {
       )}
 
       {balance?.inviteRequired && (
-        <section className="rounded-2xl border border-[#bfdbfe] bg-white p-6 shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
+        <section className="rounded-[22px] border border-[#bfdbfe] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
           <div className="mb-4 flex items-start gap-3">
-            <div className="rounded-full bg-[#eff6ff] p-2 text-[#3b82f6]">
+            <div className="rounded-2xl bg-[#eff6ff] p-2.5 text-[#3b82f6]">
               <Ticket className="h-5 w-5" />
             </div>
             <div>
@@ -94,7 +94,7 @@ export default function CreditsPage() {
             </div>
           </div>
           {isAnonymous ? (
-            <div className="max-w-lg rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div className="max-w-lg rounded-2xl border border-[#fde68a] bg-[#fffbeb] p-4">
               <p className="text-sm text-amber-900">
                 当前是游客账户。请先绑定邮箱并设置密码，完成注册后才能兑换邀请码。
               </p>
@@ -125,14 +125,14 @@ export default function CreditsPage() {
         </section>
       )}
 
-      <section className="rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+      <section className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
         <h2 className="mb-4 text-xl font-semibold text-[#172b4d]">积分明细</h2>
         {transactions.isLoading ? (
           <Loader2 className="h-6 w-6 animate-spin text-[#3b82f6]" />
         ) : transactions.isError ? (
           <p className="text-sm text-red-600">{transactions.error.message}</p>
         ) : transactions.data?.length ? (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-[#edf2f7]">
             {transactions.data.map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between gap-4 py-3">
                 <div>
@@ -174,12 +174,12 @@ function StatCard({
   value: number
 }) {
   return (
-    <div className="rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
+    <div className="rounded-[22px] border border-[#dce8f3] bg-white p-5 shadow-[0_10px_28px_rgba(58,108,150,0.06)] transition-shadow hover:shadow-[0_14px_34px_rgba(58,108,150,0.09)]">
       <div className="flex items-center gap-3 text-[#64748b]">
         <Icon className="h-5 w-5 text-[#3b82f6]" />
         <span className="text-sm">{label}</span>
       </div>
-      <p className="mt-3 text-3xl font-bold text-[#172b4d]">{value.toLocaleString('zh-CN')}</p>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-[#172b4d]">{value.toLocaleString('zh-CN')}</p>
     </div>
   )
 }
