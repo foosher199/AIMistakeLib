@@ -60,23 +60,23 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* 筛选器 */}
       <QuestionFilters filters={filters} onChange={handleFilterChange} />
 
       {selectedIds.size > 0 && (
-        <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#8bc7dd] bg-[#eaf6fa] p-3 shadow-sm">
+        <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#cfe7df] bg-[#f1fbf7] p-3 shadow-[0_6px_18px_rgba(16,185,129,0.06)]">
           <span className="text-sm font-medium text-[#2563eb]">
             已选择 {selectedIds.size} 道题
           </span>
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+            <Button variant="ghost" size="sm" className="rounded-full text-[#64748b] hover:bg-white hover:text-[#172b4d]" onClick={() => setSelectedIds(new Set())}>
               <X className="mr-1 h-4 w-4" />清空
             </Button>
-            <Button variant="destructive" size="sm" onClick={deleteSelected} disabled={deleteQuestions.isPending}>
+            <Button variant="destructive" size="sm" className="rounded-full" onClick={deleteSelected} disabled={deleteQuestions.isPending}>
               <Trash2 className="mr-1 h-4 w-4" />{deleteQuestions.isPending ? '删除中...' : '删除所选'}
             </Button>
-            <Button size="sm" onClick={createWorksheet}>
+            <Button variant="jelly" size="sm" className="rounded-full" onClick={createWorksheet}>
               <FileText className="mr-1 h-4 w-4" />生成练习卷
             </Button>
           </div>
@@ -93,7 +93,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
 
       {/* 错误状态 */}
       {error && (
-        <div className="bg-[#ffe4e6] border border-[#f43f5e]/20 rounded-2xl p-4 text-[#f43f5e]">
+        <div className="rounded-2xl border border-[#f4c7c7] bg-[#fff7f7] p-4 text-[#c24141]">
           <p className="font-medium">加载失败</p>
           <p className="text-sm mt-1">{error.message}</p>
         </div>
@@ -103,7 +103,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
       {data && (
         <>
           {data.questions.length === 0 ? (
-            <div className="bg-[#f7faff] border border-[#dce7f5] rounded-2xl p-12 text-center">
+            <div className="rounded-[22px] border border-[#dce8f3] bg-[#f8fbff] p-12 text-center shadow-[0_8px_24px_rgba(58,108,150,0.05)]">
               <p className="text-[#64748b] mb-2">暂无题目</p>
               <p className="text-sm text-[#64748b]">
                 {Object.keys(filters).length > 0
@@ -114,7 +114,7 @@ export function QuestionList({ onEdit, onView }: QuestionListProps) {
           ) : (
             <>
               {/* 结果计数 */}
-              <div className="text-base text-[#64748b]">
+              <div className="text-sm font-medium text-[#64748b]">
                 共找到 <span className="font-medium text-[#172b4d]">{data.total}</span> 道题目
                 {page > 0 && (
                   <span className="ml-2">
