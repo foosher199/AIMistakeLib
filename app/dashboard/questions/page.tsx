@@ -64,14 +64,14 @@ export default function QuestionsPage() {
 
   return (
     <div>
-      <section className="rounded-[28px] border border-[#dce7f5] bg-white p-5 shadow-[0_14px_40px_rgba(30,64,100,0.07)] sm:p-6">
+      <section className="rounded-[26px] border border-[#dce8f3] bg-white p-5 shadow-[0_12px_34px_rgba(58,108,150,0.06)] sm:p-6">
         {/* 头部 */}
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-7 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white shadow-[0_6px_14px_rgba(37,99,235,0.18)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eaf3ff] text-[#3577d4]">
               <FileText className="h-5 w-5" />
             </span>
-            <h1 className="text-2xl font-bold text-[#172b4d]">错题列表</h1>
+            <h1 className="text-2xl font-bold text-[#172b4d]">我的错题</h1>
           </div>
 
           <Button
@@ -85,7 +85,7 @@ export default function QuestionsPage() {
         </div>
 
         {worksheetMode && (
-          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#bfdbfe] bg-[#eff6ff] px-4 py-3 text-sm text-[#2563eb]">
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#d3e5fa] bg-[#f3f8ff] px-4 py-3 text-sm text-[#3577d4]">
             <FileText className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
               <p className="font-semibold">选择练习卷题目</p>
