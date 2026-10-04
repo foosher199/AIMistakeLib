@@ -102,17 +102,17 @@ export default function FeedbackPage() {
   const selectedCategory = FEEDBACK_CATEGORIES.find((c) => c.id === category)
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-7">
       {/* 头部 */}
       <div>
-        <h1 className="text-3xl font-bold text-[#172b4d] mb-2">意见反馈</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#172b4d] mb-2">意见反馈</h1>
         <p className="text-[#64748b]">
           您的反馈对我们非常重要，帮助我们改进产品
         </p>
       </div>
 
       {/* 提示卡片 */}
-      <div className="bg-[#eff6ff]/30 border border-[#3b82f6]/20 rounded-2xl p-4">
+      <div className="rounded-[22px] border border-[#bfdbfe] bg-[#eff6ff]/70 p-4">
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
           <div className="text-sm text-[#172b4d]">
@@ -129,7 +129,7 @@ export default function FeedbackPage() {
       {/* 反馈表单 */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 反馈类型选择 */}
-        <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
           <h2 className="text-lg font-semibold text-[#172b4d] mb-4">
             反馈类型
           </h2>
@@ -142,10 +142,10 @@ export default function FeedbackPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(cat.id)}
-                  className={`p-4 rounded-2xl border-2 transition-all text-left ${
+                  className={`p-4 rounded-2xl border-2 transition-all text-left hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(58,108,150,0.06)] ${
                     isSelected
                       ? 'border-[#3b82f6] bg-[#eff6ff]/20'
-                      : 'border-[#dce7f5] hover:border-[#dce7f5]'
+                      : 'border-[#dce8f3] hover:border-[#bfdbfe]'
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -167,7 +167,7 @@ export default function FeedbackPage() {
         </div>
 
         {/* 反馈内容 */}
-        <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 space-y-4">
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)] space-y-4">
           <h2 className="text-lg font-semibold text-[#172b4d]">反馈内容</h2>
 
           {/* 主题 */}
@@ -179,7 +179,7 @@ export default function FeedbackPage() {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="简要描述您的问题或建议"
-              className="h-12 border-[#dce7f5] focus:border-[#3b82f6]"
+              className="h-12 rounded-xl border-[#dce8f3] bg-[#fbfdff] focus:border-[#3b82f6]"
               required
               maxLength={100}
             />
@@ -197,7 +197,7 @@ export default function FeedbackPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="请详细描述您遇到的问题或建议的内容..."
-              className="w-full min-h-[200px] p-3 border border-[#dce7f5] rounded-2xl focus:outline-none focus:border-[#3b82f6] resize-y"
+              className="w-full min-h-[200px] rounded-xl border border-[#dce8f3] bg-[#fbfdff] p-3 focus:outline-none focus:border-[#3b82f6] resize-y"
               required
               maxLength={1000}
             />
@@ -216,7 +216,7 @@ export default function FeedbackPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="用于接收反馈处理结果（可选）"
-              className="h-12 border-[#dce7f5] focus:border-[#3b82f6]"
+              className="h-12 rounded-xl border-[#dce8f3] bg-[#fbfdff] focus:border-[#3b82f6]"
             />
             <p className="text-xs text-[#64748b] mt-1">
               {user?.email
@@ -254,7 +254,7 @@ export default function FeedbackPage() {
 
       {/* 预览卡片 */}
       {(subject || content) && (
-        <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
           <h3 className="text-lg font-semibold text-[#172b4d] mb-4">
             反馈预览
           </h3>
