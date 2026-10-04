@@ -12,10 +12,10 @@ export function QuestionStats() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 animate-pulse"
+            className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_28px_rgba(58,108,150,0.06)] p-6 animate-pulse"
           >
-            <div className="h-4 bg-[#f7faff] rounded w-20 mb-2" />
-            <div className="h-8 bg-[#f7faff] rounded w-16" />
+            <div className="h-4 bg-[#f1f6fb] rounded w-20 mb-2" />
+            <div className="h-8 bg-[#f1f6fb] rounded w-16" />
           </div>
         ))}
       </div>
@@ -39,7 +39,7 @@ export function QuestionStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* 总题数 */}
-      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_28px_rgba(58,108,150,0.06)] p-6 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(58,108,150,0.08)] transition-all">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-[#64748b] mb-1">总题数</p>
@@ -52,7 +52,7 @@ export function QuestionStats() {
       </div>
 
       {/* 已掌握 */}
-      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_28px_rgba(58,108,150,0.06)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-[#64748b] mb-1">已掌握</p>
@@ -68,7 +68,7 @@ export function QuestionStats() {
       </div>
 
       {/* 待复习 */}
-      <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-[22px] border border-[#dce8f3] shadow-[0_10px_28px_rgba(58,108,150,0.06)] p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-[#64748b] mb-1">待复习</p>
