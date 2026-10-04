@@ -92,9 +92,9 @@ export function QuestionCard({
   const subjectLabel = SUBJECTS.find((s) => s.id === question.subject)?.label || question.subject
   const difficultyLabel = DIFFICULTIES.find((d) => d.id === question.difficulty)?.label || question.difficulty
   const difficultyColor = {
-    easy: 'bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30',
+    easy: 'bg-[#eaf8f4] text-[#159a78] border-[#bfe6d9]',
     medium: 'bg-[#fffbeb] text-[#f59e0b] border-[#f59e0b]/30',
-    hard: 'bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30',
+    hard: 'bg-[#fff4f4] text-[#c95b5b] border-[#f1cccc]',
   }[question.difficulty]
 
   const handleDelete = () => {
@@ -212,12 +212,12 @@ export function QuestionCard({
   const hasAnalysis = existingAnalysis.tags.length > 0
 
   return (
-    <div className="rounded-2xl border border-[#dce7f5] bg-white p-4 shadow-[0_4px_14px_rgba(30,64,100,0.045)] transition-[border-color,box-shadow] hover:border-[#bfdbfe] hover:shadow-[0_8px_22px_rgba(30,64,100,0.07)]">
+    <div className="rounded-[22px] border border-[#dce8f3] bg-white p-5 shadow-[0_8px_24px_rgba(58,108,150,0.055)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-[#b9d5f1] hover:shadow-[0_14px_30px_rgba(58,108,150,0.08)]">
       {/* 头部：标签和操作 */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-wrap gap-2">
           {onSelectionChange && (
-            <label className="flex cursor-pointer items-center gap-2 rounded border border-[#dce7f5] px-2 py-1 text-xs text-[#64748b]">
+            <label className="flex cursor-pointer items-center gap-2 rounded-full border border-[#dce8f3] bg-[#f8fbff] px-3 py-1.5 text-xs text-[#64748b]">
               <input
                 type="checkbox"
                 checked={selected}
@@ -227,14 +227,14 @@ export function QuestionCard({
               选择
             </label>
           )}
-          <Badge variant="outline" className="bg-[#eff6ff] text-[#3b82f6] border-[#3b82f6]/30">
+          <Badge variant="outline" className="bg-[#eaf3ff] text-[#3577d4] border-[#cfe1f7]">
             {subjectLabel}
           </Badge>
           <Badge variant="outline" className={difficultyColor}>
             {difficultyLabel}
           </Badge>
           {question.is_mastered && (
-            <Badge variant="outline" className="bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30">
+            <Badge variant="outline" className="bg-[#eaf8f4] text-[#159a78] border-[#bfe6d9]">
               <CheckCircle className="w-3 h-3 mr-1" />
               已掌握
             </Badge>
@@ -243,7 +243,7 @@ export function QuestionCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 hover:bg-[#f3f8ff]">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -296,7 +296,7 @@ export function QuestionCard({
       <QuestionImageManager key={`${question.id}-${question.images?.map((image) => image.id).join('-') || 'legacy'}`} question={question} />
 
       {/* 答案区域 */}
-      <div className="border-t border-[#dce7f5] pt-3 mb-3">
+      <div className="border-t border-[#e8eef5] pt-3 mb-3">
         <div className="flex flex-wrap gap-2 mb-2">
           <Button
             variant="ghost"
@@ -396,7 +396,7 @@ export function QuestionCard({
             </div>
             <div className="flex flex-wrap gap-1 mb-2">
               {existingAnalysis.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30">
+                <Badge key={tag} variant="outline" className="text-xs bg-[#fff4f4] text-[#c95b5b] border-[#f1cccc]">
                   {tag}
                 </Badge>
               ))}
@@ -417,7 +417,7 @@ export function QuestionCard({
               <Copy className="w-5 h-5 text-[#3b82f6]" />
               举一反三
               {hasHistoricalVariations && historicalVariations && (
-                <Badge variant="outline" className="text-xs bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30">
+                <Badge variant="outline" className="text-xs bg-[#eaf8f4] text-[#159a78] border-[#bfe6d9]">
                   历史 {historicalVariations.length} 道
                 </Badge>
               )}
@@ -505,9 +505,9 @@ export function QuestionCard({
                         <Badge
                           variant="outline"
                           className={{
-                            easy: 'bg-[#ecfdf5] text-[#0f766e] border-[#0f766e]/30',
+                            easy: 'bg-[#eaf8f4] text-[#159a78] border-[#bfe6d9]',
                             medium: 'bg-[#fffbeb] text-[#f59e0b] border-[#f59e0b]/30',
-                            hard: 'bg-[#ffe4e6] text-[#f43f5e] border-[#f43f5e]/30',
+                            hard: 'bg-[#fff4f4] text-[#c95b5b] border-[#f1cccc]',
                           }[variation.difficulty]}
                         >
                           {DIFFICULTIES.find((d) => d.id === variation.difficulty)?.label || variation.difficulty}
@@ -519,7 +519,7 @@ export function QuestionCard({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 rounded-full p-0 hover:bg-[#f3f8ff]"
                         onClick={() => collectVariation.mutate(variation.id)}
                         disabled={collectVariation.isPending}
                         title="收藏到错题本"
@@ -529,7 +529,7 @@ export function QuestionCard({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 rounded-full p-0 hover:bg-[#f3f8ff]"
                         onClick={() => feedbackVariation.mutate({ id: variation.id, status: 'valid' })}
                         disabled={feedbackVariation.isPending}
                         title="题目合理"
@@ -539,7 +539,7 @@ export function QuestionCard({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 rounded-full p-0 hover:bg-[#f3f8ff]"
                         onClick={() => feedbackVariation.mutate({ id: variation.id, status: 'invalid' })}
                         disabled={feedbackVariation.isPending}
                         title="题目不合理"
@@ -549,7 +549,7 @@ export function QuestionCard({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-[#f43f5e] hover:text-[#f43f5e]"
+                        className="h-8 w-8 p-0 text-[#c95b5b] hover:text-[#b94e4e]"
                         onClick={() => {
                           if (confirm('确定要删除这道变式题吗？')) {
                             deleteVariation.mutate(variation.id)
