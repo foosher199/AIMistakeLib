@@ -148,43 +148,43 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
   const pages = chunk(selected, questionsPerPage)
 
   return (
-    <div className="worksheet-page space-y-6">
+    <div className="worksheet-page space-y-7">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <Button asChild variant="ghost" className="gap-2">
+        <Button asChild variant="ghost" className="gap-2 rounded-full text-[#52657d] hover:bg-[#f0f8f6] hover:text-[#159a78]">
           <Link href={worksheetId ? '/dashboard/worksheets' : '/dashboard/questions'}>
             <ArrowLeft className="h-4 w-4" />返回
           </Link>
         </Button>
         <div className="flex flex-wrap justify-end gap-2">
           {worksheetId && !isEditing && (
-            <Button variant="outline" className="gap-2" onClick={() => setIsEditing(true)}>
+            <Button variant="outline" className="gap-2 rounded-full border-[#dce8f3] hover:bg-[#f5fafc]" onClick={() => setIsEditing(true)}>
               <Pencil className="h-4 w-4" />编辑
             </Button>
           )}
           {worksheetId && isEditing && (
-            <Button variant="ghost" className="gap-2" onClick={cancelEditing} disabled={saving}>
+            <Button variant="ghost" className="gap-2 rounded-full text-[#64748b]" onClick={cancelEditing} disabled={saving}>
               <X className="h-4 w-4" />取消
             </Button>
           )}
           {(!worksheetId || isEditing) && (
-            <Button onClick={save} disabled={saving || selected.length === 0} variant="outline" className="gap-2">
+            <Button onClick={save} disabled={saving || selected.length === 0} variant="outline" className="gap-2 rounded-full border-[#cfe0ef] hover:bg-[#f5fafc]">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {worksheetId ? '保存修改' : '保存'}
             </Button>
           )}
-          <Button onClick={saveAsPdf} variant="outline" className="gap-2">
+          <Button onClick={saveAsPdf} variant="outline" className="gap-2 rounded-full border-[#dce8f3] hover:bg-[#f5fafc]">
             <FileDown className="h-4 w-4" />保存为 PDF
           </Button>
-          <Button onClick={() => window.print()} className="gap-2">
+          <Button onClick={() => window.print()} variant="jelly" className="gap-2 rounded-full px-5">
             <Printer className="h-4 w-4" />打印
           </Button>
         </div>
       </div>
 
-      {(!worksheetId || isEditing) && <section className="no-print rounded-2xl border border-[#dce7f5] bg-white shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-5">
-        <h1 className="mb-4 text-xl font-semibold">练习卷设置</h1>
+      {(!worksheetId || isEditing) && <section className="no-print rounded-[22px] border border-[#dce8f3] bg-white p-5 shadow-[0_10px_30px_rgba(58,108,150,0.07)]">
+        <div className="mb-5 flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eaf3ff] text-[#3577d4]"><Pencil className="h-4 w-4" /></div><div><h1 className="text-xl font-semibold text-[#172b4d]">练习卷设置</h1><p className="mt-0.5 text-sm text-[#64748b]">设置版式、答案和答题空间</p></div></div>
         {missingCount > 0 && (
-          <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          <div className="mb-4 rounded-xl border border-[#f3dfab] bg-[#fffaf0] p-3 text-sm text-[#9a6b13]">
             有 {missingCount} 道题已删除或当前无法访问，本练习卷仅显示其余 {selected.length} 道题。
           </div>
         )}
@@ -194,12 +194,12 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
           <Select label="答案" value={answerMode} onChange={(value) => setAnswerMode(value as typeof answerMode)} options={[['none', '不显示'], ['end', '卷尾答案'], ['inline', '题后答案']]} />
           <label className="space-y-2 text-sm"><span>答题空行</span><Input type="number" min="0" max="10" value={answerLines} onChange={(event) => setAnswerLines(Math.min(10, Math.max(0, Number(event.target.value))))} /></label>
           <Select label="每页题数" value={questionsPerPage} onChange={(value) => setQuestionsPerPage(Number(value))} options={[['4', '4 题'], ['6', '6 题'], ['8', '8 题'], ['10', '10 题']]} />
-          <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeImages} onChange={(event) => setIncludeImages(event.target.checked)} className="h-4 w-4 accent-[#3b82f6]" />包含原题图片</label>
+          <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeImages} onChange={(event) => setIncludeImages(event.target.checked)} className="h-4 w-4 accent-[#397ff0]" />包含原题图片</label>
         </div>
-        <div className="mt-5 space-y-2 border-t pt-4">
+        <div className="mt-6 space-y-2 border-t border-[#edf2f7] pt-5">
           <p className="text-sm font-medium">题目顺序</p>
           {selected.map((question, index) => (
-            <div key={question.id} className="flex items-center gap-2 rounded border px-3 py-2 text-sm">
+            <div key={question.id} className="flex items-center gap-2 rounded-xl border border-[#e1eaf2] bg-[#fbfdff] px-3 py-2 text-sm transition-colors hover:border-[#cfe0ef] hover:bg-[#f7fbff]">
               <span className="w-8 text-[#64748b]">{index + 1}.</span><span className="flex-1 truncate">{question.content}</span>
               <Button variant="ghost" size="sm" disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp className="h-4 w-4" /></Button>
               <Button variant="ghost" size="sm" disabled={index === selected.length - 1} onClick={() => move(index, 1)}><ArrowDown className="h-4 w-4" /></Button>
@@ -215,7 +215,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
             </div>
           ))}
         </div>
-        <div className="mt-5 border-t pt-4">
+        <div className="mt-6 border-t border-[#edf2f7] pt-5">
           <p className="mb-2 text-sm font-medium">添加题目</p>
           {questionsQuery.error ? (
             <p className="text-sm text-[#f43f5e]">加载可添加题目失败：{questionsQuery.error.message}</p>
@@ -230,7 +230,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
               <select
                 value={questionToAdd}
                 onChange={(event) => setQuestionToAdd(event.target.value)}
-                className="h-10 min-w-0 flex-1 rounded-xl border border-[#dce7f5] bg-white px-3 text-sm"
+                className="h-10 min-w-0 flex-1 rounded-xl border border-[#dce8f3] bg-white px-3 text-sm outline-none transition focus:border-[#8bb8ed] focus:ring-2 focus:ring-[#eaf3ff]"
               >
                 <option value="">选择要添加的题目</option>
                 {questionsAvailableToAdd.map((question) => (
@@ -240,7 +240,7 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
                   </option>
                 ))}
               </select>
-              <Button type="button" variant="outline" className="gap-2" disabled={!questionToAdd} onClick={addQuestion}>
+              <Button type="button" variant="outline" className="gap-2 rounded-full border-[#cfe0ef]" disabled={!questionToAdd} onClick={addQuestion}>
                 <Plus className="h-4 w-4" />添加题目
               </Button>
             </div>
@@ -249,14 +249,14 @@ export function WorksheetBuilder({ questionIds, initialQuestions, worksheetId, i
       </section>}
 
       {selected.length === 0 ? (
-        <div className="rounded-2xl border border-[#dce7f5] bg-white p-12 text-center text-[#64748b] shadow-[0_8px_24px_rgba(30,64,100,0.07)]">未找到所选题目，请返回错题库重新选择。</div>
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-12 text-center text-[#64748b] shadow-[0_10px_30px_rgba(58,108,150,0.07)]">未找到所选题目，请返回错题库重新选择。</div>
       ) : (
         <div className="space-y-6 overflow-x-auto pb-2 print:space-y-0 print:overflow-visible print:pb-0">
           {pages.map((pageQuestions, pageIndex) => (
             <WorksheetPage key={pageIndex} title={title} page={pageIndex + 1} totalPages={pages.length} questions={pageQuestions} startIndex={pageIndex * questionsPerPage} columns={columns} includeImages={includeImages} answerLines={answerLines} answerMode={answerMode} />
           ))}
           {answerMode === 'end' && pages.map((pageQuestions, pageIndex) => (
-            <article key={`answers-${pageIndex}`} className="worksheet-sheet worksheet-physical-page mx-auto bg-white p-10 shadow-sm">
+            <article key={`answers-${pageIndex}`} className="worksheet-sheet worksheet-physical-page mx-auto bg-white p-10 shadow-[0_8px_30px_rgba(58,108,150,0.06)]">
               <h2 className="mb-5 border-b pb-2 text-xl font-bold">{title}－参考答案与解析（{pageIndex + 1}/{pages.length}）</h2>
               {pageQuestions.map((question, index) => <Answer key={question.id} question={question} index={pageIndex * questionsPerPage + index + 1} />)}
             </article>
@@ -295,15 +295,15 @@ function WorksheetPage({ title, page, totalPages, questions, startIndex, columns
   title: string; page: number; totalPages: number; questions: Question[]; startIndex: number; columns: 1 | 2; includeImages: boolean; answerLines: number; answerMode: 'none' | 'end' | 'inline'
 }) {
   return (
-    <article className="worksheet-sheet worksheet-physical-page mx-auto bg-white p-10 shadow-sm">
+    <article className="worksheet-sheet worksheet-physical-page mx-auto bg-white p-10 shadow-[0_8px_30px_rgba(58,108,150,0.06)]">
       <header className="mb-8 text-center">
         <h1 className="text-2xl font-bold">{title || '错题练习卷'}</h1>
-        <div className="mt-5 flex justify-between border-b border-[#94a3b8] pb-2 text-sm"><span>姓名：____________</span><span>日期：____________</span><span>第 {page}/{totalPages} 页</span></div>
+        <div className="mt-5 flex justify-between border-b border-[#d4dee8] pb-2 text-sm text-[#52657d]"><span>姓名：____________</span><span>日期：____________</span><span>第 {page}/{totalPages} 页</span></div>
       </header>
       <div className={columns === 2 ? 'worksheet-columns-2' : ''}>
         {questions.map((question, index) => (
           <section key={question.id} className="worksheet-question mb-7 break-inside-avoid">
-            <div className="mb-2 flex gap-2 text-xs text-[#64748b]">
+            <div className="mb-2 flex gap-2 text-xs text-[#159a78]">
               <span>{SUBJECTS.find((item) => item.id === question.subject)?.label || question.subject}</span><span>·</span><span>{question.category}</span><span>·</span><span>{DIFFICULTIES.find((item) => item.id === question.difficulty)?.label || question.difficulty}</span>
             </div>
             <p className="whitespace-pre-wrap leading-7"><strong>{startIndex + index + 1}.</strong> {question.content}</p>
@@ -324,7 +324,7 @@ function Select({ label, value, onChange, options }: { label: string; value: str
 }
 
 function Answer({ question, index }: { question: Pick<Question, 'answer' | 'explanation'>; index?: number }) {
-  return <div className="mt-4 break-inside-avoid rounded border border-[#dce7f5] bg-[#f8fafc] p-3 text-sm"><p><strong>{index ? `${index}. ` : ''}答案：</strong>{question.answer}</p>{question.explanation && <p className="mt-2 whitespace-pre-wrap text-[#475569]"><strong>解析：</strong>{question.explanation}</p>}</div>
+  return <div className="mt-4 break-inside-avoid rounded-xl border border-[#dce8f3] bg-[#f7fbff] p-3 text-sm"><p><strong>{index ? `${index}. ` : ''}答案：</strong>{question.answer}</p>{question.explanation && <p className="mt-2 whitespace-pre-wrap text-[#475569]"><strong>解析：</strong>{question.explanation}</p>}</div>
 }
 
 function chunk<T>(items: T[], size: number) {
