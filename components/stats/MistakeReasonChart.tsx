@@ -31,7 +31,7 @@ export function MistakeReasonChart({ reasons }: MistakeReasonChartProps) {
                 <span className="text-xs text-[#64748b] w-10 text-right">{item.percentage}%</span>
               </div>
             </div>
-            <div className="h-2 bg-[#f7faff] rounded-full overflow-hidden">
+            <div className="h-2.5 bg-[#edf4fa] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${item.percentage}%`, backgroundColor: color }}
