@@ -42,13 +42,13 @@ export default function WorksheetsPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">练习卷</h1>
-          <p className="mt-2 text-[#64748b]">创建练习卷，或重新打开、调整并打印已保存的练习卷。</p>
+          <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf3ff] text-[#3577d4]"><FileText className="h-5 w-5" /></div><div><h1 className="text-3xl font-bold tracking-tight text-[#172b4d]">练习卷</h1>
+          <p className="mt-1 text-[#64748b]">创建练习卷，整理错题并进行针对性练习。</p></div></div>
         </div>
-        <Button asChild variant="jelly" className="gap-2 rounded-full px-6">
+        <Button asChild variant="jelly" className="gap-2 rounded-full bg-[#397ff0] px-6 shadow-[0_8px_18px_rgba(57,127,240,0.18)] hover:bg-[#2f72dc]">
           <Link href="/dashboard/questions?mode=worksheet">
             <Plus className="h-4 w-4" />
             创建练习卷
@@ -56,35 +56,35 @@ export default function WorksheetsPage() {
         </Button>
       </div>
       {query.isLoading ? <Loader2 className="mx-auto my-20 h-9 w-9 animate-spin text-[#3b82f6]" /> : query.error ? (
-        <div className="rounded border border-red-200 bg-red-50 p-5 text-red-600">{query.error.message}</div>
+        <div className="rounded-2xl border border-[#f4c7c7] bg-[#fff7f7] p-5 text-[#c24141]">{query.error.message}</div>
       ) : query.data?.worksheets.length === 0 ? (
-        <div className="rounded-2xl border border-[#dce7f5] bg-white p-12 text-center shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
-          <FileText className="mx-auto mb-3 h-10 w-10 text-[#94a3b8]" />
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-12 text-center shadow-[0_10px_30px_rgba(58,108,150,0.07)]">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eff7f5] text-[#159a78]"><FileText className="h-7 w-7" /></div>
           <p className="text-[#64748b]">还没有保存练习卷</p>
-          <Button asChild className="mt-4">
+          <Button asChild variant="jelly" className="mt-5 rounded-full px-5">
             <Link href="/dashboard/questions?mode=worksheet">选择题目并创建</Link>
           </Button>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {query.data?.worksheets.map((worksheet) => (
-            <div key={worksheet.id} className="rounded-2xl border border-[#dce7f5] bg-white p-5 shadow-[0_8px_24px_rgba(30,64,100,0.07)]">
-              <h2 className="truncate text-lg font-semibold">
+            <div key={worksheet.id} className="group rounded-[22px] border border-[#dce8f3] bg-white p-5 shadow-[0_10px_30px_rgba(58,108,150,0.07)] transition-all hover:-translate-y-0.5 hover:border-[#c8dff1] hover:shadow-[0_14px_34px_rgba(58,108,150,0.10)]">
+              <div className="mb-4 flex items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eaf8f4] text-[#159a78]"><FileText className="h-4 w-4" /></div><h2 className="truncate text-lg font-semibold text-[#172b4d]">
                 {normalizeWorksheetTitle(worksheet.title)}
               </h2>
               <p className="mt-2 text-sm text-[#64748b]">{worksheet.questionCount} 道题 · {formatDateTime(worksheet.updated_at)}</p>
               <div className="mt-5 flex gap-2">
-                <Button asChild className="flex-1">
+                <Button asChild variant="jelly" className="flex-1 rounded-full">
                   <Link href={`/dashboard/worksheets/${worksheet.id}`}>打开</Link>
                 </Button>
-                <Button variant="ghost" disabled={remove.isPending} onClick={() => confirm('确定删除这份练习卷吗？') && remove.mutate(worksheet.id)} className="text-[#f43f5e]"><Trash2 className="h-4 w-4" /></Button>
+                <Button variant="ghost" disabled={remove.isPending} onClick={() => confirm('确定删除这份练习卷吗？') && remove.mutate(worksheet.id)} className="rounded-full text-[#e05252] hover:bg-[#fff0f0] hover:text-[#d64545]"><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>
           ))}
         </div>
       )}
       {(query.data?.total || 0) > pageSize && (
-        <div className="flex justify-center gap-3"><Button variant="outline" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>上一页</Button><span className="py-2 text-sm">第 {page + 1} 页</span><Button variant="outline" disabled={(page + 1) * pageSize >= (query.data?.total || 0)} onClick={() => setPage((value) => value + 1)}>下一页</Button></div>
+        <div className="flex justify-center gap-3"><Button variant="outline" className="rounded-full border-[#dce8f3]" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>上一页</Button><span className="rounded-full bg-[#f4f8fc] px-4 py-2 text-sm text-[#64748b]">第 {page + 1} 页</span><Button variant="outline" className="rounded-full border-[#dce8f3]" disabled={(page + 1) * pageSize >= (query.data?.total || 0)} onClick={() => setPage((value) => value + 1)}>下一页</Button></div>
       )}
     </div>
   )
