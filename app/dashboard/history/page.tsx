@@ -171,18 +171,18 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[#172b4d] mb-2">历史题库</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#172b4d] mb-2">历史题库</h1>
         <p className="text-[#64748b]">查看学习进度和错题统计</p>
       </div>
 
       {/* Overview Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-5 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-[#eff6ff] rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-[#eaf3ff] rounded-xl flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-[#3b82f6]" />
             </div>
             <span className="text-sm text-[#64748b]">总错题数</span>
@@ -192,8 +192,8 @@ export default function HistoryPage() {
 
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-              <Target className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-[#eaf8f4] rounded-xl flex items-center justify-center">
+              <Target className="w-5 h-5 text-[#159a78]" />
             </div>
             <span className="text-sm text-[#64748b]">掌握率</span>
           </div>
@@ -202,8 +202,8 @@ export default function HistoryPage() {
 
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 bg-[#fffbeb] rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-[#d58a12]" />
             </div>
             <span className="text-sm text-[#64748b]">待复习</span>
           </div>
@@ -217,7 +217,7 @@ export default function HistoryPage() {
             </div>
             <span className="text-sm text-[#64748b]">本周新增</span>
           </div>
-          <p className="text-3xl font-bold text-[#3b82f6]">{stats.weeklyNew}</p>
+          <p className="text-3xl font-bold text-[#3577d4]">{stats.weeklyNew}</p>
         </div>
       </div>
 
@@ -322,7 +322,7 @@ export default function HistoryPage() {
                     <Link
                       key={q.id}
                       href={`/dashboard/questions?id=${q.id}`}
-                      className="block p-3 bg-[#f7faff] rounded-xl hover:bg-[#eff6ff]/30 transition-colors"
+                      className="block p-3 bg-[#f8fbff] rounded-xl border border-transparent hover:border-[#dce8f3] hover:bg-[#f3f8ff] transition-colors"
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <SubjectIcon
@@ -366,7 +366,7 @@ export default function HistoryPage() {
                     setSelectedSubject(e.target.value)
                     setSelectedCategory('')
                   }}
-                  className="px-4 py-2 bg-[#f7faff] border border-[#dce7f5] rounded-2xl text-sm focus:outline-none focus:border-[#3b82f6]"
+                  className="px-4 py-2 bg-white border border-[#dce8f3] rounded-full text-sm focus:outline-none focus:border-[#3b82f6]"
                 >
                   <option value="">所有学科</option>
                   {SUBJECTS.map((s) => (
@@ -407,7 +407,7 @@ export default function HistoryPage() {
                       setSelectedCategory('')
                       setSelectedDifficulty('')
                     }}
-                    className="px-4 py-2 text-sm text-[#f43f5e] hover:bg-[#ffe4e6] rounded-2xl transition-colors"
+                    className="px-4 py-2 text-sm text-[#c95b5b] hover:bg-[#fff4f4] rounded-full transition-colors"
                   >
                     清除筛选
                   </button>
@@ -442,7 +442,7 @@ export default function HistoryPage() {
                     <Link
                       key={question.id}
                       href={`/dashboard/questions?id=${question.id}`}
-                      className="block p-4 bg-[#f7faff] rounded-xl hover:bg-[#eff6ff]/20 transition-colors group"
+                      className="block rounded-[18px] border border-[#e6eef6] bg-[#fbfdff] p-4 transition-all group hover:-translate-y-0.5 hover:border-[#c9def2] hover:bg-[#f7fbff] hover:shadow-[0_8px_20px_rgba(58,108,150,0.06)]"
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
@@ -467,7 +467,7 @@ export default function HistoryPage() {
                               {question.category}
                             </Badge>
                             {question.is_mastered && (
-                              <Badge className="text-xs bg-green-100 text-green-600">
+                              <Badge className="text-xs bg-[#eaf8f4] text-[#159a78]">
                                 已掌握
                               </Badge>
                             )}
