@@ -46,7 +46,7 @@ export function MasteryBySubject({ subjects }: MasteryBySubjectProps) {
                 {subject.mastered}/{subject.total} 掌握 {subject.rate}%
               </span>
             </div>
-            <div className="h-2 bg-[#f7faff] rounded-full overflow-hidden relative">
+            <div className="h-2.5 bg-[#edf4fa] rounded-full overflow-hidden relative">
               <div
                 className="h-full rounded-full transition-all duration-500 absolute left-0 top-0 opacity-30"
                 style={{ width: `${totalWidth}%`, backgroundColor: color }}
