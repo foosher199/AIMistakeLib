@@ -74,7 +74,7 @@ function SidebarContent({
       href={href}
       onClick={onNavigate}
       className={cn(
-        'dashboard-nav-item flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold',
+        'dashboard-nav-item flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold',
         isCurrentPath(pathname, href) && 'is-active'
       )}
     >
@@ -88,7 +88,7 @@ function SidebarContent({
       <Link
         href="/dashboard/upload"
         onClick={onNavigate}
-        className="flex h-16 items-center gap-3 border-b border-[#e2e8f0] px-5"
+        className="flex h-16 items-center gap-3 border-b border-[#dce8f3] px-5"
       >
         <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-[0_6px_14px_rgba(37,99,235,0.18)]">
           <BookOpen className="h-5 w-5 text-white" />
@@ -102,19 +102,19 @@ function SidebarContent({
         </p>
         <div className="space-y-1.5">{navigation.map(renderLink)}</div>
 
-        <div className="my-5 border-t border-[#e2e8f0]" />
+        <div className="my-5 border-t border-[#dce8f3]" />
         <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">
           账户与支持
         </p>
         <div className="space-y-1.5">{secondaryNavigation.map(renderLink)}</div>
       </nav>
 
-      <div className="border-t border-[#e2e8f0] p-3">
+      <div className="border-t border-[#dce8f3] p-3">
         <Link
           href="/dashboard/profile"
           onClick={onNavigate}
           className={cn(
-            'dashboard-nav-item flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold',
+            'dashboard-nav-item flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold',
             isCurrentPath(pathname, '/dashboard/profile') && 'is-active'
           )}
         >
@@ -179,7 +179,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="dashboard-shell relative min-h-screen bg-[#f7faff]">
       <div className="no-print pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_85%_5%,rgba(59,130,246,0.06),transparent_30%),radial-gradient(circle_at_70%_95%,rgba(16,185,129,0.04),transparent_32%)]" />
-      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-56 flex-col overflow-hidden border-r border-[#dce7f5] bg-[#ffffff] shadow-[8px_0_24px_rgba(30,64,100,0.05)] xl:flex">
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-56 flex-col overflow-hidden border-r border-[#dce7f5] bg-[#ffffff] shadow-[8px_0_24px_rgba(58,108,150,0.05)] xl:flex">
         <SidebarContent pathname={pathname} />
       </aside>
 
@@ -213,7 +213,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="dashboard-content xl:pl-56">
-        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#e2e8f0] bg-white/90 px-4 shadow-[0_2px_12px_rgba(30,64,100,0.045)] backdrop-blur-xl sm:px-6 lg:px-8">
+        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#dce8f3] bg-white/90 px-4 shadow-[0_4px_18px_rgba(58,108,150,0.05)] backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               type="button"
