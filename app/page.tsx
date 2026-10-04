@@ -134,7 +134,7 @@ export default function HomePage() {
                   <div className="absolute inset-x-2 top-[-7px] h-5 rounded-full border border-[#d2e1ec] bg-[#f5faff]" />
                   <div className="absolute left-3 top-[-44px] h-14 w-2.5 -rotate-6 rounded-full bg-[#397ff0] shadow-[0_4px_8px_rgba(47,121,213,0.18)]" />
                   <div className="absolute left-5 top-[-47px] h-8 w-1 -rotate-6 rounded-full bg-[#f59e0b]" />
-                  <div className="absolute left-10 top-[-35px] h-45px w-2.5 rotate-6 rounded-full bg-[#10b981] shadow-[0_4px_8px_rgba(16,185,129,0.15)]" />
+                  <div className="absolute left-10 top-[-35px] h-[45px] w-2.5 rotate-6 rounded-full bg-[#10b981] shadow-[0_4px_8px_rgba(16,185,129,0.15)]" />
                   <div className="absolute left-12 top-[-39px] h-8 w-1 rotate-6 rounded-full bg-[#f59e0b]" />
                   <div className="absolute right-2 top-[-26px] h-12 w-2 -rotate-12 rounded-full bg-[#64748b]" />
                 </div>
