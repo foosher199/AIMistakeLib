@@ -139,12 +139,12 @@ export default function StatsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#172b4d] mb-2">数据统计</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#172b4d] mb-2">数据统计</h1>
           <p className="text-[#64748b]">洞察错题分布，聚焦薄弱环节</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#dce7f5] text-center">
-          <div className="w-16 h-16 bg-[#eff6ff] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-8 shadow-[0_10px_28px_rgba(58,108,150,0.06)] text-center">
+          <div className="w-16 h-16 bg-[#eaf3ff] rounded-full flex items-center justify-center mx-auto mb-4">
             <BarChart3 className="w-8 h-8 text-[#3b82f6]" />
           </div>
           <h2 className="text-xl font-semibold text-[#172b4d] mb-2">暂无数据</h2>
@@ -161,7 +161,7 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
       <div>
         <h1 className="text-3xl font-bold text-[#172b4d] mb-2">数据统计</h1>
         <p className="text-[#64748b]">洞察错题分布，聚焦薄弱环节</p>
@@ -197,13 +197,13 @@ export default function StatsPage() {
           label="总复习次数"
           value={stats.totalReviews}
           icon={BarChart3}
-          colorClass="bg-[#fce7f3] text-[#ec4899]"
+          colorClass="bg-[#f1edff] text-[#7c5ac7]"
         />
       </div>
 
       {/* 学科掌握 + 难度分布 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#dce7f5]">
+        <div className="rounded-[22px] border border-[#dce8f3] bg-white p-5 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
           <div className="flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-[#3b82f6]" />
             <h2 className="text-lg font-semibold text-[#172b4d]">学科掌握情况</h2>
