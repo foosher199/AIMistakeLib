@@ -75,7 +75,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
   ].filter(Boolean).length
 
   return (
-    <div className="space-y-4 border-b border-[#e5eef9] pb-5">
+    <div className="space-y-4 border-b border-[#edf2f7] pb-6">
       {/* 搜索框 */}
       <form onSubmit={handleSearchSubmit} className="flex gap-2">
         <div className="relative flex-1">
@@ -85,7 +85,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             placeholder="搜索题目内容或知识点..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="h-12 rounded-full border-[#dce7f5] pl-11 shadow-none"
+            className="h-12 rounded-full border-[#dce8f3] bg-[#fbfdff] pl-11 shadow-none focus-visible:border-[#8bb8ef] focus-visible:ring-[#dcecff]"
           />
         </div>
         <Button type="submit" variant="jelly" className="h-12 rounded-full px-7">
@@ -101,7 +101,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             <Button
               variant={filters.subject ? 'default' : 'outline'}
               size="sm"
-              className="gap-2 rounded-full px-4"
+              className="gap-2 rounded-full border-[#dce8f3] bg-white px-4 text-[#64748b] hover:border-[#b8d0ea] hover:bg-[#f7fbff] hover:text-[#3577d4]"
             >
               <Filter className="w-4 h-4" />
               学科
@@ -200,7 +200,7 @@ export function QuestionFilters({ filters, onChange }: QuestionFiltersProps) {
             variant="ghost"
             size="sm"
             onClick={handleClearFilters}
-            className="gap-2 text-[#f43f5e] hover:text-[#f43f5e] hover:bg-[#ffe4e6]"
+            className="gap-2 rounded-full text-[#c76a6a] hover:bg-[#fff4f4] hover:text-[#b94e4e]"
           >
             <X className="w-4 h-4" />
             清除筛选 ({activeFiltersCount})
