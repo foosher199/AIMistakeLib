@@ -106,10 +106,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-7">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-3xl font-bold text-[#172b4d] mb-2">个人中心</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#172b4d] mb-2">个人中心</h1>
         <p className="text-[#64748b]">管理您的账户信息和数据</p>
       </div>
 
@@ -127,7 +127,7 @@ export default function ProfilePage() {
       {!isLoading && (
         <>
           {/* 账户信息卡片 */}
-          <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+          <div className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-[#172b4d] mb-1">
@@ -139,7 +139,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center gap-2">
                 {isAnonymous ? (
-                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                  <Badge variant="secondary" className="bg-yellow-100 text-[#92400e]">
                     游客账户
                   </Badge>
                 ) : (
@@ -151,7 +151,7 @@ export default function ProfilePage() {
                   variant="outline"
                   size="sm"
                   onClick={handleSignOut}
-                  className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="gap-2 text-[#dc2626] hover:bg-[#fff1f2] hover:text-[#b91c1c]"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">退出登录</span>
@@ -175,8 +175,8 @@ export default function ProfilePage() {
 
               {/* 邮箱 */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-full bg-[#ecfdf5] flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-[#10b981]" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-[#64748b]">邮箱地址</p>
@@ -195,7 +195,7 @@ export default function ProfilePage() {
 
               {/* 创建时间 */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#eff6ff] rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-[#eff6ff] flex items-center justify-center">
                   <Clock className="w-5 h-5 text-[#3b82f6]" />
                 </div>
                 <div className="flex-1">
@@ -211,8 +211,8 @@ export default function ProfilePage() {
 
             {/* 游客提示 */}
             {isAnonymous && (
-              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl">
-                <p className="text-sm text-yellow-800">
+              <div className="mt-6 p-4 rounded-2xl border border-[#fde68a] bg-[#fffbeb]">
+                <p className="text-sm text-[#92400e]">
                   <strong>提示：</strong>
                   游客账户的数据可能在浏览器清除后丢失。建议绑定邮箱以永久保存您的数据。
                 </p>
@@ -221,12 +221,12 @@ export default function ProfilePage() {
           </div>
 
           {/* 数据统计卡片 */}
-          <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+          <div className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
             <h2 className="text-xl font-semibold text-[#172b4d] mb-6">数据统计</h2>
 
             {/* 总览统计 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="p-4 bg-[#f1f5f9] rounded-2xl">
+              <div className="p-4 rounded-2xl bg-[#eff6ff]">
                 <div className="flex items-center gap-2 mb-2">
                   <BookOpen className="w-4 h-4 text-[#3b82f6]" />
                   <p className="text-sm text-[#3b82f6] font-medium">总题目数</p>
@@ -234,25 +234,25 @@ export default function ProfilePage() {
                 <p className="text-2xl font-bold text-[#1e40af]">{stats.total}</p>
               </div>
 
-              <div className="p-4 bg-green-50 rounded-2xl">
+              <div className="p-4 rounded-2xl bg-[#ecfdf5]">
                 <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <p className="text-sm text-green-600 font-medium">已掌握</p>
+                  <CheckCircle className="w-4 h-4 text-[#10b981]" />
+                  <p className="text-sm text-[#10b981] font-medium">已掌握</p>
                 </div>
-                <p className="text-2xl font-bold text-green-900">{stats.mastered}</p>
+                <p className="text-2xl font-bold text-[#047857]">{stats.mastered}</p>
               </div>
 
-              <div className="p-4 bg-orange-50 rounded-2xl">
+              <div className="p-4 rounded-2xl bg-[#fffbeb]">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-orange-600" />
-                  <p className="text-sm text-orange-600 font-medium">复习中</p>
+                  <TrendingUp className="w-4 h-4 text-[#d97706]" />
+                  <p className="text-sm text-[#d97706] font-medium">复习中</p>
                 </div>
-                <p className="text-2xl font-bold text-orange-900">
+                <p className="text-2xl font-bold text-[#92400e]">
                   {stats.reviewing}
                 </p>
               </div>
 
-              <div className="p-4 bg-[#f8fafc] rounded-2xl">
+              <div className="p-4 rounded-2xl bg-[#f7fafc]">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="w-4 h-4 text-[#64748b]" />
                   <p className="text-sm text-[#64748b] font-medium">未开始</p>
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                     .map(([subject, count]) => (
                       <div
                         key={subject}
-                        className="flex items-center justify-between p-3 bg-[#f8fafc] rounded-2xl"
+                        className="flex items-center justify-between p-3 rounded-2xl bg-[#f7fafc]"
                       >
                         <span className="text-sm text-[#475569]">
                           {subjectNames[subject] || subject}
@@ -291,7 +291,7 @@ export default function ProfilePage() {
 
             {/* 复习统计 */}
             {stats.totalReviews > 0 && (
-              <div className="mt-4 p-4 bg-[#f1f5f9] rounded-2xl">
+              <div className="mt-4 p-4 rounded-2xl bg-[#eff6ff]">
                 <p className="text-sm text-[#2563eb]">
                   累计复习次数：
                   <span className="font-semibold ml-1">{stats.totalReviews}</span> 次
@@ -312,7 +312,7 @@ export default function ProfilePage() {
           </div>
 
           {/* 账户操作卡片 */}
-          <div className="bg-white rounded-2xl border border-[#dce7f5] shadow-[0_8px_24px_rgba(30,64,100,0.07)] p-6">
+          <div className="rounded-[22px] border border-[#dce8f3] bg-white p-6 shadow-[0_10px_28px_rgba(58,108,150,0.06)]">
             <h2 className="text-xl font-semibold text-[#172b4d] mb-4">账户操作</h2>
 
             <div className="space-y-3">
@@ -359,7 +359,7 @@ export default function ProfilePage() {
               {/* 删除账户 */}
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="w-full justify-start gap-2 text-[#dc2626] hover:bg-[#fff1f2] hover:text-[#b91c1c]"
                 disabled
               >
                 <Trash2 className="w-4 h-4" />
